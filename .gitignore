@@ -1,0 +1,9 @@
+# Ignore File Format
+*.sln
+*.uproject
+# Ignore Dirs
+.vs
+Binaries
+Config
+Intermediate
+Saved
