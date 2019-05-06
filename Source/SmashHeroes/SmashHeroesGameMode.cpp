@@ -8,12 +8,12 @@
 ASmashHeroesGameMode::ASmashHeroesGameMode()
 {
 	// use our custom PlayerController class
-	PlayerControllerClass = ASmashHeroesPlayerController::StaticClass();
+	//PlayerControllerClass = ASmashHeroesPlayerController::StaticClass();
 
 	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDownCPP/Blueprints/TopDownCharacter"));
+	/*static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDownCPP/Blueprints/TopDownCharacter"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
+	}*/
 }

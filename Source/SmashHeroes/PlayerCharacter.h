@@ -11,6 +11,19 @@ class SMASHHEROES_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+private:
+	/** Top down camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FollowCamera;
+
+	/** Camera boom positioning the camera above the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
+
+public:
+	/** 基础转向速度 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = PlayerControl)
+	float BaseTurnRate;
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -19,7 +32,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/** Returns TopDownCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetCameraComponent() const { return CameraComponent; }
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
@@ -34,16 +47,19 @@ public:
 	UFUNCTION()
 	void MoveRight(float Value);
 
+	// 处理转向的输入
+	UFUNCTION()
+	void TurnAtRate(float Rate);
+
+	// 按下按键时设置跳跃标记
+	UFUNCTION()
+	void StartJump();
+
+	// 松开按键时清除跳跃标记
+	UFUNCTION()
+	void StopJump();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-private:
-	/** Top down camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* CameraComponent;
-
-	/** Camera boom positioning the camera above the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
 };
