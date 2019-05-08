@@ -49,7 +49,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	UE_LOG(LogTemp, Log, TEXT("Speed: %f"), GetCharacterMovement()->Velocity.Size());
 }
 
 // Called to bind functionality to input
