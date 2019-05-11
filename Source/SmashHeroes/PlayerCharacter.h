@@ -24,6 +24,20 @@ public:
 	/** 基础转向速度 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = PlayerControl)
 	float BaseTurnRate;
+
+	/** 攻击相关属性 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	bool IsAttacking;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	int ComboIndex;		// 当前连击动画索引
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	bool CanCombo;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	bool ComboSwitch;
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -58,6 +72,10 @@ public:
 	// 松开按键时清除跳跃标记
 	UFUNCTION()
 	void StopJump();
+
+	// 按下按键时进行攻击
+	UFUNCTION()
+	void Attack();
 
 protected:
 	// Called when the game starts or when spawned

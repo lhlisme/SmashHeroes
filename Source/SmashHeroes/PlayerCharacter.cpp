@@ -64,6 +64,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// ÉèÖÃ¡°ÌøÔ¾¡±°ó¶¨
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::StartJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::StopJump);
+	// ÉèÖÃ¡°¹¥»÷¡±°ó¶¨
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::Attack);
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -108,4 +110,9 @@ void APlayerCharacter::StartJump()
 void APlayerCharacter::StopJump()
 {
 	bPressedJump = false;
+}
+
+void APlayerCharacter::Attack()
+{
+
 }
