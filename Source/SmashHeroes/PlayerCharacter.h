@@ -6,6 +6,15 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EComboStatus : uint8
+{
+	CS_NoCombo				UMETA(DisplayName = "NoCombo"),
+	CS_NormalCombo			UMETA(DisplayName = "NormalCombo"),
+	CS_ComboSwitched		UMETA(DisplayName = "ComboSwitched")
+};
+
 UCLASS(Blueprintable)
 class SMASHHEROES_API APlayerCharacter : public ACharacter
 {
@@ -21,22 +30,37 @@ private:
 	class USpringArmComponent* CameraBoom;
 
 public:
-	/** 基础转向速度 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = PlayerControl)
-	float BaseTurnRate;
+	/** 移动相关属性 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	bool IsRunning = false;
 
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	float Speed = 0.f;
+	
+private:
+	float ForwardInput = 0.f;
+
+	float RightInput = 0.f;
+
+public:
 	/** 攻击相关属性 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	bool IsAttacking;
+	int ComboIndex = 0;		// 当前连击动画索引
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	int ComboIndex;		// 当前连击动画索引
+	EComboStatus ComboStatus = EComboStatus::CS_NoCombo;		// 当前连击状态
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	bool CanCombo;
+	bool CanCombo = false;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	bool ComboSwitch;
+	bool CanSwitchCombo = false;	// 是否可切换至下一套连击动作
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	bool ComboSwitched = false;		// 连击动作已切换
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	bool IsLastCombo = false;	// 是否为连击的最后一个动作
 
 public:
 	// Sets default values for this character's properties
@@ -60,10 +84,6 @@ public:
 	// 处理左右移动的输入
 	UFUNCTION()
 	void MoveRight(float Value);
-
-	// 处理转向的输入
-	UFUNCTION()
-	void TurnAtRate(float Rate);
 
 	// 按下按键时设置跳跃标记
 	UFUNCTION()

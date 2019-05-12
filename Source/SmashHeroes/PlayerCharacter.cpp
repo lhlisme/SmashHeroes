@@ -20,7 +20,6 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 640.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
-	BaseTurnRate = 45.0f;
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -49,8 +48,13 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp, Log, TEXT("Speed: %f"), GetCharacterMovement()->Velocity.Size());
-}
+	Speed = FMath::Sqrt(FMath::Square(ForwardInput) + FMath::Square(RightInput));
+	if (Speed > 0.0f) {
+		IsRunning = true;
+	}
+	else {
+		IsRunning = false;
+	}}
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -60,7 +64,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// 设置“移动”绑定
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	// 设置“跳跃”绑定
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::StartJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::StopJump);
@@ -70,6 +73,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::MoveForward(float Value)
 {
+	ForwardInput = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -84,6 +88,7 @@ void APlayerCharacter::MoveForward(float Value)
 
 void APlayerCharacter::MoveRight(float Value)
 {
+	RightInput = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is right
@@ -95,11 +100,6 @@ void APlayerCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
-}
-
-void APlayerCharacter::TurnAtRate(float Rate)
-{
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerCharacter::StartJump()
@@ -114,5 +114,22 @@ void APlayerCharacter::StopJump()
 
 void APlayerCharacter::Attack()
 {
-
+	if (ComboIndex == 0) {
+		++ComboIndex;
+		CanCombo = false;
+		CanSwitchCombo = false;
+	}
+	else {
+		if (CanCombo) {
+			if (CanSwitchCombo) {
+				ComboStatus = EComboStatus::CS_ComboSwitched;
+			}
+			else {
+				ComboStatus = EComboStatus::CS_NormalCombo;
+			}
+			++ComboIndex;
+			CanCombo = false;
+			CanSwitchCombo = false;
+		}
+	}
 }
