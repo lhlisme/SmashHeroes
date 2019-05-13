@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter.h"
+#include "AbilitySystemComponent.h"
 #include "Engine.h"
 
 // Sets default values
@@ -35,6 +36,8 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	// Create ability system component
+	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
 }
 
 // Called when the game starts or when spawned
@@ -54,7 +57,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 	else {
 		IsRunning = false;
-	}}
+	}
+}
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
