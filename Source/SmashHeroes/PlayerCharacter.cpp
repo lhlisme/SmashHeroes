@@ -45,6 +45,21 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (AbilitySystem) 
+	{
+		if (HasAuthority() && CharacterAbilities.Num())
+		{
+			for (int32 i = 0; i < CharacterAbilities.Num(); ++i) 
+			{
+				if (!CharacterAbilities[i]) 
+				{
+					continue;
+				}
+				AbilitySystem->GiveAbility(FGameplayAbilitySpec(CharacterAbilities[i].GetDefaultObject(), 1, 0));
+			}
+		}
+		AbilitySystem->InitAbilityActorInfo(this, this);
+	}
 }
 
 // Called every frame
@@ -58,6 +73,15 @@ void APlayerCharacter::Tick(float DeltaTime)
 	else {
 		IsRunning = false;
 	}
+}
+
+// Make sure that the AbilitySystemComponent's ActorInfo struct is being updated each time the controller changes.
+// As pawns may be spawned before the client controller possesses them especially in a multiplayer enviroment.
+void APlayerCharacter::PossessedBy(AController * NewController)
+{
+	Super::PossessedBy(NewController);
+
+	AbilitySystem->RefreshAbilityActorInfo();
 }
 
 // Called to bind functionality to input

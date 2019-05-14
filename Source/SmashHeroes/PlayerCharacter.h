@@ -32,6 +32,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GameplayAbilities, meta = (AllowPrivateAccess = "true"))
 	class UAbilitySystemComponent* AbilitySystem;
+	
+	float ForwardInput = 0.f;
+
+	float RightInput = 0.f;
 
 public:
 	/** 移动相关属性 */
@@ -40,13 +44,7 @@ public:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
 	float Speed = 0.f;
-	
-private:
-	float ForwardInput = 0.f;
 
-	float RightInput = 0.f;
-
-public:
 	/** 攻击相关属性 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
 	int ComboIndex = 0;		// 当前连击动画索引
@@ -66,6 +64,10 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
 	bool IsLastCombo = false;	// 是否为连击的最后一个动作
 
+	/** 技能相关属性 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abilities)
+	TArray<TSubclassOf<class UGameplayAbility>> CharacterAbilities;
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -79,6 +81,9 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns AbilitySystem subobject **/
 	UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystem; }
+
+	// Make sure that the AbilitySystemComponent's ActorInfo struct is being updated each time the controller changes
+	virtual void PossessedBy(class AController* NewController) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
