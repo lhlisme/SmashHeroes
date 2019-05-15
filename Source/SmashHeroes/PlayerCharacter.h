@@ -64,9 +64,17 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
 	bool IsLastCombo = false;	// 是否为连击的最后一个动作
 
+	/** 防御相关属性 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	bool IsGuarding = false;
+
 	/** 技能相关属性 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abilities)
 	TArray<TSubclassOf<class UGameplayAbility>> CharacterAbilities;
+
+	// 角色属性集
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AttributeSets")
+	TArray<TSubclassOf<class UAttributeSet>>	CharacterAttributeSets;
 
 public:
 	// Sets default values for this character's properties

@@ -47,7 +47,7 @@ void APlayerCharacter::BeginPlay()
 	
 	if (AbilitySystem) 
 	{
-		if (HasAuthority() && CharacterAbilities.Num())
+		if (HasAuthority())
 		{
 			for (int32 i = 0; i < CharacterAbilities.Num(); ++i) 
 			{
@@ -56,6 +56,11 @@ void APlayerCharacter::BeginPlay()
 					continue;
 				}
 				AbilitySystem->GiveAbility(FGameplayAbilitySpec(CharacterAbilities[i].GetDefaultObject(), 1, 0));
+			}
+
+			for (int32 i = 0; i < CharacterAttributeSets.Num(); ++i)
+			{
+				AbilitySystem->InitStats(CharacterAttributeSets[i], nullptr);
 			}
 		}
 		AbilitySystem->InitAbilityActorInfo(this, this);
