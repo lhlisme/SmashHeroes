@@ -64,6 +64,10 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
 	bool IsLastCombo = false;	// 是否为连击的最后一个动作
 
+	/** 闪避相关属性 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	bool IsEvading = false;
+
 	/** 防御相关属性 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
 	bool IsGuarding = false;
