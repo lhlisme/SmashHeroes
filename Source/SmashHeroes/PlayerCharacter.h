@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "AbilitySystemInterface.h"
+#include "BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
 
@@ -17,7 +17,7 @@ enum class EComboStatus : uint8
 };
 
 UCLASS(Blueprintable)
-class SMASHHEROES_API APlayerCharacter : public ACharacter, public IAbilitySystemInterface
+class SMASHHEROES_API APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -29,9 +29,6 @@ private:
 	/** Camera boom positioning the camera above the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GameplayAbilities, meta = (AllowPrivateAccess = "true"))
-	class UAbilitySystemComponent* AbilitySystem;
 	
 	float ForwardInput = 0.f;
 
@@ -72,14 +69,6 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
 	bool IsGuarding = false;
 
-	/** 技能相关属性 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abilities)
-	TArray<TSubclassOf<class UGameplayAbility>> CharacterAbilities;
-
-	// 角色属性集
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AttributeSets")
-	TArray<TSubclassOf<class UAttributeSet>>	CharacterAttributeSets;
-
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -91,11 +80,6 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns AbilitySystem subobject **/
-	UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystem; }
-
-	// Make sure that the AbilitySystemComponent's ActorInfo struct is being updated each time the controller changes
-	virtual void PossessedBy(class AController* NewController) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
