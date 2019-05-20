@@ -123,10 +123,10 @@ void APlayerCharacter::Attack()
 	else {
 		if (CanCombo) {
 			if (CanSwitchCombo) {
-				ComboStatus = EComboStatus::CS_ComboSwitched;
+				ComboStatus = EComboStatus::ComboSwitched;
 			}
 			else {
-				ComboStatus = EComboStatus::CS_NormalCombo;
+				ComboStatus = EComboStatus::NormalCombo;
 			}
 			++ComboIndex;
 			CanCombo = false;

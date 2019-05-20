@@ -2,6 +2,7 @@
 
 
 #include "BaseCharacter.h"
+#include "Components/StaticMeshComponent.h"
 #include "AbilitySystemComponent.h"
 
 // Sets default values
@@ -12,6 +13,7 @@ ABaseCharacter::ABaseCharacter()
 
 	// Create ability system component
 	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
+
 }
 
 // Called when the game starts or when spawned
@@ -39,6 +41,9 @@ void ABaseCharacter::BeginPlay()
 		}
 		AbilitySystem->InitAbilityActorInfo(this, this);
 	}
+
+	// Éú³ÉÎäÆ÷
+	GenerateWeapon();
 }
 
 // Called every frame
@@ -62,5 +67,37 @@ void ABaseCharacter::PossessedBy(AController * NewController)
 	Super::PossessedBy(NewController);
 
 	AbilitySystem->RefreshAbilityActorInfo();
+}
+
+void ABaseCharacter::GenerateWeapon()
+{
+	switch (ArmedState)
+	{
+	case EArmedState::DualWield: {
+		LeftWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
+		RightWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
+		if (LeftWeapon && RightWeapon) {
+			LeftWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, LeftWeaponSocket);
+			RightWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, RightWeaponSocket);
+		}
+		break;
+	}
+	case EArmedState::LeftHold: {
+		LeftWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
+		if (LeftWeapon) {
+			LeftWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, LeftWeaponSocket);
+		}
+		break;
+	}
+	case EArmedState::RightHold: {
+		RightWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
+		if (RightWeapon) {
+			RightWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, RightWeaponSocket);
+		}
+		break;
+	}
+	default:
+		break;
+	}
 }
 

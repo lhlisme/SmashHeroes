@@ -11,9 +11,9 @@
 UENUM(BlueprintType)
 enum class EComboStatus : uint8
 {
-	CS_NoCombo				UMETA(DisplayName = "NoCombo"),
-	CS_NormalCombo			UMETA(DisplayName = "NormalCombo"),
-	CS_ComboSwitched		UMETA(DisplayName = "ComboSwitched")
+	NoCombo				UMETA(DisplayName = "NoCombo"),
+	NormalCombo			UMETA(DisplayName = "NormalCombo"),
+	ComboSwitched		UMETA(DisplayName = "ComboSwitched")
 };
 
 UCLASS(Blueprintable)
@@ -47,7 +47,7 @@ public:
 	int ComboIndex = 0;		// 当前连击动画索引
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	EComboStatus ComboStatus = EComboStatus::CS_NoCombo;		// 当前连击状态
+	EComboStatus ComboStatus = EComboStatus::NoCombo;		// 当前连击状态
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
 	bool CanCombo = false;
