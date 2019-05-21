@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Weapon.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -15,6 +17,13 @@ enum class EArmedState : uint8
 	LeftHold			UMETA(DisplayName = "LeftHold"),
 	RightHold			UMETA(DisplayName = "RightHold"),
 	Unarmed				UMETA(DisplayName = "Unarmed")
+};
+
+UENUM(BlueprintType)
+enum class EAttackType : uint8
+{
+	MeleeAttack			UMETA(DisplayName = "MeleeAttack"),
+	RemoteAttack		UMETA(DisplayName = "RemoteAttack")
 };
 
 UCLASS()
@@ -29,16 +38,16 @@ protected:
 public:
 	/** 角色武器 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	TSubclassOf<AActor>	WeaponClass;
+	TSubclassOf<AWeapon> WeaponClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	AActor* LeftWeapon;		// 左手武器
+	AWeapon* LeftWeapon;		// 左手武器网格
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FName LeftWeaponSocket;	// 左手武器插槽
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	AActor* RightWeapon;	// 右手武器
+	AWeapon* RightWeapon;	// 右手武器网格
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FName RightWeaponSocket;	// 右手武器插槽
@@ -47,11 +56,14 @@ public:
 	EArmedState ArmedState = EArmedState::Unarmed;
 
 	/** 技能相关属性 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abilities)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
+	EAttackType AttackType = EAttackType::MeleeAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	TArray<TSubclassOf<class UGameplayAbility>> CharacterAbilities;
 
 	// 角色属性集
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AttributeSets")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	TArray<TSubclassOf<class UAttributeSet>>	CharacterAttributeSets;
 
 protected:
@@ -77,4 +89,7 @@ public:
 	// 生成武器
 	void GenerateWeapon();
 
+	// 攻击检测
+	UFUNCTION(BlueprintCallable)
+	bool AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, TArray<FHitResult>& OutHits, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime);
 };

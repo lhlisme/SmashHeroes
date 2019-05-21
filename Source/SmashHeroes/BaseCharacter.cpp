@@ -74,8 +74,8 @@ void ABaseCharacter::GenerateWeapon()
 	switch (ArmedState)
 	{
 	case EArmedState::DualWield: {
-		LeftWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
-		RightWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
+		LeftWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
+		RightWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
 		if (LeftWeapon && RightWeapon) {
 			LeftWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, LeftWeaponSocket);
 			RightWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, RightWeaponSocket);
@@ -83,14 +83,14 @@ void ABaseCharacter::GenerateWeapon()
 		break;
 	}
 	case EArmedState::LeftHold: {
-		LeftWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
+		LeftWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
 		if (LeftWeapon) {
 			LeftWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, LeftWeaponSocket);
 		}
 		break;
 	}
 	case EArmedState::RightHold: {
-		RightWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
+		RightWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
 		if (RightWeapon) {
 			RightWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, RightWeaponSocket);
 		}
@@ -99,5 +99,23 @@ void ABaseCharacter::GenerateWeapon()
 	default:
 		break;
 	}
+}
+
+bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, TArray<FHitResult>& OutHits, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime)
+{
+	// ½üÕ½¹¥»÷¼ì²â
+	if (AttackType == EAttackType::MeleeAttack) {
+		if (LeftWeapon) {
+			FVector StartPoint = LeftWeapon->GetWeaponMesh()->GetSocketLocation(LeftWeapon->StartPointName);
+			FVector EndPoint = LeftWeapon->GetWeaponMesh()->GetSocketLocation(LeftWeapon->EndPointName);
+			UKismetSystemLibrary::BoxTraceMultiForObjects(GetWorld(), StartPoint, EndPoint, LeftWeapon->WeaponHalfSize, FRotator(0.f, 0.f, 0.f), ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
+		}
+		if (RightWeapon) {
+			FVector StartPoint = RightWeapon->GetWeaponMesh()->GetSocketLocation(RightWeapon->StartPointName);
+			FVector EndPoint = RightWeapon->GetWeaponMesh()->GetSocketLocation(RightWeapon->EndPointName);
+			UKismetSystemLibrary::BoxTraceMultiForObjects(GetWorld(), StartPoint, EndPoint, RightWeapon->WeaponHalfSize, FRotator(0.f, 0.f, 0.f), ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
+		}
+	}
+	return true;
 }
 
