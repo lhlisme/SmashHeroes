@@ -101,11 +101,27 @@ void ABaseCharacter::GenerateWeapon()
 	}
 }
 
+bool ABaseCharacter::AddDamagedActor(AActor* CurDamagedActor)
+{
+	if (DamagedActors.Contains(CurDamagedActor)) {
+		int32* CurValue = DamagedActors.Find(CurDamagedActor);
+		++(*CurValue);	// 出现次数增加
+		return false;
+	}
+	DamagedActors.Add(CurDamagedActor, 0);
+	return true;
+}
+
+void ABaseCharacter::ClearDamagedActors()
+{
+	DamagedActors.Empty();
+}
+
 bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, TArray<FHitResult>& OutHits, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime)
 {
 	// 近战攻击检测
 	if (AttackType == EAttackType::MeleeAttack) {
-		if (LeftWeapon) {
+		/*if (LeftWeapon) {
 			FVector StartPoint = LeftWeapon->GetWeaponMesh()->GetSocketLocation(LeftWeapon->StartPointName);
 			FVector EndPoint = LeftWeapon->GetWeaponMesh()->GetSocketLocation(LeftWeapon->EndPointName);
 			UKismetSystemLibrary::BoxTraceMultiForObjects(GetWorld(), StartPoint, EndPoint, LeftWeapon->WeaponHalfSize, FRotator(0.f, 0.f, 0.f), ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
@@ -114,7 +130,7 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 			FVector StartPoint = RightWeapon->GetWeaponMesh()->GetSocketLocation(RightWeapon->StartPointName);
 			FVector EndPoint = RightWeapon->GetWeaponMesh()->GetSocketLocation(RightWeapon->EndPointName);
 			UKismetSystemLibrary::BoxTraceMultiForObjects(GetWorld(), StartPoint, EndPoint, RightWeapon->WeaponHalfSize, FRotator(0.f, 0.f, 0.f), ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
-		}
+		}*/
 	}
 	return true;
 }

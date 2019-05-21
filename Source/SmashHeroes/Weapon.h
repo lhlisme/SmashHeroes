@@ -32,11 +32,13 @@ protected:
 
 public:
 	// 武器碰撞检测属性
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
-	FName StartPointName;		// 武器碰撞检测起始点插槽名称
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
+	//FName StartPointName;		// 武器碰撞检测起始点插槽名称
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
+	//FName EndPointName;			// 武器碰撞检测结束点插槽名称
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
-	FName EndPointName;			// 武器碰撞检测结束点插槽名称
+	TArray<FName> CheckPointName;		// 武器碰撞检测起始点插槽名称
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
 	FVector WeaponHalfSize;		// 武器碰撞体积HalfSize
