@@ -115,20 +115,33 @@ void ABaseCharacter::GenerateWeapon()
 }
 
 // 已存在返回false, 否则返回true
-bool ABaseCharacter::AddDamagedActor(AActor* CurDamagedActor)
+bool ABaseCharacter::AddLeftDamagedActor(AActor* CurDamagedActor)
 {
-	if (DamagedActors.Contains(CurDamagedActor)) {
-		int32* CurValue = DamagedActors.Find(CurDamagedActor);
+	if (LeftDamagedActors.Contains(CurDamagedActor)) {
+		int32* CurValue = LeftDamagedActors.Find(CurDamagedActor);
 		++(*CurValue);	// 出现次数增加
 		return false;
 	}
-	DamagedActors.Add(CurDamagedActor, 1);
+	LeftDamagedActors.Add(CurDamagedActor, 1);
+	return true;
+}
+
+// 已存在返回false, 否则返回true
+bool ABaseCharacter::AddRightDamagedActor(AActor* CurDamagedActor)
+{
+	if (RightDamagedActors.Contains(CurDamagedActor)) {
+		int32* CurValue = RightDamagedActors.Find(CurDamagedActor);
+		++(*CurValue);	// 出现次数增加
+		return false;
+	}
+	RightDamagedActors.Add(CurDamagedActor, 1);
 	return true;
 }
 
 void ABaseCharacter::ClearDamagedActors()
 {
-	DamagedActors.Empty();
+	LeftDamagedActors.Empty();
+	RightDamagedActors.Empty();
 }
 
 void ABaseCharacter::Attack()
@@ -189,7 +202,7 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
 				
 				for (int32 j = 0; j < OutHits.Num(); ++j) {
-					if (AddDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
+					if (AddLeftDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
 					}
 				}
@@ -208,7 +221,7 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
 
 				for (int32 j = 0; j < OutHits.Num(); ++j) {
-					if (AddDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
+					if (AddRightDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
 					}
 				}

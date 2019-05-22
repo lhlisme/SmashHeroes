@@ -35,9 +35,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GameplayAbilities, meta = (AllowPrivateAccess = "true"))
 	class UAbilitySystemComponent* AbilitySystem;
 
-	// 当前攻击所命中的对象
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
-	TMap<AActor*, int32> DamagedActors;	// Key: 被击中的对象; Value; 对象被击中的次数
+	TMap<AActor*, int32> LeftDamagedActors;	// 当前攻击左手武器所命中的对象。Key: 被击中的对象; Value; 对象被击中的次数
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
+	TMap<AActor*, int32> RightDamagedActors; // 当前攻击右手武器所命中的对象。Key: 被击中的对象; Value: 对象被击中的次数
 
 public:
 	/** 移动相关属性 */
@@ -112,7 +114,9 @@ public:
 	// 生成武器
 	void GenerateWeapon();
 
-	bool AddDamagedActor(AActor* CurDamagedActor);
+	bool AddLeftDamagedActor(AActor* CurDamagedActor);
+
+	bool AddRightDamagedActor(AActor* CurDamagedActor);
 
 	UFUNCTION(BlueprintCallable)
 	void ClearDamagedActors();
