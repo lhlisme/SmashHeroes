@@ -35,39 +35,24 @@ private:
 	float RightInput = 0.f;
 
 public:
-	/** 移动相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	bool IsRunning = false;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	float Speed = 0.f;
-
 	/** 攻击相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
 	int ComboIndex = 0;		// 当前连击动画索引
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
 	EComboStatus ComboStatus = EComboStatus::NoCombo;		// 当前连击状态
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
 	bool CanCombo = false;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
 	bool CanSwitchCombo = false;	// 是否可切换至下一套连击动作
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
 	bool ComboSwitched = false;		// 连击动作已切换
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
 	bool IsLastCombo = false;	// 是否为连击的最后一个动作
-
-	/** 闪避相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	bool IsEvading = false;
-
-	/** 防御相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = PlayerControl)
-	bool IsGuarding = false;
 
 public:
 	// Sets default values for this character's properties
@@ -101,8 +86,19 @@ public:
 	void StopJump();
 
 	// 按下按键时进行攻击
-	UFUNCTION()
-	void Attack();
+	virtual void Attack() override;
+
+	virtual void BeginAttack() override;
+	
+	virtual void EndAttack() override;
+
+	virtual void BeginEvade() override;
+
+	virtual void EndEvade() override;
+
+	virtual void BeginGuard() override;
+
+	virtual void EndGuard() override;
 
 protected:
 	// Called when the game starts or when spawned

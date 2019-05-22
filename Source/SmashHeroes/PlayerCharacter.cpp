@@ -134,3 +134,37 @@ void APlayerCharacter::Attack()
 		}
 	}
 }
+
+void APlayerCharacter::BeginAttack()
+{
+	Super::BeginAttack();
+}
+
+void APlayerCharacter::EndAttack()
+{
+	Super::EndAttack();
+	ComboIndex = 0;		// 攻击结束后重置ComboIndex
+}
+
+void APlayerCharacter::BeginEvade()
+{
+	Super::BeginEvade();
+}
+
+void APlayerCharacter::EndEvade()
+{
+	Super::EndEvade();
+	ComboIndex = 0;		// 清空闪避动作时缓存的无效输入
+}
+
+void APlayerCharacter::BeginGuard()
+{
+	Super::BeginGuard();
+}
+
+void APlayerCharacter::EndGuard()
+{
+	Super::EndGuard();
+	ComboIndex = 0;		// 清空闪避动作时缓存的无效输入
+}
+

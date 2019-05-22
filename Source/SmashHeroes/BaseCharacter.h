@@ -37,9 +37,28 @@ protected:
 
 	// 当前攻击所命中的对象
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
-	TMap<AActor*, int32> DamagedActors;	// Key: 被击中的对象；Value; 对象被击中的次数
+	TMap<AActor*, int32> DamagedActors;	// Key: 被击中的对象; Value; 对象被击中的次数
 
 public:
+	/** 移动相关属性 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	bool IsRunning = false;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	float Speed = 0.f;
+
+	/** 攻击相关属性 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	bool IsAttacking = false;	// TODO 动作被打断时要重置为false
+
+	/** 闪避相关属性 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	bool IsEvading = false;		// TODO 动作被打断时要重置为false
+
+	/** 防御相关属性 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	bool IsGuarding = false;	// TODO 动作被打断时要重置为false
+
 	/** 角色武器 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TSubclassOf<AWeapon> WeaponClass;
@@ -95,9 +114,39 @@ public:
 
 	bool AddDamagedActor(AActor* CurDamagedActor);
 
+	UFUNCTION(BlueprintCallable)
 	void ClearDamagedActors();
+
+	// 基本控制
+	UFUNCTION(BlueprintCallable)
+	virtual void Attack();
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void Evade();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginEvade();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndEvade();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void Guard();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginGuard();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndGuard();
 
 	// 攻击检测
 	UFUNCTION(BlueprintCallable)
-	bool AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, TArray<FHitResult>& OutHits, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime);
+	bool AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits);
 };
+

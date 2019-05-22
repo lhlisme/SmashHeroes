@@ -28,22 +28,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UMeshComponent* Mesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	EWeaponMeshType WeaponMeshType = EWeaponMeshType::StaticMeshWeapon;
 
 public:
 	// 武器碰撞检测属性
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
-	//FName StartPointName;		// 武器碰撞检测起始点插槽名称
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
-	//FName EndPointName;			// 武器碰撞检测结束点插槽名称
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
-	TArray<FName> CheckPointName;		// 武器碰撞检测起始点插槽名称
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
 	FVector WeaponHalfSize;		// 武器碰撞体积HalfSize
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "HitCheck")
+	TArray<FName> SocketNames;		// 武器网格所有Socket的名称
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck")
+	TArray<FVector> SocketLocations;	// 武器上所有Socket的位置(在每帧结束时更新)
+
 public:
+	virtual void InitialWeapon();
+
 	virtual void ActivateWeapon();
 
 	virtual void DeactivateWeapon();
@@ -54,6 +55,11 @@ public:
 
 	EWeaponMeshType GetWeaponMeshType() { return WeaponMeshType; }
 
+	void UpdateSocketLocations();
+
+	void UpdateSocketLocation(int32 SocketIndex, FVector CurLocation);
+
+	FVector GetCurrentSocketLocation(int32 SocketIndex);	// 获取骨骼的当前位置信息
 };
 
 UCLASS()

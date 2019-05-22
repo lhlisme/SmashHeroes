@@ -19,6 +19,40 @@ void AWeapon::DeactivateWeapon()
 	bIsActivated = false;
 }
 
+void AWeapon::InitialWeapon()
+{
+	SocketNames = Mesh->GetAllSocketNames();
+}
+
+void AWeapon::UpdateSocketLocations()
+{
+	for (int32 i = 0; i < SocketNames.Num(); ++i) {
+		if (SocketLocations.Num() > i) {
+			SocketLocations[i] = Mesh->GetSocketLocation(SocketNames[i]);
+		}
+		else {
+			SocketLocations.Add(Mesh->GetSocketLocation(SocketNames[i]));
+		}
+	}
+}
+
+void AWeapon::UpdateSocketLocation(int32 SocketIndex, FVector CurLocation)
+{
+	if (SocketIndex < SocketLocations.Num()) {
+		SocketLocations[SocketIndex] = CurLocation;
+	}
+}
+
+FVector AWeapon::GetCurrentSocketLocation(int32 SocketIndex)
+{
+	FVector CurrentLocation = FVector(0.f, 0.f, 0.f);
+	if (SocketIndex < SocketNames.Num()) {
+		CurrentLocation = Mesh->GetSocketLocation(SocketNames[SocketIndex]);
+	}
+
+	return CurrentLocation;
+}
+
 AStaticWeapon::AStaticWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
