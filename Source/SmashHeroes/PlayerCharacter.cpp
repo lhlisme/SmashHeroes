@@ -69,7 +69,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::StartJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::StopJump);
 	// 设置“攻击”绑定
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::Attack);
+	//PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::Attack);
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -113,17 +113,19 @@ void APlayerCharacter::StopJump()
 	bPressedJump = false;
 }
 
-void APlayerCharacter::Attack()
+bool APlayerCharacter::Attack()
 {
 	if (ComboIndex == 0) {
 		++ComboIndex;
 		CanCombo = false;
 		CanSwitchCombo = false;
+		return true;
 	}
 	else {
 		if (CanCombo) {
 			if (CanSwitchCombo) {
 				ComboStatus = EComboStatus::ComboSwitched;
+				++ComboSetIndex;
 			}
 			else {
 				ComboStatus = EComboStatus::NormalCombo;
@@ -131,8 +133,11 @@ void APlayerCharacter::Attack()
 			++ComboIndex;
 			CanCombo = false;
 			CanSwitchCombo = false;
+			return true;
 		}
 	}
+
+	return false;
 }
 
 void APlayerCharacter::BeginAttack()
@@ -143,7 +148,17 @@ void APlayerCharacter::BeginAttack()
 void APlayerCharacter::EndAttack()
 {
 	Super::EndAttack();
-	ComboIndex = 0;		// 攻击结束后重置ComboIndex
+	ComboIndex = 0;		// 攻击结束后重置ComboIndex和ComboSetIndex
+	ComboSetIndex = 0;
+}
+
+UAnimMontage* APlayerCharacter::GetAttackMontageByIndex()
+{
+	int Index = ComboIndex + ComboSetIndex * 10;
+
+	UAnimMontage** CurAttackMontage = AttackMontageMap.Find(Index);
+
+	return *CurAttackMontage;
 }
 
 void APlayerCharacter::BeginEvade()
@@ -155,6 +170,7 @@ void APlayerCharacter::EndEvade()
 {
 	Super::EndEvade();
 	ComboIndex = 0;		// 清空闪避动作时缓存的无效输入
+	ComboSetIndex = 0;
 }
 
 void APlayerCharacter::BeginGuard()
@@ -166,5 +182,6 @@ void APlayerCharacter::EndGuard()
 {
 	Super::EndGuard();
 	ComboIndex = 0;		// 清空闪避动作时缓存的无效输入
+	ComboSetIndex = 0;
 }
 

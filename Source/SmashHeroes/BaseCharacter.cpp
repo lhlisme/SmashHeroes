@@ -144,9 +144,10 @@ void ABaseCharacter::ClearDamagedActors()
 	RightDamagedActors.Empty();
 }
 
-void ABaseCharacter::Attack()
+bool ABaseCharacter::Attack()
 {
-
+	// 返回值表示是否有效执行
+	return false;
 }
 
 void ABaseCharacter::BeginAttack()
@@ -159,9 +160,17 @@ void ABaseCharacter::EndAttack()
 	IsAttacking = false;
 }
 
-void ABaseCharacter::Evade()
+UAnimMontage* ABaseCharacter::GetAttackMontageByIndex()
 {
+	UAnimMontage** CurAttackMontage = AttackMontageMap.Find(ComboIndex);
 
+	return *CurAttackMontage;
+}
+
+bool ABaseCharacter::Evade()
+{
+	// 返回值表示是否有效执行
+	return false;
 }
 
 void ABaseCharacter::BeginEvade()
@@ -174,9 +183,10 @@ void ABaseCharacter::EndEvade()
 	IsEvading = false;
 }
 
-void ABaseCharacter::Guard()
+bool ABaseCharacter::Guard()
 {
-
+	// 返回值表示是否有效执行
+	return false;
 }
 
 void ABaseCharacter::BeginGuard()

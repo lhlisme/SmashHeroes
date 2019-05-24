@@ -50,15 +50,21 @@ public:
 	float Speed = 0.f;
 
 	/** 攻击相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	bool IsAttacking = false;	// TODO 动作被打断时要重置为false
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	TMap<int32, UAnimMontage*> AttackMontageMap;		// 记录攻击动画索引和Montage的对应关系 
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
+	int32 ComboIndex = 0;		// 当前攻击动画索引		// TODO 改名AttackIndex
+
 	/** 闪避相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Evade")
 	bool IsEvading = false;		// TODO 动作被打断时要重置为false
 
 	/** 防御相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard")
 	bool IsGuarding = false;	// TODO 动作被打断时要重置为false
 
 	/** 角色武器 */
@@ -121,9 +127,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ClearDamagedActors();
 
-	// 基本控制
+	// 攻击相关
 	UFUNCTION(BlueprintCallable)
-	virtual void Attack();
+	virtual bool Attack();
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void BeginAttack();
@@ -131,8 +137,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void EndAttack();
 
+	UFUNCTION(BlueprintCallable)	
+	virtual UAnimMontage* GetAttackMontageByIndex();		// 根据AttackIndex获取当前的连击动画
+
+	// 闪避相关
 	UFUNCTION(BlueprintCallable)
-	virtual void Evade();
+	virtual bool Evade();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void BeginEvade();
@@ -140,8 +150,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void EndEvade();
 
+	// 防御相关
 	UFUNCTION(BlueprintCallable)
-	virtual void Guard();
+	virtual bool Guard();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void BeginGuard();

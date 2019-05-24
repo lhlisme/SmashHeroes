@@ -36,22 +36,22 @@ private:
 
 public:
 	/** 攻击相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
-	int ComboIndex = 0;		// 当前连击动画索引
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
+	int32 ComboSetIndex = 0;	// 当前连击动画所属集合索引
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	EComboStatus ComboStatus = EComboStatus::NoCombo;		// 当前连击状态
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	bool CanCombo = false;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	bool CanSwitchCombo = false;	// 是否可切换至下一套连击动作
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	bool ComboSwitched = false;		// 连击动作已切换
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Combo)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	bool IsLastCombo = false;	// 是否为连击的最后一个动作
 
 public:
@@ -85,17 +85,21 @@ public:
 	UFUNCTION()
 	void StopJump();
 
-	// 按下按键时进行攻击
-	virtual void Attack() override;
+	// 攻击相关
+	virtual bool Attack() override;
 
 	virtual void BeginAttack() override;
 	
 	virtual void EndAttack() override;
 
+	virtual UAnimMontage* GetAttackMontageByIndex() override;
+
+	// 闪避相关
 	virtual void BeginEvade() override;
 
 	virtual void EndEvade() override;
 
+	// 防御相关
 	virtual void BeginGuard() override;
 
 	virtual void EndGuard() override;
