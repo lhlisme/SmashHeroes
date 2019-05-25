@@ -2,26 +2,27 @@
 
 
 #include "AbilityTask_PlayMontageWaitEvent.h"
+#include "SHAbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Animation/AnimInstance.h"
 
-UAbilityTask_PlayMontageWaitEvent::UAbilityTask_PlayMontageWaitEvent()
+UAbilityTask_PlayMontageWaitEvent::UAbilityTask_PlayMontageWaitEvent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	Rate = 1.0f;
+	Rate = 1.f;
 	bStopWhenAbilityEnds = true;
 }
 
-UAbilitySystemComponent* UAbilityTask_PlayMontageWaitEvent::GetTargetASC()
+USHAbilitySystemComponent* UAbilityTask_PlayMontageWaitEvent::GetTargetASC()
 {
-	return Cast<UAbilitySystemComponent>(AbilitySystemComponent);
+	return Cast<USHAbilitySystemComponent>(AbilitySystemComponent);
 }
 
 void UAbilityTask_PlayMontageWaitEvent::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
 {
-	if (Ability && Ability->GetCurrentMontage() == MontageToPlay) 
+	if (Ability && Ability->GetCurrentMontage() == MontageToPlay)
 	{
 		if (Montage == MontageToPlay)
 		{
@@ -30,19 +31,25 @@ void UAbilityTask_PlayMontageWaitEvent::OnMontageBlendingOut(UAnimMontage* Monta
 			// Reset AnimRootMotionTranslationScale
 			ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
 			if (Character && (Character->Role == ROLE_Authority ||
-				(Character->Role == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted))) {
-				Character->SetAnimRootMotionTranslationScale(1.0f);
+				(Character->Role == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
+			{
+				Character->SetAnimRootMotionTranslationScale(1.f);
 			}
+
 		}
 	}
 
-	if (bInterrupted) {
-		if (ShouldBroadcastAbilityTaskDelegates()) {
+	if (bInterrupted)
+	{
+		if (ShouldBroadcastAbilityTaskDelegates())
+		{
 			OnInterrupted.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
 	}
-	else {
-		if (ShouldBroadcastAbilityTaskDelegates()) {
+	else
+	{
+		if (ShouldBroadcastAbilityTaskDelegates())
+		{
 			OnBlendOut.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
 	}
@@ -52,9 +59,11 @@ void UAbilityTask_PlayMontageWaitEvent::OnAbilityCancelled()
 {
 	// TODO: Merge this fix back to engine, it was calling the wrong callback
 
-	if (StopPlayingMontage()) {
+	if (StopPlayingMontage())
+	{
 		// Let the BP handle the interrupt as well
-		if (ShouldBroadcastAbilityTaskDelegates()) {
+		if (ShouldBroadcastAbilityTaskDelegates())
+		{
 			OnCancelled.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
 	}
@@ -62,8 +71,10 @@ void UAbilityTask_PlayMontageWaitEvent::OnAbilityCancelled()
 
 void UAbilityTask_PlayMontageWaitEvent::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	if (!bInterrupted) {
-		if (ShouldBroadcastAbilityTaskDelegates()) {
+	if (!bInterrupted)
+	{
+		if (ShouldBroadcastAbilityTaskDelegates())
+		{
 			OnCompleted.Broadcast(FGameplayTag(), FGameplayEventData());
 		}
 	}
@@ -106,18 +117,18 @@ void UAbilityTask_PlayMontageWaitEvent::Activate()
 	}
 
 	bool bPlayedMontage = false;
-	UAbilitySystemComponent* AbilitySystemComponent = GetTargetASC();
+	USHAbilitySystemComponent* SHAbilitySystemComponent = GetTargetASC();
 
-	if (AbilitySystemComponent)
+	if (SHAbilitySystemComponent)
 	{
 		const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
 		UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
 		if (AnimInstance != nullptr)
 		{
 			// Bind to event callback
-			EventHandle = AbilitySystemComponent->AddGameplayEventTagContainerDelegate(EventTags, FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this, &URPGAbilityTask_PlayMontageAndWaitForEvent::OnGameplayEvent));
+			EventHandle = SHAbilitySystemComponent->AddGameplayEventTagContainerDelegate(EventTags, FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this, &UAbilityTask_PlayMontageWaitEvent::OnGameplayEvent));
 
-			if (AbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MontageToPlay, Rate, StartSection) > 0.f)
+			if (SHAbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MontageToPlay, Rate, StartSection) > 0.f)
 			{
 				// Playing a montage could potentially fire off a callback into game code which could kill this ability! Early out if we are  pending kill.
 				if (ShouldBroadcastAbilityTaskDelegates() == false)
@@ -145,17 +156,17 @@ void UAbilityTask_PlayMontageWaitEvent::Activate()
 		}
 		else
 		{
-			ABILITY_LOG(Warning, TEXT("UAbilityTask_PlayMontageWaitEvent call to PlayMontage failed!"));
+			ABILITY_LOG(Warning, TEXT("URPGAbilityTask_PlayMontageAndWaitForEvent call to PlayMontage failed!"));
 		}
 	}
 	else
 	{
-		ABILITY_LOG(Warning, TEXT("UAbilityTask_PlayMontageWaitEvent called on invalid AbilitySystemComponent"));
+		ABILITY_LOG(Warning, TEXT("URPGAbilityTask_PlayMontageAndWaitForEvent called on invalid AbilitySystemComponent"));
 	}
 
 	if (!bPlayedMontage)
 	{
-		ABILITY_LOG(Warning, TEXT("UAbilityTask_PlayMontageWaitEvent called in Ability %s failed to play montage %s; Task Instance Name %s."), *Ability->GetName(), *GetNameSafe(MontageToPlay), *InstanceName.ToString());
+		ABILITY_LOG(Warning, TEXT("URPGAbilityTask_PlayMontageAndWaitForEvent called in Ability %s failed to play montage %s; Task Instance Name %s."), *Ability->GetName(), *GetNameSafe(MontageToPlay), *InstanceName.ToString());
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
 			OnCancelled.Broadcast(FGameplayTag(), FGameplayEventData());
@@ -189,10 +200,10 @@ void UAbilityTask_PlayMontageWaitEvent::OnDestroy(bool AbilityEnded)
 		}
 	}
 
-	UAbilitySystemComponent* AbilitySystemComponent = GetTargetASC();
-	if (AbilitySystemComponent)
+	USHAbilitySystemComponent* SHAbilitySystemComponent = GetTargetASC();
+	if (SHAbilitySystemComponent)
 	{
-		AbilitySystemComponent->RemoveGameplayEventTagContainerDelegate(EventTags, EventHandle);
+		SHAbilitySystemComponent->RemoveGameplayEventTagContainerDelegate(EventTags, EventHandle);
 	}
 
 	Super::OnDestroy(AbilityEnded);

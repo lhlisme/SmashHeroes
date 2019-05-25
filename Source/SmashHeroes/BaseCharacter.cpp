@@ -3,6 +3,7 @@
 
 #include "BaseCharacter.h"
 #include "Components/StaticMeshComponent.h"
+#include "AbilitySystemGlobals.h"
 #include "AbilitySystemComponent.h"
 
 // Sets default values
@@ -14,6 +15,7 @@ ABaseCharacter::ABaseCharacter()
 	// Create ability system component
 	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
 
+	CharacterLevel = 1;
 }
 
 // Called when the game starts or when spawned
@@ -69,13 +71,38 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 }
 
-// Make sure that the AbilitySystemComponent's ActorInfo struct is being updated each time the controller changes.
-// As pawns may be spawned before the client controller possesses them especially in a multiplayer enviroment.
 void ABaseCharacter::PossessedBy(AController * NewController)
 {
 	Super::PossessedBy(NewController);
 
-	AbilitySystem->RefreshAbilityActorInfo();
+	// 初始化所有Abilities
+	if (AbilitySystem) {
+		AbilitySystem->InitAbilityActorInfo(this, this);
+		// AddStartupGameplayAbilities()
+	}
+}
+
+void ABaseCharacter::UnPossessed()
+{
+	// TODO 清理背包
+}
+
+void ABaseCharacter::OnRep_Controller()
+{
+	Super::OnRep_Controller();
+
+	// Make sure that the AbilitySystemComponent's ActorInfo struct is being updated each time the controller changes.
+	// As pawns may be spawned before the client controller possesses them especially in a multiplayer enviroment.
+	if (AbilitySystem) {
+		AbilitySystem->RefreshAbilityActorInfo();
+	}
+}
+
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseCharacter, CharacterLevel);
 }
 
 void ABaseCharacter::GenerateWeapon()
@@ -244,5 +271,10 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 
 
 	return true;
+}
+
+int32 ABaseCharacter::GetCharacterLevel() const
+{
+	return CharacterLevel;
 }
 

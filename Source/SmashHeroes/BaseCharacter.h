@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "SmashHeroes.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -32,6 +32,10 @@ class SMASHHEROES_API ABaseCharacter : public ACharacter, public IAbilitySystemI
 	GENERATED_BODY()
 
 protected:
+	/** Character所属的Level，在生成时确定，之后不再变化 */
+	UPROPERTY(EditAnywhere, Replicated, Category = "Abilities")
+	int32 CharacterLevel;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GameplayAbilities, meta = (AllowPrivateAccess = "true"))
 	class UAbilitySystemComponent* AbilitySystem;
 
@@ -105,6 +109,11 @@ public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
+	virtual void PossessedBy(class AController* NewController) override;
+	virtual void UnPossessed() override;
+	virtual void OnRep_Controller() override;	// Make sure that the AbilitySystemComponent's ActorInfo struct is being updated each time the controller changes
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -113,9 +122,6 @@ public:
 
 	// Returns AbilitySystem subobject
 	UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystem; }
-
-	// Make sure that the AbilitySystemComponent's ActorInfo struct is being updated each time the controller changes
-	virtual void PossessedBy(class AController* NewController) override;
 
 	// 生成武器
 	void GenerateWeapon();
@@ -163,5 +169,8 @@ public:
 	// 攻击检测
 	UFUNCTION(BlueprintCallable)
 	bool AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits);
+	
+	UFUNCTION(BlueprintCallable)
+	virtual int32 GetCharacterLevel() const;
 };
 

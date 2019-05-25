@@ -2,15 +2,20 @@
 
 #pragma once
 
-#include "SmashHeroes.h"
+#include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
 #include "AbilityTask_PlayMontageWaitEvent.generated.h"
 
-/** 使用的委托类型 */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPlayMontageAndWaitForEventDelegate, FGameplayTag, EventTag, FGameplayEventData, EventData);
+class USHAbilitySystemComponent;
+
+/** Delegate type used, EventTag and Payload may be empty if it came from the montage callbacks */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSHPlayMontageAndWaitForEventDelegate, FGameplayTag, EventTag, FGameplayEventData, EventData);
 
 /**
- * 
+ * This task combines PlayMontageAndWait and WaitForEvent into one task, so you can wait for multiple types of activations such as from a melee combo
+ * Much of this code is copied from one of those two ability tasks
+ * This is a good task to look at as an example when creating game-specific tasks
+ * It is expected that each game will have a set of game-specific tasks to do what they want
  */
 UCLASS()
 class SMASHHEROES_API UAbilityTask_PlayMontageWaitEvent : public UAbilityTask
@@ -18,7 +23,8 @@ class SMASHHEROES_API UAbilityTask_PlayMontageWaitEvent : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
-	UAbilityTask_PlayMontageWaitEvent();
+	// Constructor and overrides
+	UAbilityTask_PlayMontageWaitEvent(const FObjectInitializer& ObjectInitializer);
 	virtual void Activate() override;
 	virtual void ExternalCancel() override;
 	virtual FString GetDebugString() const override;
@@ -26,23 +32,23 @@ public:
 
 	/** The montage completely finished playing */
 	UPROPERTY(BlueprintAssignable)
-	FPlayMontageAndWaitForEventDelegate OnCompleted;
+	FSHPlayMontageAndWaitForEventDelegate OnCompleted;
 
 	/** The montage started blending out */
 	UPROPERTY(BlueprintAssignable)
-	FPlayMontageAndWaitForEventDelegate OnBlendOut;
+	FSHPlayMontageAndWaitForEventDelegate OnBlendOut;
 
 	/** The montage was interrupted */
 	UPROPERTY(BlueprintAssignable)
-	FPlayMontageAndWaitForEventDelegate OnInterrupted;
+	FSHPlayMontageAndWaitForEventDelegate OnInterrupted;
 
 	/** The ability task was explicitly cancelled by another ability */
 	UPROPERTY(BlueprintAssignable)
-	FPlayMontageAndWaitForEventDelegate OnCancelled;
+	FSHPlayMontageAndWaitForEventDelegate OnCancelled;
 
 	/** One of the triggering gameplay events happened */
 	UPROPERTY(BlueprintAssignable)
-	FPlayMontageAndWaitForEventDelegate EventReceived;
+	FSHPlayMontageAndWaitForEventDelegate EventReceived;
 
 	/**
 	 * Play a montage and wait for it end. If a gameplay event happens that matches EventTags (or EventTags is empty), the EventReceived delegate will fire with a tag and event data.
@@ -97,7 +103,7 @@ private:
 	bool StopPlayingMontage();
 
 	/** Returns our ability system component */
-	UAbilitySystemComponent* GetTargetASC();
+	USHAbilitySystemComponent* GetTargetASC();
 
 	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 	void OnAbilityCancelled();
