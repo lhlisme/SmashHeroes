@@ -70,13 +70,6 @@ public:
 public:
 	UBaseAttributeSet();
 
-	// TODO 这些获取将不再需要，后续移除
-	/** 获取各项属性类型 */
-	FGameplayAttribute HealthAttribute();
-	FGameplayAttribute AttackMultiplierAttribute();
-	FGameplayAttribute DefenseMultiplierAttribute();
-	FGameplayAttribute BaseAttackPowerAttribute();
-
 	//在属性修改前，处理以最大值为限的当前生命值/法力调整
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	//在属性被修改之后，处理限制并将更改告知给其他对象

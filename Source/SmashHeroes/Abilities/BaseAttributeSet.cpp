@@ -230,28 +230,3 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 	}
 }
 
-// TODO 以下应该是不需要的部分
-FGameplayAttribute UBaseAttributeSet::HealthAttribute()
-{
-	static UProperty* Property = FindFieldChecked<UProperty>(UBaseAttributeSet::StaticClass(), GET_MEMBER_NAME_CHECKED(UBaseAttributeSet, Health));
-	return FGameplayAttribute(Property);
-}
-
-FGameplayAttribute UBaseAttributeSet::AttackMultiplierAttribute()
-{
-	static UProperty* Property = FindFieldChecked<UProperty>(UBaseAttributeSet::StaticClass(), GET_MEMBER_NAME_CHECKED(UBaseAttributeSet, AttackMultiplier));
-	return FGameplayAttribute(Property);
-}
-
-FGameplayAttribute UBaseAttributeSet::DefenseMultiplierAttribute()
-{
-	static UProperty* Property = FindFieldChecked<UProperty>(UBaseAttributeSet::StaticClass(), GET_MEMBER_NAME_CHECKED(UBaseAttributeSet, DefenseMultiplier));
-	return FGameplayAttribute(Property);
-}
-
-FGameplayAttribute UBaseAttributeSet::BaseAttackPowerAttribute()
-{
-	static UProperty* Property = FindFieldChecked<UProperty>(UBaseAttributeSet::StaticClass(), GET_MEMBER_NAME_CHECKED(UBaseAttributeSet, BaseAttackPower));
-	return FGameplayAttribute(Property);
-}
-
