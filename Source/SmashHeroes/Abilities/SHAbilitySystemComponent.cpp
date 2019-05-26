@@ -2,7 +2,7 @@
 
 
 #include "SHAbilitySystemComponent.h"
-#include "BaseCharacter.h"
+#include "Characters/BaseCharacter.h"
 #include "SHGameplayAbility.h"
 #include "AbilitySystemGlobals.h"
 

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffectExecutionCalculation.h"
-#include "BaseAttributeSet.h"
+#include "Abilities/BaseAttributeSet.h"
 #include "DamageExecution.generated.h"
 
 struct AttrStruct

@@ -3,7 +3,7 @@
 
 #include "SHTargetType.h"
 #include "SHGameplayAbility.h"
-#include "BaseCharacter.h"
+#include "Characters/BaseCharacter.h"
 
 void USHTargetType::GetTargets_Implementation(ABaseCharacter* TargetingCharacter, AActor* TargetingActor, FGameplayEventData EventData, TArray<FHitResult>& OutHitResults, TArray<AActor*>& OutActors) const
 {

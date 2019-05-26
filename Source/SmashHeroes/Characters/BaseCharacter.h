@@ -4,9 +4,12 @@
 
 #include "SmashHeroes.h"
 #include "GameFramework/Character.h"
+#include "UObject/ScriptInterface.h"
 #include "AbilitySystemInterface.h"
+#include "Abilities/SHAbilitySystemComponent.h"
+#include "Abilities/BaseAttributeSet.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Weapon.h"
+#include "Weapons/Weapon.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -37,13 +40,17 @@ protected:
 	int32 CharacterLevel;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GameplayAbilities, meta = (AllowPrivateAccess = "true"))
-	class UAbilitySystemComponent* AbilitySystem;
+	class USHAbilitySystemComponent* AbilitySystem;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
 	TMap<AActor*, int32> LeftDamagedActors;	// 当前攻击左手武器所命中的对象。Key: 被击中的对象; Value; 对象被击中的次数
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
 	TMap<AActor*, int32> RightDamagedActors; // 当前攻击右手武器所命中的对象。Key: 被击中的对象; Value: 对象被击中的次数
+
+	/** If true we have initialized our abilities */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
+	int32 bAbilitiesInitialized;
 
 public:
 	/** 移动相关属性 */
@@ -99,7 +106,7 @@ public:
 
 	// 角色属性集
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
-	TArray<TSubclassOf<class UAttributeSet>>	CharacterAttributeSets;
+	UBaseAttributeSet* CharacterAttributeSet;
 
 protected:
 	// Called when the game starts or when spawned
@@ -170,7 +177,76 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits);
 	
+	/** Returns current health, will be 0 if dead */
+	UFUNCTION(BlueprintCallable)
+	virtual float GetHealth() const;
+
+	/** Returns maximum health, health will never be greater than this */
+	UFUNCTION(BlueprintCallable)
+	virtual float GetMaxHealth() const;
+
+	/** Returns current mana */
+	UFUNCTION(BlueprintCallable)
+	virtual float GetEnergy() const;
+
+	/** Returns maximum mana, mana will never be greater than this */
+	UFUNCTION(BlueprintCallable)
+	virtual float GetMaxEnergy() const;
+
+	/** Returns current movement speed */
+	UFUNCTION(BlueprintCallable)
+	virtual float GetMoveSpeed() const;
+
 	UFUNCTION(BlueprintCallable)
 	virtual int32 GetCharacterLevel() const;
+
+	/**
+	 * Called when character takes damage, which may have killed them
+	 *
+	 * @param DamageAmount Amount of damage that was done, not clamped based on current health
+	 * @param HitInfo The hit info that generated this damage
+	 * @param DamageTags The gameplay tags of the event that did the damage
+	 * @param InstigatorCharacter The character that initiated this damage
+	 * @param DamageCauser The actual actor that did the damage, might be a weapon or projectile
+	 */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser);
+
+	/**
+	 * Called when health is changed, either from healing or from being damaged
+	 * For damage this is called in addition to OnDamaged/OnKilled
+	 *
+	 * @param DeltaValue Change in health value, positive for heal, negative for cost. If 0 the delta is unknown
+	 * @param EventTags The gameplay tags of the event that changed mana
+	 */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+
+	/**
+	 * Called when energy is changed, either from healing or from being used as a cost
+	 *
+	 * @param DeltaValue Change in energy value, positive for heal, negative for cost. If 0 the delta is unknown
+	 * @param EventTags The gameplay tags of the event that changed energy
+	 */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+
+	/**
+	 * Called when movement speed is changed
+	 *
+	 * @param DeltaValue Change in move speed
+	 * @param EventTags The gameplay tags of the event that changed mana
+	 */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+
+	// Called from RPGAttributeSet, these call BP events above
+	virtual void HandleDamage(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser);
+	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+	virtual void HandleEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+	virtual void HandleMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+
+	// 将UBaseAttributeSet声明为友元类，使其能访问上述Handle函数
+	friend UBaseAttributeSet;
 };
 

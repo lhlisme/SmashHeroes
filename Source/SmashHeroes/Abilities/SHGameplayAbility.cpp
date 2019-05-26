@@ -4,7 +4,7 @@
 #include "SHGameplayAbility.h"
 #include "SHAbilitySystemComponent.h"
 #include "SHTargetType.h"
-#include "BaseCharacter.h"
+#include "Characters/BaseCharacter.h"
 
 USHGameplayAbility::USHGameplayAbility() {}
 

@@ -12,10 +12,14 @@ ABaseCharacter::ABaseCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Create ability system component
-	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
+	// Create ability system component, and set it to be explicitly replicated
+	AbilitySystem = CreateDefaultSubobject<USHAbilitySystemComponent>(TEXT("AbilitySystem"));
+	AbilitySystem->SetIsReplicated(true);
+	// Create the attribute set, this replicates by default
+	CharacterAttributeSet = CreateDefaultSubobject<UBaseAttributeSet>(TEXT("AttributeSet"));
 
 	CharacterLevel = 1;
+	bAbilitiesInitialized = false;
 }
 
 // Called when the game starts or when spawned
@@ -34,11 +38,6 @@ void ABaseCharacter::BeginPlay()
 					continue;
 				}
 				AbilitySystem->GiveAbility(FGameplayAbilitySpec(CharacterAbilities[i].GetDefaultObject(), 1, 0));
-			}
-
-			for (int32 i = 0; i < CharacterAttributeSets.Num(); ++i)
-			{
-				AbilitySystem->InitStats(CharacterAttributeSets[i], nullptr);
 			}
 		}
 		AbilitySystem->InitAbilityActorInfo(this, this);
@@ -269,12 +268,69 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 		}
 	}
 
-
 	return true;
+}
+
+float ABaseCharacter::GetHealth() const
+{
+	return CharacterAttributeSet->GetHealth();
+}
+
+float ABaseCharacter::GetMaxHealth() const
+{
+	return CharacterAttributeSet->GetMaxHealth();
+}
+
+float ABaseCharacter::GetEnergy() const
+{
+	return CharacterAttributeSet->GetEnergy();
+}
+
+float ABaseCharacter::GetMaxEnergy() const
+{
+	return CharacterAttributeSet->GetMaxEnergy();
+}
+
+float ABaseCharacter::GetMoveSpeed() const
+{
+	return CharacterAttributeSet->GetMoveSpeed();
 }
 
 int32 ABaseCharacter::GetCharacterLevel() const
 {
 	return CharacterLevel;
+}
+
+void ABaseCharacter::HandleDamage(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorPawn, AActor* DamageCauser)
+{
+	OnDamaged(DamageAmount, HitInfo, DamageTags, InstigatorPawn, DamageCauser);
+}
+
+void ABaseCharacter::HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
+{
+	// We only call the BP callback if this is not the initial ability setup
+	if (bAbilitiesInitialized)
+	{
+		OnHealthChanged(DeltaValue, EventTags);
+	}
+}
+
+void ABaseCharacter::HandleEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
+{
+	if (bAbilitiesInitialized)
+	{
+		OnEnergyChanged(DeltaValue, EventTags);
+	}
+}
+
+void ABaseCharacter::HandleMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
+{
+	// Update the character movement's walk speed
+	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
+
+	if (bAbilitiesInitialized)
+	{
+		OnMoveSpeedChanged(DeltaValue, EventTags);
+	}
 }
 
