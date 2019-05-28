@@ -44,12 +44,12 @@ public:
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MoveSpeed)
 
 	// Outgoing damage-multiplier.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", meta = (HideFromModifiers), ReplicatedUsing = OnRep_AttackMultiplier)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_AttackMultiplier)
 	FGameplayAttributeData AttackMultiplier;	// 攻击系数
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, AttackMultiplier)
 
 	// Incoming damage-multiplier.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", meta = (HideFromModifiers), ReplicatedUsing = OnRep_DefenseMultiplier)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_DefenseMultiplier)
 	FGameplayAttributeData DefenseMultiplier;	// 防御系数(1.0表示免伤)
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, DefenseMultiplier)
 

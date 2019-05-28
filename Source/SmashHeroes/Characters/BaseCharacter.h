@@ -8,6 +8,7 @@
 #include "AbilitySystemInterface.h"
 #include "Abilities/SHAbilitySystemComponent.h"
 #include "Abilities/BaseAttributeSet.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapons/Weapon.h"
 #include "BaseCharacter.generated.h"
@@ -27,6 +28,15 @@ enum class EAttackType : uint8
 {
 	MeleeAttack			UMETA(DisplayName = "MeleeAttack"),
 	RemoteAttack		UMETA(DisplayName = "RemoteAttack")
+};
+
+UENUM(BlueprintType)
+enum class ERelativeOrientation : uint8
+{
+	Forward				UMETA(DisplayName = "Forward"),
+	Backward			UMETA(DisplayName = "Backward"),
+	Left				UMETA(DisplayName = "Left"),
+	Right				UMETA(DisplayName = "Right")
 };
 
 UCLASS()
@@ -111,6 +121,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	// 计算目标相对朝向
+	virtual ERelativeOrientation CalculateRelativeOrientation(AActor* TargetActor);
 
 public:	
 	// Sets default values for this character's properties
@@ -209,7 +221,7 @@ public:
 	 * @param InstigatorCharacter The character that initiated this damage
 	 * @param DamageCauser The actual actor that did the damage, might be a weapon or projectile
 	 */
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable)
 	void OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser);
 
 	/**
@@ -219,7 +231,7 @@ public:
 	 * @param DeltaValue Change in health value, positive for heal, negative for cost. If 0 the delta is unknown
 	 * @param EventTags The gameplay tags of the event that changed mana
 	 */
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable)
 	void OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	/**
@@ -228,7 +240,7 @@ public:
 	 * @param DeltaValue Change in energy value, positive for heal, negative for cost. If 0 the delta is unknown
 	 * @param EventTags The gameplay tags of the event that changed energy
 	 */
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable)
 	void OnEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	/**
@@ -237,7 +249,7 @@ public:
 	 * @param DeltaValue Change in move speed
 	 * @param EventTags The gameplay tags of the event that changed mana
 	 */
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable)
 	void OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	// Called from RPGAttributeSet, these call BP events above

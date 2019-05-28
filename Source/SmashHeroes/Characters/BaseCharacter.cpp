@@ -301,6 +301,27 @@ int32 ABaseCharacter::GetCharacterLevel() const
 	return CharacterLevel;
 }
 
+void ABaseCharacter::OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Log, TEXT("On Damaged"));
+	CalculateRelativeOrientation(DamageCauser);
+}
+
+void ABaseCharacter::OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
+{
+
+}
+
+void ABaseCharacter::OnEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
+{
+
+}
+
+void ABaseCharacter::OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
+{
+
+}
+
 void ABaseCharacter::HandleDamage(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorPawn, AActor* DamageCauser)
 {
 	OnDamaged(DamageAmount, HitInfo, DamageTags, InstigatorPawn, DamageCauser);
@@ -332,5 +353,19 @@ void ABaseCharacter::HandleMoveSpeedChanged(float DeltaValue, const struct FGame
 	{
 		OnMoveSpeedChanged(DeltaValue, EventTags);
 	}
+}
+
+ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(AActor* TargetActor)
+{
+	// 默认在前方
+	ERelativeOrientation RelativeOrientation = ERelativeOrientation::Forward;
+	
+	if (TargetActor) {
+		FRotator DeltaRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetActor->GetActorLocation()) - GetActorRotation();
+		
+		UE_LOG(LogTemp, Log, TEXT("DeltaRotator: %f"), DeltaRotator.Yaw);
+	}
+
+	return RelativeOrientation;
 }
 
