@@ -77,6 +77,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, UAnimMontage*> AttackMontageMap;		// 记录攻击动画索引和Montage的对应关系 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	TMap<ERelativeOrientation, UAnimMontage*> HitMontageMap;
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	int32 ComboIndex = 0;		// 当前攻击动画索引		// TODO 改名AttackIndex
 
@@ -112,7 +115,11 @@ public:
 	EAttackType AttackType = EAttackType::MeleeAttack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
-	TArray<TSubclassOf<class UGameplayAbility>> CharacterAbilities;
+	TArray<TSubclassOf<class USHGameplayAbility>> CharacterAbilities;
+
+	// 在创建角色时应用的被动效果，包括初始状态等
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
+	TArray<TSubclassOf<UGameplayEffect>> PassiveGameplayEffects;
 
 	// 角色属性集
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
@@ -209,8 +216,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual float GetMoveSpeed() const;
 
+	/** 获取玩家等级信息 */
 	UFUNCTION(BlueprintCallable)
 	virtual int32 GetCharacterLevel() const;
+
+	/** 修改玩家等级, 可能改变玩家的能力 */
+	UFUNCTION(BlueprintCallable)
+	virtual bool SetCharacterLevel(int32 NewLevel);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsAlive();
 
 	/**
 	 * Called when character takes damage, which may have killed them
@@ -251,6 +266,12 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable)
 	void OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+
+	/** 应用初始化能力和效果 */
+	void AddStartupGameplayAbilities();
+
+	/** 移除所有初始能力和效果 */
+	void RemoveStartupGameplayAbilities();
 
 	// Called from RPGAttributeSet, these call BP events above
 	virtual void HandleDamage(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser);

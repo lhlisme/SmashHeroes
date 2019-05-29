@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemComponent.h"
+#include "Abilities/SHGameplayAbility.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -77,7 +78,7 @@ void ABaseCharacter::PossessedBy(AController * NewController)
 	// 初始化所有Abilities
 	if (AbilitySystem) {
 		AbilitySystem->InitAbilityActorInfo(this, this);
-		// AddStartupGameplayAbilities()
+		AddStartupGameplayAbilities();
 	}
 }
 
@@ -301,10 +302,90 @@ int32 ABaseCharacter::GetCharacterLevel() const
 	return CharacterLevel;
 }
 
+bool ABaseCharacter::SetCharacterLevel(int32 NewLevel)
+{
+	if (CharacterLevel != NewLevel && NewLevel > 0) {
+		// 等级改变后, 需要刷新玩家的能力
+		RemoveStartupGameplayAbilities();
+		CharacterLevel = NewLevel;
+		AddStartupGameplayAbilities();
+
+		return true;
+	}
+	return false;
+}
+
+bool ABaseCharacter::IsAlive()
+{
+	return GetHealth() > 0.0f;
+}
+
+void ABaseCharacter::AddStartupGameplayAbilities()
+{
+	check(AbilitySystem);
+
+	if (Role == ROLE_Authority && !bAbilitiesInitialized) {
+		// 仅在服务器端发授能力
+		for (TSubclassOf<USHGameplayAbility>& StartupAbility : CharacterAbilities) {
+			AbilitySystem->GiveAbility(FGameplayAbilitySpec(StartupAbility, GetCharacterLevel(), INDEX_NONE, this));
+		}
+
+		// 授予被动能力
+		for (TSubclassOf<UGameplayEffect>& GameplayEffect : PassiveGameplayEffects) {
+			FGameplayEffectContextHandle EffectContext = AbilitySystem->MakeEffectContext();
+			EffectContext.AddSourceObject(this);
+
+			FGameplayEffectSpecHandle NewHandle = AbilitySystem->MakeOutgoingSpec(GameplayEffect, GetCharacterLevel(), EffectContext);
+			if (NewHandle.IsValid()) {
+				FActiveGameplayEffectHandle ActivateGEHandle = AbilitySystem->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystem);
+			}
+		}
+
+		//AddSlottedGameplayAbilities()
+		bAbilitiesInitialized = true;
+	}
+}
+
+void ABaseCharacter::RemoveStartupGameplayAbilities()
+{
+	check(AbilitySystem);
+
+	if (Role == ROLE_Authority && bAbilitiesInitialized) {
+		// 移除上一次调用中添加的所有能力
+		TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
+		for (const FGameplayAbilitySpec& Spec : AbilitySystem->GetActivatableAbilities()) {
+			if ((Spec.SourceObject == this) && CharacterAbilities.Contains(Spec.Ability->GetClass())) {
+				AbilitiesToRemove.Add(Spec.Handle);
+			}
+		}
+
+		for (int32 i = 0; i < AbilitiesToRemove.Num(); ++i) {
+			AbilitySystem->ClearAbility(AbilitiesToRemove[i]);
+		}
+
+		// 移除所有应用在Character身上的被动效果
+		FGameplayEffectQuery Query;
+		Query.EffectSource = this;
+		AbilitySystem->RemoveActiveEffects(Query);
+
+		// RemoveSlottedGameplayAbilities(true);
+
+		bAbilitiesInitialized = false;
+	}
+}
+
 void ABaseCharacter::OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Log, TEXT("On Damaged"));
-	CalculateRelativeOrientation(DamageCauser);
+	UE_LOG(LogTemp, Log, TEXT("On Damaged RestHealth: %f, DamageAmount: %f"), CharacterAttributeSet->GetHealth(), DamageAmount);
+	if (IsAlive()) {
+		// 根据受击方向确定要播放的Montage
+		ERelativeOrientation RelativeOrientation = CalculateRelativeOrientation(DamageCauser);
+		UAnimMontage** HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
+		
+		if (HitMontagePtr) {
+			PlayAnimMontage(*HitMontagePtr);
+		}
+	}
 }
 
 void ABaseCharacter::OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
@@ -364,6 +445,25 @@ ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(AActor* Target
 		FRotator DeltaRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetActor->GetActorLocation()) - GetActorRotation();
 		
 		UE_LOG(LogTemp, Log, TEXT("DeltaRotator: %f"), DeltaRotator.Yaw);
+		if (DeltaRotator.Yaw <= 45.0f) {
+			if (DeltaRotator.Yaw > -45.0f) {
+				RelativeOrientation = ERelativeOrientation::Forward;
+			}
+			else if (DeltaRotator.Yaw > -135.0f) {
+				RelativeOrientation = ERelativeOrientation::Left;
+			}
+			else {
+				RelativeOrientation = ERelativeOrientation::Backward;
+			}
+		}
+		else {
+			if (DeltaRotator.Yaw <= 135.0f) {
+				RelativeOrientation = ERelativeOrientation::Right;
+			}
+			else {
+				RelativeOrientation = ERelativeOrientation::Backward;
+			}
+		}
 	}
 
 	return RelativeOrientation;
