@@ -3,6 +3,6 @@
 # Ignore Dirs
 .vs
 Binaries
-Config
+
 Intermediate
 Saved
