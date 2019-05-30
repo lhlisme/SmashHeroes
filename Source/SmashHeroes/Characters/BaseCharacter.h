@@ -224,7 +224,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual bool SetCharacterLevel(int32 NewLevel);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	bool IsAlive();
 
 	/**
