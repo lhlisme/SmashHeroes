@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "BaseCharacter.h"
@@ -27,24 +27,8 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (AbilitySystem)
-	{
-		if (HasAuthority())
-		{
-			for (int32 i = 0; i < CharacterAbilities.Num(); ++i)
-			{
-				if (!CharacterAbilities[i])
-				{
-					continue;
-				}
-				AbilitySystem->GiveAbility(FGameplayAbilitySpec(CharacterAbilities[i].GetDefaultObject(), 1, 0));
-			}
-		}
-		AbilitySystem->InitAbilityActorInfo(this, this);
-	}
 
-	// Éú³ÉÎäÆ÷
+	// ç”Ÿæˆæ­¦å™¨
 	GenerateWeapon();
 }
 
@@ -53,7 +37,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Èç¹û²»ÔÚ¹¥»÷×´Ì¬£¬Õı³£¸üĞÂÎäÆ÷²å²ÛÎ»ÖÃ
+	// å¦‚æœä¸åœ¨æ”»å‡»çŠ¶æ€ï¼Œæ­£å¸¸æ›´æ–°æ­¦å™¨æ’æ§½ä½ç½®
 	if (!IsAttacking) {
 		if (LeftWeapon) {
 			LeftWeapon->UpdateSocketLocations();
@@ -75,7 +59,7 @@ void ABaseCharacter::PossessedBy(AController * NewController)
 {
 	Super::PossessedBy(NewController);
 
-	// ³õÊ¼»¯ËùÓĞAbilities
+	// åˆå§‹åŒ–æ‰€æœ‰Abilities
 	if (AbilitySystem) {
 		AbilitySystem->InitAbilityActorInfo(this, this);
 		AddStartupGameplayAbilities();
@@ -84,7 +68,7 @@ void ABaseCharacter::PossessedBy(AController * NewController)
 
 void ABaseCharacter::UnPossessed()
 {
-	// TODO ÇåÀí±³°ü
+	// TODO æ¸…ç†èƒŒåŒ…
 }
 
 void ABaseCharacter::OnRep_Controller()
@@ -141,24 +125,24 @@ void ABaseCharacter::GenerateWeapon()
 	}
 }
 
-// ÒÑ´æÔÚ·µ»Øfalse, ·ñÔò·µ»Øtrue
+// å·²å­˜åœ¨è¿”å›false, å¦åˆ™è¿”å›true
 bool ABaseCharacter::AddLeftDamagedActor(AActor* CurDamagedActor)
 {
 	if (LeftDamagedActors.Contains(CurDamagedActor)) {
 		int32* CurValue = LeftDamagedActors.Find(CurDamagedActor);
-		++(*CurValue);	// ³öÏÖ´ÎÊıÔö¼Ó
+		++(*CurValue);	// å‡ºç°æ¬¡æ•°å¢åŠ 
 		return false;
 	}
 	LeftDamagedActors.Add(CurDamagedActor, 1);
 	return true;
 }
 
-// ÒÑ´æÔÚ·µ»Øfalse, ·ñÔò·µ»Øtrue
+// å·²å­˜åœ¨è¿”å›false, å¦åˆ™è¿”å›true
 bool ABaseCharacter::AddRightDamagedActor(AActor* CurDamagedActor)
 {
 	if (RightDamagedActors.Contains(CurDamagedActor)) {
 		int32* CurValue = RightDamagedActors.Find(CurDamagedActor);
-		++(*CurValue);	// ³öÏÖ´ÎÊıÔö¼Ó
+		++(*CurValue);	// å‡ºç°æ¬¡æ•°å¢åŠ 
 		return false;
 	}
 	RightDamagedActors.Add(CurDamagedActor, 1);
@@ -173,12 +157,19 @@ void ABaseCharacter::ClearDamagedActors()
 
 bool ABaseCharacter::Attack()
 {
-	// ·µ»ØÖµ±íÊ¾ÊÇ·ñÓĞĞ§Ö´ĞĞ
+	// è¿”å›å€¼è¡¨ç¤ºæ˜¯å¦æœ‰æ•ˆæ‰§è¡Œ
 	return false;
 }
 
 void ABaseCharacter::BeginAttack()
 {
+	// å¦‚æœå…¶ä»–åŠ¨ä½œè¢«ä¸­æ–­ï¼Œéœ€è¦è°ƒç”¨ç›¸åº”EndXXXå‡½æ•°
+	if (IsEvading) {
+		EndEvade();
+	}
+	if (IsGuarding) {
+		EndGuard();
+	}
 	IsAttacking = true;
 }
 
@@ -196,12 +187,19 @@ UAnimMontage* ABaseCharacter::GetAttackMontageByIndex()
 
 bool ABaseCharacter::Evade()
 {
-	// ·µ»ØÖµ±íÊ¾ÊÇ·ñÓĞĞ§Ö´ĞĞ
+	// è¿”å›å€¼è¡¨ç¤ºæ˜¯å¦æœ‰æ•ˆæ‰§è¡Œ
 	return false;
 }
 
 void ABaseCharacter::BeginEvade()
 {
+	// å¦‚æœå…¶ä»–åŠ¨ä½œè¢«ä¸­æ–­ï¼Œéœ€è¦è°ƒç”¨ç›¸åº”EndXXXå‡½æ•°
+	if (IsAttacking) {
+		EndAttack();
+	}
+	if (IsGuarding) {
+		EndGuard();
+	}
 	IsEvading = true;
 }
 
@@ -212,12 +210,19 @@ void ABaseCharacter::EndEvade()
 
 bool ABaseCharacter::Guard()
 {
-	// ·µ»ØÖµ±íÊ¾ÊÇ·ñÓĞĞ§Ö´ĞĞ
+	// è¿”å›å€¼è¡¨ç¤ºæ˜¯å¦æœ‰æ•ˆæ‰§è¡Œ
 	return false;
 }
 
 void ABaseCharacter::BeginGuard()
 {
+	// å¦‚æœå…¶ä»–åŠ¨ä½œè¢«ä¸­æ–­ï¼Œéœ€è¦è°ƒç”¨ç›¸åº”EndXXXå‡½æ•°
+	if (IsAttacking) {
+		EndAttack();
+	}
+	if (IsEvading) {
+		EndEvade();
+	}
 	IsGuarding = true;
 }
 
@@ -228,7 +233,7 @@ void ABaseCharacter::EndGuard()
 
 bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits)
 {
-	// ½üÕ½¹¥»÷¼ì²â
+	// è¿‘æˆ˜æ”»å‡»æ£€æµ‹
 	if (AttackType == EAttackType::MeleeAttack) {
 		if (LeftWeapon) {
 			for (int32 i = 0; i < LeftWeapon->SocketLocations.Num(); ++i) {
@@ -239,12 +244,12 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
 				
 				for (int32 j = 0; j < OutHits.Num(); ++j) {
-					if (AddLeftDamagedActor(OutHits[j].GetActor())) {	// Ìí¼Ó³É¹¦(²»´æÔÚ)Ê±·µ»Øtrue
+					if (AddLeftDamagedActor(OutHits[j].GetActor())) {	// æ·»åŠ æˆåŠŸ(ä¸å­˜åœ¨)æ—¶è¿”å›true
 						FinalOutHits.Add(OutHits[j]);
 					}
 				}
 
-				// ¹¥»÷¼ì²â½áÊøºó¸üĞÂÎäÆ÷Ö¸¶¨²å²ÛÎ»ÖÃ
+				// æ”»å‡»æ£€æµ‹ç»“æŸåæ›´æ–°æ­¦å™¨æŒ‡å®šæ’æ§½ä½ç½®
 				LeftWeapon->UpdateSocketLocation(i, EndLocation);
 			}
 		}
@@ -258,12 +263,12 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
 
 				for (int32 j = 0; j < OutHits.Num(); ++j) {
-					if (AddRightDamagedActor(OutHits[j].GetActor())) {	// Ìí¼Ó³É¹¦(²»´æÔÚ)Ê±·µ»Øtrue
+					if (AddRightDamagedActor(OutHits[j].GetActor())) {	// æ·»åŠ æˆåŠŸ(ä¸å­˜åœ¨)æ—¶è¿”å›true
 						FinalOutHits.Add(OutHits[j]);
 					}
 				}
 
-				// ¹¥»÷¼ì²â½áÊøºó¸üĞÂÎäÆ÷Ö¸¶¨²å²ÛÎ»ÖÃ
+				// æ”»å‡»æ£€æµ‹ç»“æŸåæ›´æ–°æ­¦å™¨æŒ‡å®šæ’æ§½ä½ç½®
 				RightWeapon->UpdateSocketLocation(i, EndLocation);
 			}
 		}
@@ -305,7 +310,7 @@ int32 ABaseCharacter::GetCharacterLevel() const
 bool ABaseCharacter::SetCharacterLevel(int32 NewLevel)
 {
 	if (CharacterLevel != NewLevel && NewLevel > 0) {
-		// µÈ¼¶¸Ä±äºó, ĞèÒªË¢ĞÂÍæ¼ÒµÄÄÜÁ¦
+		// ç­‰çº§æ”¹å˜å, éœ€è¦åˆ·æ–°ç©å®¶çš„èƒ½åŠ›
 		RemoveStartupGameplayAbilities();
 		CharacterLevel = NewLevel;
 		AddStartupGameplayAbilities();
@@ -320,17 +325,83 @@ bool ABaseCharacter::IsAlive()
 	return GetHealth() > 0.0f;
 }
 
+bool ABaseCharacter::ActivateAbilitiesWithTags(FGameplayTagContainer AbilityTags, bool bAllowRemoteActivation)
+{
+	if (AbilitySystem)
+	{
+		return AbilitySystem->TryActivateAbilitiesByTag(AbilityTags, bAllowRemoteActivation);
+	}
+
+	return false;
+}
+
+void ABaseCharacter::GetActiveAbilitiesWithTags(FGameplayTagContainer AbilityTags, TArray<USHGameplayAbility*>& ActiveAbilities)
+{
+	if (AbilitySystem) {
+		AbilitySystem->GetActiveAbilitiesWithTags(AbilityTags, ActiveAbilities);
+	}
+}
+
+bool ABaseCharacter::GetCooldownRemainingForTag(FGameplayTagContainer CooldownTags, float& TimeRemaining, float& CooldownDuration)
+{
+	if (AbilitySystem && CooldownTags.Num() > 0)
+	{
+		TimeRemaining = 0.f;
+		CooldownDuration = 0.f;
+
+		FGameplayEffectQuery const Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTags);
+		TArray<TPair<float, float>> DurationAndTimeRemaining = AbilitySystem->GetActiveEffectsTimeRemainingAndDuration(Query);
+		if (DurationAndTimeRemaining.Num() > 0)
+		{
+			int32 BestIdx = 0;
+			float LongestTime = DurationAndTimeRemaining[0].Key;
+			for (int32 Idx = 1; Idx < DurationAndTimeRemaining.Num(); ++Idx)
+			{
+				if (DurationAndTimeRemaining[Idx].Key > LongestTime)
+				{
+					LongestTime = DurationAndTimeRemaining[Idx].Key;
+					BestIdx = Idx;
+				}
+			}
+
+			TimeRemaining = DurationAndTimeRemaining[BestIdx].Key;
+			CooldownDuration = DurationAndTimeRemaining[BestIdx].Value;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ABaseCharacter::CanUseAnyAbility()
+{
+	return IsAlive() && !UGameplayStatics::IsGamePaused(GetWorld());
+}
+
+bool ABaseCharacter::IsUsingSpecificAbility(FGameplayTagContainer AbilityTags)
+{
+	if (AbilitySystem) {
+		TArray<USHGameplayAbility*> ActiveAbilities;
+		AbilitySystem->GetActiveAbilitiesWithTags(AbilityTags, ActiveAbilities);
+
+		return ActiveAbilities.Num() > 0;
+	}
+
+	return false;
+}
+
 void ABaseCharacter::AddStartupGameplayAbilities()
 {
 	check(AbilitySystem);
 
 	if (Role == ROLE_Authority && !bAbilitiesInitialized) {
-		// ½öÔÚ·şÎñÆ÷¶Ë·¢ÊÚÄÜÁ¦
+		// ä»…åœ¨æœåŠ¡å™¨ç«¯å‘æˆèƒ½åŠ›
 		for (TSubclassOf<USHGameplayAbility>& StartupAbility : CharacterAbilities) {
 			AbilitySystem->GiveAbility(FGameplayAbilitySpec(StartupAbility, GetCharacterLevel(), INDEX_NONE, this));
 		}
 
-		// ÊÚÓè±»¶¯ÄÜÁ¦
+		// æˆäºˆè¢«åŠ¨èƒ½åŠ›
 		for (TSubclassOf<UGameplayEffect>& GameplayEffect : PassiveGameplayEffects) {
 			FGameplayEffectContextHandle EffectContext = AbilitySystem->MakeEffectContext();
 			EffectContext.AddSourceObject(this);
@@ -351,7 +422,7 @@ void ABaseCharacter::RemoveStartupGameplayAbilities()
 	check(AbilitySystem);
 
 	if (Role == ROLE_Authority && bAbilitiesInitialized) {
-		// ÒÆ³ıÉÏÒ»´Îµ÷ÓÃÖĞÌí¼ÓµÄËùÓĞÄÜÁ¦
+		// ç§»é™¤ä¸Šä¸€æ¬¡è°ƒç”¨ä¸­æ·»åŠ çš„æ‰€æœ‰èƒ½åŠ›
 		TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
 		for (const FGameplayAbilitySpec& Spec : AbilitySystem->GetActivatableAbilities()) {
 			if ((Spec.SourceObject == this) && CharacterAbilities.Contains(Spec.Ability->GetClass())) {
@@ -363,7 +434,7 @@ void ABaseCharacter::RemoveStartupGameplayAbilities()
 			AbilitySystem->ClearAbility(AbilitiesToRemove[i]);
 		}
 
-		// ÒÆ³ıËùÓĞÓ¦ÓÃÔÚCharacterÉíÉÏµÄ±»¶¯Ğ§¹û
+		// ç§»é™¤æ‰€æœ‰åº”ç”¨åœ¨Characterèº«ä¸Šçš„è¢«åŠ¨æ•ˆæœ
 		FGameplayEffectQuery Query;
 		Query.EffectSource = this;
 		AbilitySystem->RemoveActiveEffects(Query);
@@ -378,7 +449,7 @@ void ABaseCharacter::OnDamaged(float DamageAmount, const FHitResult& HitInfo, co
 {
 	UE_LOG(LogTemp, Log, TEXT("On Damaged RestHealth: %f, DamageAmount: %f"), CharacterAttributeSet->GetHealth(), DamageAmount);
 	if (IsAlive()) {
-		// ¸ù¾İÊÜ»÷·½ÏòÈ·¶¨Òª²¥·ÅµÄMontage
+		// æ ¹æ®å—å‡»æ–¹å‘ç¡®å®šè¦æ’­æ”¾çš„Montage
 		ERelativeOrientation RelativeOrientation = CalculateRelativeOrientation(DamageCauser);
 		UAnimMontage** HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
 		
@@ -438,7 +509,7 @@ void ABaseCharacter::HandleMoveSpeedChanged(float DeltaValue, const struct FGame
 
 ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(AActor* TargetActor)
 {
-	// Ä¬ÈÏÔÚÇ°·½
+	// é»˜è®¤åœ¨å‰æ–¹
 	ERelativeOrientation RelativeOrientation = ERelativeOrientation::Forward;
 	
 	if (TargetActor) {

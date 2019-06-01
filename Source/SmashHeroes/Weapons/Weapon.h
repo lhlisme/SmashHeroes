@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -32,15 +32,15 @@ protected:
 	EWeaponMeshType WeaponMeshType = EWeaponMeshType::StaticMeshWeapon;
 
 public:
-	// ÎäÆ÷Åö×²¼ì²âÊôĞÔ
+	// æ­¦å™¨ç¢°æ’æ£€æµ‹å±æ€§
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
-	FVector WeaponHalfSize;		// ÎäÆ÷Åö×²Ìå»ıHalfSize
+	FVector WeaponHalfSize;		// æ­¦å™¨ç¢°æ’ä½“ç§¯HalfSize
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "HitCheck")
-	TArray<FName> SocketNames;		// ÎäÆ÷Íø¸ñËùÓĞSocketµÄÃû³Æ
+	TArray<FName> SocketNames;		// æ­¦å™¨ç½‘æ ¼æ‰€æœ‰Socketçš„åç§°
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck")
-	TArray<FVector> SocketLocations;	// ÎäÆ÷ÉÏËùÓĞSocketµÄÎ»ÖÃ(ÔÚÃ¿Ö¡½áÊøÊ±¸üĞÂ)
+	TArray<FVector> SocketLocations;	// æ­¦å™¨ä¸Šæ‰€æœ‰Socketçš„ä½ç½®(åœ¨æ¯å¸§ç»“æŸæ—¶æ›´æ–°)
 
 public:
 	virtual void InitialWeapon();
@@ -59,7 +59,7 @@ public:
 
 	void UpdateSocketLocation(int32 SocketIndex, FVector CurLocation);
 
-	FVector GetCurrentSocketLocation(int32 SocketIndex);	// »ñÈ¡¹Ç÷ÀµÄµ±Ç°Î»ÖÃĞÅÏ¢
+	FVector GetCurrentSocketLocation(int32 SocketIndex);	// è·å–éª¨éª¼çš„å½“å‰ä½ç½®ä¿¡æ¯
 };
 
 UCLASS()

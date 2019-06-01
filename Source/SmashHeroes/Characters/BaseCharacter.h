@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -8,6 +8,7 @@
 #include "AbilitySystemInterface.h"
 #include "Abilities/SHAbilitySystemComponent.h"
 #include "Abilities/BaseAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapons/Weapon.h"
@@ -45,7 +46,7 @@ class SMASHHEROES_API ABaseCharacter : public ACharacter, public IAbilitySystemI
 	GENERATED_BODY()
 
 protected:
-	/** CharacterËùÊôµÄLevel£¬ÔÚÉú³ÉÊ±È·¶¨£¬Ö®ºó²»ÔÙ±ä»¯ */
+	/** Characteræ‰€å±çš„Levelï¼Œåœ¨ç”Ÿæˆæ—¶ç¡®å®šï¼Œä¹‹åä¸å†å˜åŒ– */
 	UPROPERTY(EditAnywhere, Replicated, Category = "Abilities")
 	int32 CharacterLevel;
 
@@ -53,82 +54,82 @@ protected:
 	class USHAbilitySystemComponent* AbilitySystem;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
-	TMap<AActor*, int32> LeftDamagedActors;	// µ±Ç°¹¥»÷×óÊÖÎäÆ÷ËùÃüÖĞµÄ¶ÔÏó¡£Key: ±»»÷ÖĞµÄ¶ÔÏó; Value; ¶ÔÏó±»»÷ÖĞµÄ´ÎÊı
+	TMap<AActor*, int32> LeftDamagedActors;	// å½“å‰æ”»å‡»å·¦æ‰‹æ­¦å™¨æ‰€å‘½ä¸­çš„å¯¹è±¡ã€‚Key: è¢«å‡»ä¸­çš„å¯¹è±¡; Value; å¯¹è±¡è¢«å‡»ä¸­çš„æ¬¡æ•°
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
-	TMap<AActor*, int32> RightDamagedActors; // µ±Ç°¹¥»÷ÓÒÊÖÎäÆ÷ËùÃüÖĞµÄ¶ÔÏó¡£Key: ±»»÷ÖĞµÄ¶ÔÏó; Value: ¶ÔÏó±»»÷ÖĞµÄ´ÎÊı
+	TMap<AActor*, int32> RightDamagedActors; // å½“å‰æ”»å‡»å³æ‰‹æ­¦å™¨æ‰€å‘½ä¸­çš„å¯¹è±¡ã€‚Key: è¢«å‡»ä¸­çš„å¯¹è±¡; Value: å¯¹è±¡è¢«å‡»ä¸­çš„æ¬¡æ•°
 
 	/** If true we have initialized our abilities */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	int32 bAbilitiesInitialized;
 
 public:
-	/** ÒÆ¶¯Ïà¹ØÊôĞÔ */
+	/** ç§»åŠ¨ç›¸å…³å±æ€§ */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
 	bool IsRunning = false;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
 	float Speed = 0.f;
 
-	/** ¹¥»÷Ïà¹ØÊôĞÔ */
+	/** æ”»å‡»ç›¸å…³å±æ€§ */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool IsAttacking = false;	// TODO ¶¯×÷±»´ò¶ÏÊ±ÒªÖØÖÃÎªfalse
+	bool IsAttacking = false;	// TODO åŠ¨ä½œè¢«æ‰“æ–­æ—¶è¦é‡ç½®ä¸ºfalse
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	TMap<int32, UAnimMontage*> AttackMontageMap;		// ¼ÇÂ¼¹¥»÷¶¯»­Ë÷ÒıºÍMontageµÄ¶ÔÓ¦¹ØÏµ 
+	TMap<int32, UAnimMontage*> AttackMontageMap;		// è®°å½•æ”»å‡»åŠ¨ç”»ç´¢å¼•å’ŒMontageçš„å¯¹åº”å…³ç³» 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<ERelativeOrientation, UAnimMontage*> HitMontageMap;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	int32 ComboIndex = 0;		// µ±Ç°¹¥»÷¶¯»­Ë÷Òı		// TODO ¸ÄÃûAttackIndex
+	int32 ComboIndex = 0;		// å½“å‰æ”»å‡»åŠ¨ç”»ç´¢å¼•		// TODO æ”¹åAttackIndex
 
-	/** ÉÁ±ÜÏà¹ØÊôĞÔ */
+	/** é—ªé¿ç›¸å…³å±æ€§ */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Evade")
-	bool IsEvading = false;		// TODO ¶¯×÷±»´ò¶ÏÊ±ÒªÖØÖÃÎªfalse
+	bool IsEvading = false;		// TODO åŠ¨ä½œè¢«æ‰“æ–­æ—¶è¦é‡ç½®ä¸ºfalse
 
-	/** ·ÀÓùÏà¹ØÊôĞÔ */
+	/** é˜²å¾¡ç›¸å…³å±æ€§ */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard")
-	bool IsGuarding = false;	// TODO ¶¯×÷±»´ò¶ÏÊ±ÒªÖØÖÃÎªfalse
+	bool IsGuarding = false;	// TODO åŠ¨ä½œè¢«æ‰“æ–­æ—¶è¦é‡ç½®ä¸ºfalse
 
-	/** ½ÇÉ«ÎäÆ÷ */
+	/** è§’è‰²æ­¦å™¨ */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TSubclassOf<AWeapon> WeaponClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	AWeapon* LeftWeapon;		// ×óÊÖÎäÆ÷Íø¸ñ
+	AWeapon* LeftWeapon;		// å·¦æ‰‹æ­¦å™¨ç½‘æ ¼
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FName LeftWeaponSocket;	// ×óÊÖÎäÆ÷²å²Û
+	FName LeftWeaponSocket;	// å·¦æ‰‹æ­¦å™¨æ’æ§½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	AWeapon* RightWeapon;	// ÓÒÊÖÎäÆ÷Íø¸ñ
+	AWeapon* RightWeapon;	// å³æ‰‹æ­¦å™¨ç½‘æ ¼
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FName RightWeaponSocket;	// ÓÒÊÖÎäÆ÷²å²Û
+	FName RightWeaponSocket;	// å³æ‰‹æ­¦å™¨æ’æ§½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	EArmedState ArmedState = EArmedState::Unarmed;
 
-	/** ¼¼ÄÜÏà¹ØÊôĞÔ */
+	/** æŠ€èƒ½ç›¸å…³å±æ€§ */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	EAttackType AttackType = EAttackType::MeleeAttack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	TArray<TSubclassOf<class USHGameplayAbility>> CharacterAbilities;
 
-	// ÔÚ´´½¨½ÇÉ«Ê±Ó¦ÓÃµÄ±»¶¯Ğ§¹û£¬°üÀ¨³õÊ¼×´Ì¬µÈ
+	// åœ¨åˆ›å»ºè§’è‰²æ—¶åº”ç”¨çš„è¢«åŠ¨æ•ˆæœï¼ŒåŒ…æ‹¬åˆå§‹çŠ¶æ€ç­‰
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayEffect>> PassiveGameplayEffects;
 
-	// ½ÇÉ«ÊôĞÔ¼¯
+	// è§’è‰²å±æ€§é›†
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	UBaseAttributeSet* CharacterAttributeSet;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	// ¼ÆËãÄ¿±êÏà¶Ô³¯Ïò
+	// è®¡ç®—ç›®æ ‡ç›¸å¯¹æœå‘
 	virtual ERelativeOrientation CalculateRelativeOrientation(AActor* TargetActor);
 
 public:	
@@ -149,7 +150,7 @@ public:
 	// Returns AbilitySystem subobject
 	UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystem; }
 
-	// Éú³ÉÎäÆ÷
+	// ç”Ÿæˆæ­¦å™¨
 	void GenerateWeapon();
 
 	bool AddLeftDamagedActor(AActor* CurDamagedActor);
@@ -159,7 +160,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ClearDamagedActors();
 
-	// ¹¥»÷Ïà¹Ø
+	// æ”»å‡»ç›¸å…³
 	UFUNCTION(BlueprintCallable)
 	virtual bool Attack();
 	
@@ -170,9 +171,9 @@ public:
 	virtual void EndAttack();
 
 	UFUNCTION(BlueprintCallable)	
-	virtual UAnimMontage* GetAttackMontageByIndex();		// ¸ù¾İAttackIndex»ñÈ¡µ±Ç°µÄÁ¬»÷¶¯»­
+	virtual UAnimMontage* GetAttackMontageByIndex();		// æ ¹æ®AttackIndexè·å–å½“å‰çš„è¿å‡»åŠ¨ç”»
 
-	// ÉÁ±ÜÏà¹Ø
+	// é—ªé¿ç›¸å…³
 	UFUNCTION(BlueprintCallable)
 	virtual bool Evade();
 
@@ -182,7 +183,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void EndEvade();
 
-	// ·ÀÓùÏà¹Ø
+	// é˜²å¾¡ç›¸å…³
 	UFUNCTION(BlueprintCallable)
 	virtual bool Guard();
 
@@ -192,7 +193,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void EndGuard();
 
-	// ¹¥»÷¼ì²â
+	// æ”»å‡»æ£€æµ‹
 	UFUNCTION(BlueprintCallable)
 	bool AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits);
 	
@@ -216,16 +217,37 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual float GetMoveSpeed() const;
 
-	/** »ñÈ¡Íæ¼ÒµÈ¼¶ĞÅÏ¢ */
+	/** è·å–ç©å®¶ç­‰çº§ä¿¡æ¯ */
 	UFUNCTION(BlueprintCallable)
 	virtual int32 GetCharacterLevel() const;
 
-	/** ĞŞ¸ÄÍæ¼ÒµÈ¼¶, ¿ÉÄÜ¸Ä±äÍæ¼ÒµÄÄÜÁ¦ */
+	/** ä¿®æ”¹ç©å®¶ç­‰çº§, å¯èƒ½æ”¹å˜ç©å®¶çš„èƒ½åŠ› */
 	UFUNCTION(BlueprintCallable)
 	virtual bool SetCharacterLevel(int32 NewLevel);
 
 	UFUNCTION(BlueprintPure)
 	bool IsAlive();
+
+	/**
+	 * å°è¯•æ¿€æ´»æŒ‡å®šTagçš„æ‰€æœ‰èƒ½åŠ›, bAllowRemoteActivationä¸ºtrueæ—¶å¯ä»¥è¿œç¨‹åœ¨æœåŠ¡å™¨ä¸Šæ¿€æ´»èƒ½åŠ›, å¦åˆ™åªä¼šåœ¨æœ¬åœ°æ¿€æ´» */
+	UFUNCTION(BlueprintCallable, Category = "Abilities")
+	bool ActivateAbilitiesWithTags(FGameplayTagContainer AbilityTags, bool bAllowRemoteActivation = true);
+
+	/** è¿”å›æŒ‡å®šTagçš„å·²æ¿€æ´»(æ­£åœ¨è¿è¡Œä¸­)èƒ½åŠ› */
+	UFUNCTION(BlueprintCallable, Category = "Abilities")
+	void GetActiveAbilitiesWithTags(FGameplayTagContainer AbilityTags, TArray<USHGameplayAbility*>& ActiveAbilities);
+
+	/** è¿”å›æŒ‡å®šCooldownçš„æ€»æ—¶é—´å’Œå‰©ä½™æ—¶é—´ã€‚ å¦‚æœæ²¡æœ‰æ¿€æ´»çš„Cooldownè¿”å›false */
+	UFUNCTION(BlueprintCallable, Category = "Abilities")
+	bool GetCooldownRemainingForTag(FGameplayTagContainer CooldownTags, float& TimeRemaining, float& CooldownDuration);
+
+	/** æ£€æŸ¥æ˜¯å¦èƒ½ä½¿ç”¨æŒ‡å®šçš„èƒ½åŠ›, ExcludeAbilityTagsä¸ºä¸ç›®æ ‡èƒ½åŠ›å†²çªçš„æ‰€æœ‰å…¶ä»–èƒ½åŠ›çš„Tags */
+	UFUNCTION(BlueprintPure, Category = "Abilities")
+	bool CanUseAnyAbility();
+
+	/** æ£€æŸ¥æ˜¯å¦æ­£åœ¨ä½¿ç”¨æŒ‡å®šçš„èƒ½åŠ›(æ³¨æ„è¿™é‡Œçš„Tagsæ˜¯â€œAndâ€å…³ç³», å³å¦‚æœæœ‰å¤šä¸ªTag, å°†å¯»æ‰¾åŒ¹é…æ‰€æœ‰Tagsçš„èƒ½åŠ›) */
+	UFUNCTION(BlueprintPure, Category = "Abilities")
+	bool IsUsingSpecificAbility(FGameplayTagContainer AbilityTags);
 
 	/**
 	 * Called when character takes damage, which may have killed them
@@ -267,10 +289,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
-	/** Ó¦ÓÃ³õÊ¼»¯ÄÜÁ¦ºÍĞ§¹û */
+	/** åº”ç”¨åˆå§‹åŒ–èƒ½åŠ›å’Œæ•ˆæœ */
 	void AddStartupGameplayAbilities();
 
-	/** ÒÆ³ıËùÓĞ³õÊ¼ÄÜÁ¦ºÍĞ§¹û */
+	/** ç§»é™¤æ‰€æœ‰åˆå§‹èƒ½åŠ›å’Œæ•ˆæœ */
 	void RemoveStartupGameplayAbilities();
 
 	// Called from RPGAttributeSet, these call BP events above
@@ -279,7 +301,7 @@ public:
 	virtual void HandleEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
-	// ½«UBaseAttributeSetÉùÃ÷ÎªÓÑÔªÀà£¬Ê¹ÆäÄÜ·ÃÎÊÉÏÊöHandleº¯Êı
+	// å°†UBaseAttributeSetå£°æ˜ä¸ºå‹å…ƒç±»ï¼Œä½¿å…¶èƒ½è®¿é—®ä¸Šè¿°Handleå‡½æ•°
 	friend UBaseAttributeSet;
 };
 

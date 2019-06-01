@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SHAbilitySystemComponent.h"
@@ -12,6 +12,8 @@ void USHAbilitySystemComponent::GetActiveAbilitiesWithTags(const FGameplayTagCon
 {
 	TArray<FGameplayAbilitySpec*> AbilitiesToActivate;
 	GetActivatableGameplayAbilitySpecsByAllMatchingTags(GameplayTagContainer, AbilitiesToActivate, false);
+
+	UE_LOG(LogTemp, Log, TEXT("Activatable GA Specs Matched Tags: %d"), AbilitiesToActivate.Num());
 
 	// Iterate the list of all ability specs
 	for (FGameplayAbilitySpec* Spec : AbilitiesToActivate)

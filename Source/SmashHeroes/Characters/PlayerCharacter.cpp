@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "PlayerCharacter.h"
@@ -15,7 +15,7 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// ³õÊ¼»¯½ÇÉ«ÒÆ¶¯¿ØÖÆ²ÎÊı
+	// åˆå§‹åŒ–è§’è‰²ç§»åŠ¨æ§åˆ¶å‚æ•°
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 640.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
@@ -62,13 +62,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// ÉèÖÃ¡°ÒÆ¶¯¡±°ó¶¨
+	// è®¾ç½®â€œç§»åŠ¨â€ç»‘å®š
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
-	// ÉèÖÃ¡°ÌøÔ¾¡±°ó¶¨
+	// è®¾ç½®â€œè·³è·ƒâ€ç»‘å®š
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::StartJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::StopJump);
-	// ÉèÖÃ¡°¹¥»÷¡±°ó¶¨
+	// è®¾ç½®â€œæ”»å‡»â€ç»‘å®š
 	//PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::Attack);
 }
 
@@ -148,7 +148,7 @@ void APlayerCharacter::BeginAttack()
 void APlayerCharacter::EndAttack()
 {
 	Super::EndAttack();
-	ComboIndex = 0;		// ¹¥»÷½áÊøºóÖØÖÃComboIndexºÍComboSetIndex
+	ComboIndex = 0;		// æ”»å‡»ç»“æŸåé‡ç½®ComboIndexå’ŒComboSetIndex
 	ComboSetIndex = 0;
 }
 
@@ -164,24 +164,26 @@ UAnimMontage* APlayerCharacter::GetAttackMontageByIndex()
 void APlayerCharacter::BeginEvade()
 {
 	Super::BeginEvade();
+	// å¦‚æœæ”»å‡»è¢«ä¸­æ–­çš„è¯, é‡æ–°åˆå§‹åŒ–ComboIndex
+	ComboIndex = 0;
+	ComboSetIndex = 0;
 }
 
 void APlayerCharacter::EndEvade()
 {
 	Super::EndEvade();
-	ComboIndex = 0;		// Çå¿ÕÉÁ±Ü¶¯×÷Ê±»º´æµÄÎŞĞ§ÊäÈë
-	ComboSetIndex = 0;
 }
 
 void APlayerCharacter::BeginGuard()
 {
 	Super::BeginGuard();
+	// å¦‚æœæ”»å‡»è¢«ä¸­æ–­çš„è¯, é‡æ–°åˆå§‹åŒ–ComboIndex
+	ComboIndex = 0;
+	ComboSetIndex = 0;
 }
 
 void APlayerCharacter::EndGuard()
 {
 	Super::EndGuard();
-	ComboIndex = 0;		// Çå¿ÕÉÁ±Ü¶¯×÷Ê±»º´æµÄÎŞĞ§ÊäÈë
-	ComboSetIndex = 0;
 }
 

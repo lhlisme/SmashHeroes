@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -35,24 +35,24 @@ private:
 	float RightInput = 0.f;
 
 public:
-	/** ¹¥»÷Ïà¹ØÊôĞÔ */
+	/** æ”»å‡»ç›¸å…³å±æ€§ */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	int32 ComboSetIndex = 0;	// µ±Ç°Á¬»÷¶¯»­ËùÊô¼¯ºÏË÷Òı
+	int32 ComboSetIndex = 0;	// å½“å‰è¿å‡»åŠ¨ç”»æ‰€å±é›†åˆç´¢å¼•
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	EComboStatus ComboStatus = EComboStatus::NoCombo;		// µ±Ç°Á¬»÷×´Ì¬
+	EComboStatus ComboStatus = EComboStatus::NoCombo;		// å½“å‰è¿å‡»çŠ¶æ€
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	bool CanCombo = false;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool CanSwitchCombo = false;	// ÊÇ·ñ¿ÉÇĞ»»ÖÁÏÂÒ»Ì×Á¬»÷¶¯×÷
+	bool CanSwitchCombo = false;	// æ˜¯å¦å¯åˆ‡æ¢è‡³ä¸‹ä¸€å¥—è¿å‡»åŠ¨ä½œ
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool ComboSwitched = false;		// Á¬»÷¶¯×÷ÒÑÇĞ»»
+	bool ComboSwitched = false;		// è¿å‡»åŠ¨ä½œå·²åˆ‡æ¢
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool IsLastCombo = false;	// ÊÇ·ñÎªÁ¬»÷µÄ×îºóÒ»¸ö¶¯×÷
+	bool IsLastCombo = false;	// æ˜¯å¦ä¸ºè¿å‡»çš„æœ€åä¸€ä¸ªåŠ¨ä½œ
 
 public:
 	// Sets default values for this character's properties
@@ -69,23 +69,23 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// ´¦ÀíÇ°ºóÒÆ¶¯µÄÊäÈë
+	// å¤„ç†å‰åç§»åŠ¨çš„è¾“å…¥
 	UFUNCTION()
 	void MoveForward(float Value);
 
-	// ´¦Àí×óÓÒÒÆ¶¯µÄÊäÈë
+	// å¤„ç†å·¦å³ç§»åŠ¨çš„è¾“å…¥
 	UFUNCTION()
 	void MoveRight(float Value);
 
-	// °´ÏÂ°´¼üÊ±ÉèÖÃÌøÔ¾±ê¼Ç
+	// æŒ‰ä¸‹æŒ‰é”®æ—¶è®¾ç½®è·³è·ƒæ ‡è®°
 	UFUNCTION()
 	void StartJump();
 
-	// ËÉ¿ª°´¼üÊ±Çå³ıÌøÔ¾±ê¼Ç
+	// æ¾å¼€æŒ‰é”®æ—¶æ¸…é™¤è·³è·ƒæ ‡è®°
 	UFUNCTION()
 	void StopJump();
 
-	// ¹¥»÷Ïà¹Ø
+	// æ”»å‡»ç›¸å…³
 	virtual bool Attack() override;
 
 	virtual void BeginAttack() override;
@@ -94,12 +94,12 @@ public:
 
 	virtual UAnimMontage* GetAttackMontageByIndex() override;
 
-	// ÉÁ±ÜÏà¹Ø
+	// é—ªé¿ç›¸å…³
 	virtual void BeginEvade() override;
 
 	virtual void EndEvade() override;
 
-	// ·ÀÓùÏà¹Ø
+	// é˜²å¾¡ç›¸å…³
 	virtual void BeginGuard() override;
 
 	virtual void EndGuard() override;

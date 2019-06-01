@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -24,42 +24,42 @@ class SMASHHEROES_API UBaseAttributeSet : public UAttributeSet
 public:
 	// Hitpoints. Self-explanatory.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_Health)
-	FGameplayAttributeData Health;	// µ±Ç°ÉúÃüÖµ
+	FGameplayAttributeData Health;	// å½“å‰ç”Ÿå‘½å€¼
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Health)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_MaxHealth)
-	FGameplayAttributeData MaxHealth;	// ×î´óÉúÃüÖµ
+	FGameplayAttributeData MaxHealth;	// æœ€å¤§ç”Ÿå‘½å€¼
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MaxHealth)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_Energy)
-	FGameplayAttributeData Energy;	// µ±Ç°ÄÜÁ¿Öµ
+	FGameplayAttributeData Energy;	// å½“å‰èƒ½é‡å€¼
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Energy)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_MaxEnergy)
-	FGameplayAttributeData MaxEnergy;	// ×î´óÄÜÁ¿Öµ
+	FGameplayAttributeData MaxEnergy;	// æœ€å¤§èƒ½é‡å€¼
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MaxEnergy)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_MoveSpeed)
-	FGameplayAttributeData MoveSpeed;	// ÒÆ¶¯ËÙ¶È
+	FGameplayAttributeData MoveSpeed;	// ç§»åŠ¨é€Ÿåº¦
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MoveSpeed)
 
 	// Outgoing damage-multiplier.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_AttackMultiplier)
-	FGameplayAttributeData AttackMultiplier;	// ¹¥»÷ÏµÊı
+	FGameplayAttributeData AttackMultiplier;	// æ”»å‡»ç³»æ•°
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, AttackMultiplier)
 
 	// Incoming damage-multiplier.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_DefenseMultiplier)
-	FGameplayAttributeData DefenseMultiplier;	// ·ÀÓùÏµÊı(1.0±íÊ¾ÃâÉË)
+	FGameplayAttributeData DefenseMultiplier;	// é˜²å¾¡ç³»æ•°(1.0è¡¨ç¤ºå…ä¼¤)
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, DefenseMultiplier)
 
 	// Base damage of an outgoing attack.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_BaseAttackPower)
-	FGameplayAttributeData BaseAttackPower;		// »ù´¡¹¥»÷Á¦
+	FGameplayAttributeData BaseAttackPower;		// åŸºç¡€æ”»å‡»åŠ›
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, BaseAttackPower)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_BaseDefensePower)
-	FGameplayAttributeData BaseDefensePower;	// »ù´¡·ÀÓùÁ¦
+	FGameplayAttributeData BaseDefensePower;	// åŸºç¡€é˜²å¾¡åŠ›
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, BaseDefensePower)
 
 	/** Damage is a 'temporary' attribute used by the DamageExecution to calculate final damage, which then turns into -Health */
@@ -70,9 +70,9 @@ public:
 public:
 	UBaseAttributeSet();
 
-	//ÔÚÊôĞÔĞŞ¸ÄÇ°£¬´¦ÀíÒÔ×î´óÖµÎªÏŞµÄµ±Ç°ÉúÃüÖµ/·¨Á¦µ÷Õû
+	//åœ¨å±æ€§ä¿®æ”¹å‰ï¼Œå¤„ç†ä»¥æœ€å¤§å€¼ä¸ºé™çš„å½“å‰ç”Ÿå‘½å€¼/æ³•åŠ›è°ƒæ•´
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	//ÔÚÊôĞÔ±»ĞŞ¸ÄÖ®ºó£¬´¦ÀíÏŞÖÆ²¢½«¸ü¸Ä¸æÖª¸øÆäËû¶ÔÏó
+	//åœ¨å±æ€§è¢«ä¿®æ”¹ä¹‹åï¼Œå¤„ç†é™åˆ¶å¹¶å°†æ›´æ”¹å‘ŠçŸ¥ç»™å…¶ä»–å¯¹è±¡
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData &Data) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

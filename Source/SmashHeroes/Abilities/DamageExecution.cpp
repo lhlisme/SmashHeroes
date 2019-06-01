@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Abilities/DamageExecution.h"
@@ -34,7 +34,7 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
-	FAggregatorEvaluateParameters EvaluationParameters;	// ÓÃÓÚ»ñÈ¡ËùÓĞ±»²¶»ñÊôĞÔµÄÖµ
+	FAggregatorEvaluateParameters EvaluationParameters;	// ç”¨äºè·å–æ‰€æœ‰è¢«æ•è·å±æ€§çš„å€¼
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;
 
@@ -45,7 +45,7 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	float BaseDefensePower = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BaseDefensePowerDef, EvaluationParameters, BaseDefensePower);
-	BaseDefensePower = FMath::Max(BaseDefensePower, 1.0f);	// BaseDefensePowerÔÚ¼ÆËãÊ±²»ÄÜµÍÓÚ1.0
+	BaseDefensePower = FMath::Max(BaseDefensePower, 1.0f);	// BaseDefensePoweråœ¨è®¡ç®—æ—¶ä¸èƒ½ä½äº1.0
 
 	float BaseAttackPower = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BaseAttackPowerDef, EvaluationParameters, BaseAttackPower);
