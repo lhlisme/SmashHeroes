@@ -69,7 +69,7 @@ public:
 	bool IsRunning = false;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
-	float Speed = 0.f;
+	float Speed = 0.0f;
 
 	/** 攻击相关属性 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
