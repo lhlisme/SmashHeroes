@@ -32,3 +32,10 @@ void AMonsterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 }
 
+bool AMonsterCharacter::Attack()
+{
+	ComboIndex = FMath::RandRange(1, AttackMontageMap.Num());
+
+	return true;
+}
+
