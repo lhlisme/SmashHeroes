@@ -38,7 +38,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// 如果不在攻击状态，正常更新武器插槽位置
-	if (!IsAttacking) {
+	if (CurrentState != ECharacterState::Attacking) {
 		if (LeftWeapon) {
 			LeftWeapon->UpdateSocketLocations();
 		}
@@ -164,18 +164,18 @@ bool ABaseCharacter::Attack()
 void ABaseCharacter::BeginAttack()
 {
 	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (IsEvading) {
+	if (CurrentState == ECharacterState::Evading) {
 		EndEvade();
 	}
-	if (IsGuarding) {
+	if (CurrentState == ECharacterState::Guarding) {
 		EndGuard();
 	}
-	IsAttacking = true;
+	CurrentState = ECharacterState::Attacking;
 }
 
 void ABaseCharacter::EndAttack()
 {
-	IsAttacking = false;
+	CurrentState = ECharacterState::Idle;
 }
 
 UAnimMontage* ABaseCharacter::GetAttackMontageByIndex()
@@ -198,18 +198,18 @@ bool ABaseCharacter::Evade()
 void ABaseCharacter::BeginEvade()
 {
 	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (IsAttacking) {
+	if (CurrentState == ECharacterState::Attacking) {
 		EndAttack();
 	}
-	if (IsGuarding) {
+	if (CurrentState == ECharacterState::Guarding) {
 		EndGuard();
 	}
-	IsEvading = true;
+	CurrentState = ECharacterState::Evading;
 }
 
 void ABaseCharacter::EndEvade()
 {
-	IsEvading = false;
+	CurrentState = ECharacterState::Idle;
 }
 
 bool ABaseCharacter::Guard()
@@ -221,18 +221,18 @@ bool ABaseCharacter::Guard()
 void ABaseCharacter::BeginGuard()
 {
 	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (IsAttacking) {
+	if (CurrentState == ECharacterState::Attacking) {
 		EndAttack();
 	}
-	if (IsEvading) {
+	if (CurrentState == ECharacterState::Evading) {
 		EndEvade();
 	}
-	IsGuarding = true;
+	CurrentState = ECharacterState::Guarding;
 }
 
 void ABaseCharacter::EndGuard()
 {
-	IsGuarding = false;
+	CurrentState = ECharacterState::Idle;
 }
 
 bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits)
@@ -327,6 +327,16 @@ bool ABaseCharacter::SetCharacterLevel(int32 NewLevel)
 bool ABaseCharacter::IsAlive()
 {
 	return GetHealth() > 0.0f;
+}
+
+ECharacterState	ABaseCharacter::GetState()
+{
+	return CurrentState;
+}
+
+void ABaseCharacter::SetState(ECharacterState NewState)
+{
+	CurrentState = NewState;
 }
 
 bool ABaseCharacter::ActivateAbilitiesWithTags(FGameplayTagContainer AbilityTags, bool bAllowRemoteActivation)

@@ -31,13 +31,27 @@ enum class EAttackType : uint8
 	RemoteAttack		UMETA(DisplayName = "RemoteAttack")
 };
 
+/** 目标相对方位 */
 UENUM(BlueprintType)
-enum class ERelativeOrientation : uint8
+enum class ERelativeOrientation : uint8		
 {
 	Forward				UMETA(DisplayName = "Forward"),
 	Backward			UMETA(DisplayName = "Backward"),
 	Left				UMETA(DisplayName = "Left"),
 	Right				UMETA(DisplayName = "Right")
+};
+
+/** 角色所处状态 */
+UENUM(BlueprintType)
+enum class ECharacterState : uint8
+{
+	Disabled			UMETA(DisplayName = "Disabled"),	// 受击或者被控
+	Idle				UMETA(DisplayName = "Idle"),
+	Attacking			UMETA(DisplayName = "Attacking"),
+	Evading				UMETA(DisplayName = "Evading"),
+	Guarding			UMETA(DisplayName = "Guarding"),
+	Falling				UMETA(DisplayName = "Falling"),
+	Dead				UMETA(DisplayName = "Dead")
 };
 
 UCLASS()
@@ -63,6 +77,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	int32 bAbilitiesInitialized;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	ECharacterState CurrentState;	// TODO 动作被打断时要重置为Idle
+
 public:
 	/** 移动相关属性 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
@@ -72,9 +89,6 @@ public:
 	float Speed = 0.0f;
 
 	/** 攻击相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool IsAttacking = false;	// TODO 动作被打断时要重置为false
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, UAnimMontage*> AttackMontageMap;		// 记录攻击动画索引和Montage的对应关系 
 
@@ -85,12 +99,8 @@ public:
 	int32 ComboIndex = 0;		// 当前攻击动画索引		// TODO 改名AttackIndex
 
 	/** 闪避相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Evade")
-	bool IsEvading = false;		// TODO 动作被打断时要重置为false
 
 	/** 防御相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard")
-	bool IsGuarding = false;	// TODO 动作被打断时要重置为false
 
 	/** 角色武器 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
@@ -227,6 +237,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsAlive();
+
+	UFUNCTION(BlueprintPure)
+	ECharacterState	GetState();
+
+	UFUNCTION(BlueprintCallable)
+	void SetState(ECharacterState NewState);
 
 	/**
 	 * 尝试激活指定Tag的所有能力, bAllowRemoteActivation为true时可以远程在服务器上激活能力, 否则只会在本地激活 */
