@@ -180,9 +180,13 @@ void ABaseCharacter::EndAttack()
 
 UAnimMontage* ABaseCharacter::GetAttackMontageByIndex()
 {
-	UAnimMontage** CurAttackMontage = AttackMontageMap.Find(ComboIndex);
+	UAnimMontage** CurAttackMontagePtr = AttackMontageMap.Find(ComboIndex);
 
-	return *CurAttackMontage;
+	if (CurAttackMontagePtr) {
+		return *CurAttackMontagePtr;
+	}
+
+	return nullptr;
 }
 
 bool ABaseCharacter::Evade()
