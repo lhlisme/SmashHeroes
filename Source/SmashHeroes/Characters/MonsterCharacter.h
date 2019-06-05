@@ -7,18 +7,6 @@
 #include "BaseCharacter.h"
 #include "MonsterCharacter.generated.h"
 
-UENUM(BlueprintType)
-enum class EAIBehavior : uint8
-{
-	Idle				UMETA(DisplayName = "Idle"),
-	Patrol				UMETA(DisplayName = "Patrol"),
-	MeleeAttack			UMETA(DisplayName = "MeleeAttack"),
-	RangeAttack			UMETA(DisplayName = "RangeAttack"),
-	Approach			UMETA(DisplayName = "Approach"),
-	Flee				UMETA(DisplayName = "Flee"),
-	StrafeAround		UMETA(DisplayName = "StrafeAround"),
-	Hit					UMETA(DisplayName = "Hit")
-};
 
 UCLASS()
 class SMASHHEROES_API AMonsterCharacter : public ABaseCharacter
