@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.h"
+#include "BehaviorComponent.h"
 #include "MonsterCharacter.generated.h"
 
 
@@ -12,6 +13,10 @@ UCLASS()
 class SMASHHEROES_API AMonsterCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "AI")
+	UBehaviorComponent* BehaviorComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -28,4 +33,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual bool Attack() override;
+
+	UFUNCTION(BlueprintCallable)
+	UBehaviorComponent* GetBehaviorComponent();
 };

@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Characters/BaseCharacter.h"
+#include "AIController.h"
 #include "BehaviorComponent.generated.h"
 
 
+/** AI 行为类型 */
 UENUM(BlueprintType)
 enum class EAIBehavior : uint8
 {
@@ -45,7 +48,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
 	float FollowDistance = 4000.0f;	// 追踪距离
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
+	float FleeDistance = 1600.0f;	// 逃离距离
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
+	AActor* SeekTarget;		// 寻找目标(不同于AttackTarget, 需要通过外部指定)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
+	float SeekAcceptanceRadius;		// 寻找行为的可接受半径
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	float MeleeAttackDistance = 400.0f;	// 近战攻击距离
@@ -56,13 +66,43 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Attack Settings")
 	bool IsRequireLineOfSight = false;	// 攻击是否需要考虑在视野内
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	TArray<FName> AttackTargetTags;	// 可攻击目标的Tag数组
+
 private:
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
+	ABaseCharacter* OwningCharacter;
+
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
+	AAIController* OwningAIController;
+
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
+	EAIBehavior CurrentBehavior;	// 初始行为
+
 	UPROPERTY(VisibleAnywhere, Category = "Attack Settings")
-	AActor *AttackTarget;
+	AActor* AttackTarget;
 
 public:	
 	// Sets default values for this component's properties
 	UBehaviorComponent();
+
+	UFUNCTION(BlueprintCallable)
+	ABaseCharacter* GetOwningCharacter();
+
+	/** 获取当前行为类型 */
+	UFUNCTION(BlueprintCallable)
+	EAIBehavior GetCurrentBehavior();
+
+	/** 获取当前攻击目标对象 */
+	UFUNCTION(BlueprintCallable)
+	AActor* GetAttackTarget();
+
+	/** 找寻攻击目标 */
+	AActor* FindAttackTarget();
+
+	/** 根据指定Tag找到最近的目标 */
+	UFUNCTION(BlueprintCallable)
+	AActor* FindNearestTargetWithTag(TArray<FName> TargerTags);
 
 protected:
 	// Called when the game starts

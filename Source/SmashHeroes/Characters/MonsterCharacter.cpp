@@ -8,7 +8,8 @@ AMonsterCharacter::AMonsterCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	// 创建AI行为组件
+	BehaviorComponent = CreateDefaultSubobject<UBehaviorComponent>(TEXT("BehaviorComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -37,5 +38,11 @@ bool AMonsterCharacter::Attack()
 	ComboIndex = FMath::RandRange(1, AttackMontageMap.Num());
 
 	return true;
+}
+
+
+UBehaviorComponent* AMonsterCharacter::GetBehaviorComponent()
+{
+	return BehaviorComponent;
 }
 
