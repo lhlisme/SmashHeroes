@@ -329,7 +329,7 @@ bool ABaseCharacter::IsAlive()
 	return GetHealth() > 0.0f;
 }
 
-ECharacterState	ABaseCharacter::GetState()
+ECharacterState	ABaseCharacter::GetCurrentState()
 {
 	return CurrentState;
 }

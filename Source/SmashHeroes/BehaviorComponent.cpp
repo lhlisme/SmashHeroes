@@ -3,6 +3,7 @@
 
 #include "BehaviorComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 // Sets default values for this component's properties
 UBehaviorComponent::UBehaviorComponent()
@@ -52,14 +53,45 @@ EAIBehavior UBehaviorComponent::GetCurrentBehavior()
 	return CurrentBehavior;
 }
 
-AActor* UBehaviorComponent::GetAttackTarget()
+void UBehaviorComponent::SetSeekTarget(AActor* NewSeekTarget)
 {
-	return AttackTarget;
+	SeekTarget = NewSeekTarget;
+	// 设置黑板TargetActor
+	if (OwningAIController) {
+		if (UBlackboardComponent* Blackboard = OwningAIController->GetBlackboardComponent()) {
+			Blackboard->SetValueAsObject(BBKey_TargetActor, SeekTarget);
+		}
+	}
 }
 
-AActor* UBehaviorComponent::FindAttackTarget()
+AActor* UBehaviorComponent::FindSeekTarget(float &DistToTarget)
+{
+	if (SeekTarget) {
+		DistToTarget = OwningCharacter->GetDistanceTo(SeekTarget);
+		return SeekTarget;
+	}
+
+	// 如果没有设置，寻找最近的满足SeekTargetTag的Actor作为目标
+	SeekTarget = FindNearestTargetWithTag(SeekTargetTags, DistToTarget);
+	// 设置黑板TargetActor
+	if (OwningAIController) {
+		if (UBlackboardComponent* Blackboard = OwningAIController->GetBlackboardComponent()) {
+			Blackboard->SetValueAsObject(BBKey_TargetActor, SeekTarget);
+		}
+	}
+
+	return SeekTarget;
+}
+
+AActor* UBehaviorComponent::GetSeekTarget()
+{
+	return SeekTarget;
+}
+
+AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 {
 	if (AttackTarget) {
+		DistToTarget = OwningCharacter->GetDistanceTo(AttackTarget);
 		return AttackTarget;
 	}
 
@@ -104,13 +136,26 @@ AActor* UBehaviorComponent::FindAttackTarget()
 		}
 	}
 
+	// 记录到攻击目标的距离
+	DistToTarget = NearestDistance;
 	// 设置攻击目标
 	AttackTarget = NearestTarget;
-	// TODO 更新黑板TargetActor信息
+	// 更新黑板TargetActor信息
+	if (OwningAIController) {
+		if (UBlackboardComponent* Blackboard = OwningAIController->GetBlackboardComponent()) {
+			Blackboard->SetValueAsObject(BBKey_TargetActor, AttackTarget);
+		}
+	}
+
 	return AttackTarget;
 }
 
-AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags)
+AActor* UBehaviorComponent::GetAttackTarget()
+{
+	return AttackTarget;
+}
+
+AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags, float &DistToTarget)
 {
 	if (TargerTags.Num() < 0) {
 		return nullptr;
@@ -135,6 +180,58 @@ AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags)
 		}
 	}
 
+	DistToTarget = NearestDistance;
 	return NearestActor;
+}
+
+void UBehaviorComponent::SetBehavior(EAIBehavior NewBehavior)
+{
+	if (OwningAIController) {
+		if (UBlackboardComponent* Blackboard = OwningAIController->GetBlackboardComponent()) {
+			Blackboard->SetValueAsEnum(BBKey_BehaviorType, (uint8)NewBehavior);
+		}
+	}
+}
+
+void UBehaviorComponent::UpdateBehavior()
+{
+	float DistToTarget = 0.0f;
+
+	// 如果找到攻击目标并且当前可以发动攻击
+	if (AttackTarget = FindAttackTarget(DistToTarget)) {
+		// 判断是否支持远程攻击(近战攻击必须支持)
+		if (CanRangeAttack) {
+			if (DistToTarget < MeleeAttackDistance) {
+				// 开始近战攻击
+				SetBehavior(EAIBehavior::MeleeAttack);
+			}
+			else if(DistToTarget < RangeAttackDistance){
+				// 开始远程攻击
+				SetBehavior(EAIBehavior::RangeAttack);
+			}
+			else {
+				// 开始追踪
+				SetBehavior(EAIBehavior::Follow);
+			}
+		}
+		else {
+			if (DistToTarget < MeleeAttackDistance) {
+				// 开始近战攻击
+				SetBehavior(EAIBehavior::MeleeAttack);
+			}
+			else {
+				// 开始追踪
+				SetBehavior(EAIBehavior::Follow);
+			}
+		}
+
+		return;
+	}
+
+
+	// 如果找到寻找目标
+	if (SeekTarget = FindSeekTarget(DistToTarget)) {
+		return;
+	}
 }
 

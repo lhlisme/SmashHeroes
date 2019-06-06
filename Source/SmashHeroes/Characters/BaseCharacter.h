@@ -64,13 +64,13 @@ protected:
 	UPROPERTY(EditAnywhere, Replicated, Category = "Abilities")
 	int32 CharacterLevel;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GameplayAbilities, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	class USHAbilitySystemComponent* AbilitySystem;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck", meta = (AllowPrivateAccess = "true"))
 	TMap<AActor*, int32> LeftDamagedActors;	// 当前攻击左手武器所命中的对象。Key: 被击中的对象; Value; 对象被击中的次数
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitCheck, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck", meta = (AllowPrivateAccess = "true"))
 	TMap<AActor*, int32> RightDamagedActors; // 当前攻击右手武器所命中的对象。Key: 被击中的对象; Value: 对象被击中的次数
 
 	/** If true we have initialized our abilities */
@@ -239,7 +239,7 @@ public:
 	bool IsAlive();
 
 	UFUNCTION(BlueprintPure)
-	ECharacterState	GetState();
+	ECharacterState	GetCurrentState();
 
 	UFUNCTION(BlueprintCallable)
 	void SetState(ECharacterState NewState);
