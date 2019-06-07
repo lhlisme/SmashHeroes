@@ -197,8 +197,9 @@ void UBehaviorComponent::UpdateBehavior()
 {
 	float DistToTarget = 0.0f;
 
+	AttackTarget = FindAttackTarget(DistToTarget);
 	// 如果找到攻击目标并且当前可以发动攻击
-	if (AttackTarget = FindAttackTarget(DistToTarget)) {
+	if (AttackTarget) {
 		// 判断是否支持远程攻击(近战攻击必须支持)
 		if (CanRangeAttack) {
 			if (DistToTarget < MeleeAttackDistance) {
@@ -228,9 +229,9 @@ void UBehaviorComponent::UpdateBehavior()
 		return;
 	}
 
-
+	SeekTarget = FindSeekTarget(DistToTarget);
 	// 如果找到寻找目标
-	if (SeekTarget = FindSeekTarget(DistToTarget)) {
+	if (SeekTarget) {
 		return;
 	}
 }
