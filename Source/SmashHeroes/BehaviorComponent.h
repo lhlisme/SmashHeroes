@@ -3,15 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "Characters/BaseCharacter.h"
 #include "AIController.h"
+#include "Components/ActorComponent.h"
 #include "BehaviorComponent.generated.h"
 
 
 /** AI 行为类型 */
 UENUM(BlueprintType)
-enum class EAIBehavior : uint8
+enum class EBehaviorType : uint8
 {
 	Idle				UMETA(DisplayName = "Idle"),
 	Patrol				UMETA(DisplayName = "Patrol"),
@@ -21,7 +20,8 @@ enum class EAIBehavior : uint8
 	Follow				UMETA(DisplayName = "Follow"),
 	Flee				UMETA(DisplayName = "Flee"),
 	Investigate			UMETA(DisplayName = "Investigate"),
-	Defend				UMETA(DisplayName = "Defend"),
+	Evade				UMETA(DisplayName = "Evade"),
+	Guard				UMETA(DisplayName = "Guard"),
 	Hit					UMETA(DisplayName = "Hit")
 };
 
@@ -33,14 +33,14 @@ enum class EIdleType : uint8
 	RandomWork			UMETA(DisplayName = "RandomWork")
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=AIBehavior, hidecategories=(Object,LOD,Lighting,Transform,Sockets,TextureStreaming), editinlinenew, meta=(BlueprintSpawnableComponent))
 class SMASHHEROES_API UBehaviorComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	EAIBehavior InitBehavior = EAIBehavior::Idle;	// 初始行为
+	EBehaviorType InitBehavior = EBehaviorType::Idle;	// 初始行为
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName BBKey_BehaviorType = FName(TEXT("BehaviorType"));	// 黑板键名称
@@ -56,6 +56,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
 	float FleeDistance = 1600.0f;	// 逃离距离
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
+	EBehaviorType FleeTransition;	// 逃离行为结束后进入的下一行为类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
 	TArray<FName> SeekTargetTags;	// 寻找目标的Tag数组
@@ -78,15 +81,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	TArray<FName> AttackTargetTags;	// 可攻击目标的Tag数组
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	EBehaviorType AttackTransition;	// 攻击行为结束后进入的下一行为类型
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defend Settings")
+	EBehaviorType DefendTransition;	// 防守行为结束后进入的下一行为类型
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Settings")
+	EBehaviorType HitTransition;	// 受击行为结束后进入的下一行为类型
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	ABaseCharacter* OwningCharacter;
+	AActor* OwnerActor;
 
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	AAIController* OwningAIController;
+	AAIController* OwnerAIController;
 
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	EAIBehavior CurrentBehavior;	// 初始行为
+	EBehaviorType CurrentBehavior;	// 初始行为
 
 	UPROPERTY(VisibleAnywhere, Category = "Seek Settings")
 	AActor* SeekTarget;		// 寻找目标(不同于AttackTarget, 需要通过外部指定)
@@ -100,13 +112,6 @@ public:
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UFUNCTION(BlueprintCallable)
-	ABaseCharacter* GetOwningCharacter();
-
-	/** 获取当前行为类型 */
-	UFUNCTION(BlueprintCallable)
-	EAIBehavior GetCurrentBehavior();
 
 	/** 设置寻找目标(外部调用) */
 	void SetSeekTarget(AActor* NewSeekTarget);
@@ -128,9 +133,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AActor* FindNearestTargetWithTag(TArray<FName> TargerTags, float &DistToTarget);
 
+	/** 获取当前行为类型 */
+	UFUNCTION(BlueprintPure)
+	EBehaviorType GetBehavior();
+
 	/** 设置黑板行为信息 */
 	UFUNCTION(BlueprintCallable)
-	void SetBehavior(EAIBehavior NewBehavior);
+	void SetBehavior(EBehaviorType NewBehavior);
 
 	/** 更新行为 */
 	UFUNCTION(BlueprintCallable)

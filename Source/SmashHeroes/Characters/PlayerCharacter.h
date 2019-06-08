@@ -86,13 +86,13 @@ public:
 	void StopJump();
 
 	// 攻击相关
-	virtual bool Attack() override;
+	virtual bool MeleeAttack() override;
 
-	virtual void BeginAttack() override;
+	virtual void BeginMeleeAttack() override;
 	
-	virtual void EndAttack() override;
+	virtual void EndMeleeAttack() override;
 
-	virtual UAnimMontage* GetAttackMontageByIndex() override;
+	virtual UAnimMontage* GetMeleeAttackMontageByIndex() override;
 
 	// 闪避相关
 	virtual void BeginEvade() override;

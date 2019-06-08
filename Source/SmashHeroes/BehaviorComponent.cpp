@@ -3,6 +3,7 @@
 
 #include "BehaviorComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Characters/BaseCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 // Sets default values for this component's properties
@@ -21,11 +22,12 @@ void UBehaviorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwningCharacter = Cast<ABaseCharacter>(GetOwner());
-	if (OwningCharacter) {
-		OwningAIController = Cast<AAIController>(OwningCharacter->GetController());
+	OwnerActor = GetOwner();
+	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
+	if (OwnerCharacter) {
+		OwnerAIController = Cast<AAIController>(OwnerCharacter->GetController());
 		
-		if (OwningCharacter->HasAuthority()) {
+		if (OwnerCharacter->HasAuthority()) {
 			// 初始化数据
 			CurrentBehavior = InitBehavior;
 			SeekTarget = nullptr;
@@ -43,22 +45,12 @@ void UBehaviorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	// ...
 }
 
-ABaseCharacter* UBehaviorComponent::GetOwningCharacter()
-{
-	return OwningCharacter;
-}
-
-EAIBehavior UBehaviorComponent::GetCurrentBehavior()
-{
-	return CurrentBehavior;
-}
-
 void UBehaviorComponent::SetSeekTarget(AActor* NewSeekTarget)
 {
 	SeekTarget = NewSeekTarget;
 	// 设置黑板TargetActor
-	if (OwningAIController) {
-		if (UBlackboardComponent* Blackboard = OwningAIController->GetBlackboardComponent()) {
+	if (OwnerAIController) {
+		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
 			Blackboard->SetValueAsObject(BBKey_TargetActor, SeekTarget);
 		}
 	}
@@ -67,15 +59,15 @@ void UBehaviorComponent::SetSeekTarget(AActor* NewSeekTarget)
 AActor* UBehaviorComponent::FindSeekTarget(float &DistToTarget)
 {
 	if (SeekTarget) {
-		DistToTarget = OwningCharacter->GetDistanceTo(SeekTarget);
+		DistToTarget = OwnerActor->GetDistanceTo(SeekTarget);
 		return SeekTarget;
 	}
 
 	// 如果没有设置，寻找最近的满足SeekTargetTag的Actor作为目标
 	SeekTarget = FindNearestTargetWithTag(SeekTargetTags, DistToTarget);
 	// 设置黑板TargetActor
-	if (OwningAIController) {
-		if (UBlackboardComponent* Blackboard = OwningAIController->GetBlackboardComponent()) {
+	if (OwnerAIController) {
+		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
 			Blackboard->SetValueAsObject(BBKey_TargetActor, SeekTarget);
 		}
 	}
@@ -91,7 +83,7 @@ AActor* UBehaviorComponent::GetSeekTarget()
 AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 {
 	if (AttackTarget) {
-		DistToTarget = OwningCharacter->GetDistanceTo(AttackTarget);
+		DistToTarget = OwnerActor->GetDistanceTo(AttackTarget);
 		return AttackTarget;
 	}
 
@@ -109,13 +101,13 @@ AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 		UGameplayStatics::GetAllActorsWithTag(GetWorld(), CurrentTag, FindedActors);
 
 		for (AActor* CurrentActor : FindedActors) {
-			if (OwningCharacter) {
-				TempDistance = OwningCharacter->GetDistanceTo(CurrentActor);
+			if (OwnerActor) {
+				TempDistance = OwnerActor->GetDistanceTo(CurrentActor);
 				// 目标在侦测距离内
 				if (TempDistance < InvestigateDistance) {
 					// 如果需要目标可见才能攻击
-					if (IsRequireLineOfSight && OwningAIController) {
-						TargetInSight = OwningAIController->LineOfSightTo(CurrentActor, ViewPoint, false);
+					if (IsRequireLineOfSight && OwnerAIController) {
+						TargetInSight = OwnerAIController->LineOfSightTo(CurrentActor, ViewPoint, false);
 						// 如果目标不在视线范围内, 则跳过(忽略)
 						if (!TargetInSight) {
 							continue;
@@ -141,8 +133,8 @@ AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 	// 设置攻击目标
 	AttackTarget = NearestTarget;
 	// 更新黑板TargetActor信息
-	if (OwningAIController) {
-		if (UBlackboardComponent* Blackboard = OwningAIController->GetBlackboardComponent()) {
+	if (OwnerAIController) {
+		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
 			Blackboard->SetValueAsObject(BBKey_TargetActor, AttackTarget);
 		}
 	}
@@ -170,8 +162,8 @@ AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags, f
 		UGameplayStatics::GetAllActorsWithTag(GetWorld(), CurrentTag, FindedActors);
 
 		for (AActor* CurrentActor : FindedActors) {
-			if (OwningCharacter) {
-				TempDistance = OwningCharacter->GetDistanceTo(CurrentActor);
+			if (OwnerActor) {
+				TempDistance = OwnerActor->GetDistanceTo(CurrentActor);
 				if (TempDistance < NearestDistance) {
 					NearestDistance = TempDistance;
 					NearestActor = CurrentActor;
@@ -184,10 +176,16 @@ AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags, f
 	return NearestActor;
 }
 
-void UBehaviorComponent::SetBehavior(EAIBehavior NewBehavior)
+EBehaviorType UBehaviorComponent::GetBehavior()
 {
-	if (OwningAIController) {
-		if (UBlackboardComponent* Blackboard = OwningAIController->GetBlackboardComponent()) {
+	return CurrentBehavior;
+}
+
+void UBehaviorComponent::SetBehavior(EBehaviorType NewBehavior)
+{
+	CurrentBehavior = NewBehavior;
+	if (OwnerAIController) {
+		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
 			Blackboard->SetValueAsEnum(BBKey_BehaviorType, (uint8)NewBehavior);
 		}
 	}
@@ -195,6 +193,12 @@ void UBehaviorComponent::SetBehavior(EAIBehavior NewBehavior)
 
 void UBehaviorComponent::UpdateBehavior()
 {
+	// 只有当前行为类型为Idle时才更新行为
+	if (CurrentBehavior != EBehaviorType::Idle) {
+		return;
+	}
+
+	// 到目标对象的距离
 	float DistToTarget = 0.0f;
 
 	AttackTarget = FindAttackTarget(DistToTarget);
@@ -204,25 +208,25 @@ void UBehaviorComponent::UpdateBehavior()
 		if (CanRangeAttack) {
 			if (DistToTarget < MeleeAttackDistance) {
 				// 开始近战攻击
-				SetBehavior(EAIBehavior::MeleeAttack);
+				SetBehavior(EBehaviorType::MeleeAttack);
 			}
 			else if(DistToTarget < RangeAttackDistance){
 				// 开始远程攻击
-				SetBehavior(EAIBehavior::RangeAttack);
+				SetBehavior(EBehaviorType::RangeAttack);
 			}
 			else {
 				// 开始追踪
-				SetBehavior(EAIBehavior::Follow);
+				SetBehavior(EBehaviorType::Follow);
 			}
 		}
 		else {
 			if (DistToTarget < MeleeAttackDistance) {
 				// 开始近战攻击
-				SetBehavior(EAIBehavior::MeleeAttack);
+				SetBehavior(EBehaviorType::MeleeAttack);
 			}
 			else {
 				// 开始追踪
-				SetBehavior(EAIBehavior::Follow);
+				SetBehavior(EBehaviorType::Follow);
 			}
 		}
 
@@ -234,5 +238,8 @@ void UBehaviorComponent::UpdateBehavior()
 	if (SeekTarget) {
 		return;
 	}
+
+	// 没有目标，进行巡逻
+
 }
 

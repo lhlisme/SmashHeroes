@@ -21,6 +21,10 @@ ABaseCharacter::ABaseCharacter()
 
 	CharacterLevel = 1;
 	bAbilitiesInitialized = false;
+
+	// 创建行为组件
+	BehaviorComponent = CreateDefaultSubobject<UBehaviorComponent>(TEXT("BehaviorComponent"));
+	BehaviorComponent->SetIsReplicated(true);
 }
 
 // Called when the game starts or when spawned
@@ -37,8 +41,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// 如果不在攻击状态，正常更新武器插槽位置
-	if (CurrentState != ECharacterState::Attacking) {
+	// 如果不在近战攻击状态，正常更新武器插槽位置
+	if (BehaviorComponent->GetBehavior() != EBehaviorType::MeleeAttack) {
 		if (LeftWeapon) {
 			LeftWeapon->UpdateSocketLocations();
 		}
@@ -155,32 +159,70 @@ void ABaseCharacter::ClearDamagedActors()
 	RightDamagedActors.Empty();
 }
 
-bool ABaseCharacter::Attack()
+bool ABaseCharacter::MeleeAttack()
 {
 	// 返回值表示是否有效执行
 	return false;
 }
 
-void ABaseCharacter::BeginAttack()
+void ABaseCharacter::BeginMeleeAttack()
 {
+	EBehaviorType CurrentBehavior = BehaviorComponent->GetBehavior();
 	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (CurrentState == ECharacterState::Evading) {
+	if (CurrentBehavior == EBehaviorType::Evade) {
 		EndEvade();
 	}
-	if (CurrentState == ECharacterState::Guarding) {
+	if (CurrentBehavior == EBehaviorType::Guard) {
 		EndGuard();
 	}
-	CurrentState = ECharacterState::Attacking;
+	BehaviorComponent->SetBehavior(EBehaviorType::MeleeAttack);
 }
 
-void ABaseCharacter::EndAttack()
+void ABaseCharacter::EndMeleeAttack()
 {
-	CurrentState = ECharacterState::Idle;
+	BehaviorComponent->SetBehavior(EBehaviorType::Idle);
+	OnAttackEnded.Broadcast();
 }
 
-UAnimMontage* ABaseCharacter::GetAttackMontageByIndex()
+UAnimMontage* ABaseCharacter::GetMeleeAttackMontageByIndex()
 {
-	UAnimMontage** CurAttackMontagePtr = AttackMontageMap.Find(ComboIndex);
+	UAnimMontage** CurAttackMontagePtr = MeleeAttackMontageMap.Find(AttackIndex);
+
+	if (CurAttackMontagePtr) {
+		return *CurAttackMontagePtr;
+	}
+
+	return nullptr;
+}
+
+bool ABaseCharacter::RangeAttack()
+{
+	// 返回值表示是否有效执行
+	return false;
+}
+
+void ABaseCharacter::BeginRangeAttack()
+{
+	EBehaviorType CurrentBehavior = BehaviorComponent->GetBehavior();
+	// 如果其他动作被中断，需要调用相应EndXXX函数
+	if (CurrentBehavior == EBehaviorType::Evade) {
+		EndEvade();
+	}
+	if (CurrentBehavior == EBehaviorType::Guard) {
+		EndGuard();
+	}
+	BehaviorComponent->SetBehavior(EBehaviorType::RangeAttack);
+}
+
+void ABaseCharacter::EndRangeAttack()
+{
+	BehaviorComponent->SetBehavior(EBehaviorType::Idle);
+	OnAttackEnded.Broadcast();
+}
+
+UAnimMontage* ABaseCharacter::GetRangeAttackMontageByIndex()
+{
+	UAnimMontage** CurAttackMontagePtr = RangeAttackMontageMap.Find(AttackIndex);
 
 	if (CurAttackMontagePtr) {
 		return *CurAttackMontagePtr;
@@ -197,19 +239,23 @@ bool ABaseCharacter::Evade()
 
 void ABaseCharacter::BeginEvade()
 {
+	EBehaviorType CurrentBehavior = BehaviorComponent->GetBehavior();
 	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (CurrentState == ECharacterState::Attacking) {
-		EndAttack();
+	if (CurrentBehavior == EBehaviorType::MeleeAttack) {
+		EndMeleeAttack();
 	}
-	if (CurrentState == ECharacterState::Guarding) {
+	else if (CurrentBehavior == EBehaviorType::RangeAttack) {
+		EndRangeAttack();
+	} else if (CurrentBehavior == EBehaviorType::Guard) {
 		EndGuard();
 	}
-	CurrentState = ECharacterState::Evading;
+	BehaviorComponent->SetBehavior(EBehaviorType::Evade);
 }
 
 void ABaseCharacter::EndEvade()
 {
-	CurrentState = ECharacterState::Idle;
+	BehaviorComponent->SetBehavior(EBehaviorType::Idle);
+	OnEvadeEnded.Broadcast();
 }
 
 bool ABaseCharacter::Guard()
@@ -220,23 +266,28 @@ bool ABaseCharacter::Guard()
 
 void ABaseCharacter::BeginGuard()
 {
+	EBehaviorType CurrentBehavior = BehaviorComponent->GetBehavior();
 	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (CurrentState == ECharacterState::Attacking) {
-		EndAttack();
+	if (CurrentBehavior == EBehaviorType::MeleeAttack) {
+		EndMeleeAttack();
+	} else if (CurrentBehavior == EBehaviorType::RangeAttack) {
+		EndRangeAttack();
 	}
-	if (CurrentState == ECharacterState::Evading) {
+	else if (CurrentBehavior == EBehaviorType::Evade) {
 		EndEvade();
 	}
-	CurrentState = ECharacterState::Guarding;
+	BehaviorComponent->SetBehavior(EBehaviorType::Guard);
 }
 
 void ABaseCharacter::EndGuard()
 {
-	CurrentState = ECharacterState::Idle;
+	BehaviorComponent->SetBehavior(EBehaviorType::Idle);
+	OnGuardEnded.Broadcast();
 }
 
-bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits)
+bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits)
 {
+	bool Hitted = false;	// 是否命中目标
 	// 近战攻击检测
 	if (AttackType == EAttackType::MeleeAttack) {
 		if (LeftWeapon) {
@@ -250,6 +301,7 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 				for (int32 j = 0; j < OutHits.Num(); ++j) {
 					if (AddLeftDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
+						Hitted = true;
 					}
 				}
 
@@ -269,6 +321,7 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 				for (int32 j = 0; j < OutHits.Num(); ++j) {
 					if (AddRightDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
+						Hitted = true;
 					}
 				}
 
@@ -278,7 +331,7 @@ bool ABaseCharacter::AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& Ob
 		}
 	}
 
-	return true;
+	return Hitted;
 }
 
 float ABaseCharacter::GetHealth() const
@@ -327,16 +380,6 @@ bool ABaseCharacter::SetCharacterLevel(int32 NewLevel)
 bool ABaseCharacter::IsAlive()
 {
 	return GetHealth() > 0.0f;
-}
-
-ECharacterState	ABaseCharacter::GetCurrentState()
-{
-	return CurrentState;
-}
-
-void ABaseCharacter::SetState(ECharacterState NewState)
-{
-	CurrentState = NewState;
 }
 
 bool ABaseCharacter::ActivateAbilitiesWithTags(FGameplayTagContainer AbilityTags, bool bAllowRemoteActivation)
@@ -552,5 +595,10 @@ ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(AActor* Target
 	}
 
 	return RelativeOrientation;
+}
+
+UBehaviorComponent* ABaseCharacter::GetBehaviorComponent()
+{
+	return BehaviorComponent;
 }
 

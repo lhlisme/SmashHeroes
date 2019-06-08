@@ -13,7 +13,7 @@ FSHGameplayEffectContainerSpec USHGameplayAbility::MakeEffectContainerSpecFromCo
 	// First figure out our actor info
 	FSHGameplayEffectContainerSpec ReturnSpec;
 	AActor* OwningActor = GetOwningActorFromActorInfo();
-	ABaseCharacter* OwningCharacter = Cast<ABaseCharacter>(OwningActor);
+	ABaseCharacter* OwnerActor = Cast<ABaseCharacter>(OwningActor);
 	USHAbilitySystemComponent* OwningASC = USHAbilitySystemComponent::GetAbilitySystemComponentFromActor(OwningActor);
 
 	if (OwningASC)
@@ -25,7 +25,7 @@ FSHGameplayEffectContainerSpec USHGameplayAbility::MakeEffectContainerSpecFromCo
 			TArray<AActor*> TargetActors;
 			const USHTargetType* TargetTypeCDO = Container.TargetType.GetDefaultObject();
 			AActor* AvatarActor = GetAvatarActorFromActorInfo();
-			TargetTypeCDO->GetTargets(OwningCharacter, AvatarActor, EventData, HitResults, TargetActors);
+			TargetTypeCDO->GetTargets(OwnerActor, AvatarActor, EventData, HitResults, TargetActors);
 			ReturnSpec.AddTargets(HitResults, TargetActors);
 		}
 

@@ -30,11 +30,11 @@ void USHAbilitySystemComponent::GetActiveAbilitiesWithTags(const FGameplayTagCon
 
 int32 USHAbilitySystemComponent::GetDefaultAbilityLevel() const
 {
-	ABaseCharacter* OwningCharacter = Cast<ABaseCharacter>(OwnerActor);
+	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
 
-	if (OwningCharacter)
+	if (OwnerCharacter)
 	{
-		return OwningCharacter->GetCharacterLevel();
+		return OwnerCharacter->GetCharacterLevel();
 	}
 	return 1;
 }

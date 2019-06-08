@@ -9,9 +9,6 @@
 
 class USHGameplayAbility;
 
-/** Ability 结束时调用 */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityEnded, UGameplayAbility*, TargetAbility);
-
 /**
  * Subclass of ability system component with game-specific data
  * Most games will need to make a game-specific subclass to provide utility functions
@@ -20,10 +17,6 @@ UCLASS()
 class SMASHHEROES_API USHAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintAssignable)
-	FOnAbilityEnded OnAbilityEndedCallbacks;
 
 public:
 	// Constructors and overrides

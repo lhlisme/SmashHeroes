@@ -113,10 +113,10 @@ void APlayerCharacter::StopJump()
 	bPressedJump = false;
 }
 
-bool APlayerCharacter::Attack()
+bool APlayerCharacter::MeleeAttack()
 {
-	if (ComboIndex == 0) {
-		++ComboIndex;
+	if (AttackIndex == 0) {
+		++AttackIndex;
 		CanCombo = false;
 		CanSwitchCombo = false;
 		return true;
@@ -130,7 +130,7 @@ bool APlayerCharacter::Attack()
 			else {
 				ComboStatus = EComboStatus::NormalCombo;
 			}
-			++ComboIndex;
+			++AttackIndex;
 			CanCombo = false;
 			CanSwitchCombo = false;
 			return true;
@@ -140,32 +140,36 @@ bool APlayerCharacter::Attack()
 	return false;
 }
 
-void APlayerCharacter::BeginAttack()
+void APlayerCharacter::BeginMeleeAttack()
 {
-	Super::BeginAttack();
+	Super::BeginMeleeAttack();
 }
 
-void APlayerCharacter::EndAttack()
+void APlayerCharacter::EndMeleeAttack()
 {
-	Super::EndAttack();
-	ComboIndex = 0;		// 攻击结束后重置ComboIndex和ComboSetIndex
+	Super::EndMeleeAttack();
+	AttackIndex = 0;		// 攻击结束后重置AttackIndex和ComboSetIndex
 	ComboSetIndex = 0;
 }
 
-UAnimMontage* APlayerCharacter::GetAttackMontageByIndex()
+UAnimMontage* APlayerCharacter::GetMeleeAttackMontageByIndex()
 {
-	int Index = ComboIndex + ComboSetIndex * 10;
+	int Index = AttackIndex + ComboSetIndex * 10;
 
-	UAnimMontage** CurAttackMontage = AttackMontageMap.Find(Index);
+	UAnimMontage** CurAttackMontagePtr = MeleeAttackMontageMap.Find(Index);
 
-	return *CurAttackMontage;
+	if (CurAttackMontagePtr) {
+		return *CurAttackMontagePtr;
+	}
+
+	return nullptr;
 }
 
 void APlayerCharacter::BeginEvade()
 {
 	Super::BeginEvade();
-	// 如果攻击被中断的话, 重新初始化ComboIndex
-	ComboIndex = 0;
+	// 如果攻击被中断的话, 重新初始化AttackIndex
+	AttackIndex = 0;
 	ComboSetIndex = 0;
 }
 
@@ -177,8 +181,8 @@ void APlayerCharacter::EndEvade()
 void APlayerCharacter::BeginGuard()
 {
 	Super::BeginGuard();
-	// 如果攻击被中断的话, 重新初始化ComboIndex
-	ComboIndex = 0;
+	// 如果攻击被中断的话, 重新初始化AttackIndex
+	AttackIndex = 0;
 	ComboSetIndex = 0;
 }
 

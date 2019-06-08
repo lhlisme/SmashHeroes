@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapons/Weapon.h"
+#include "BehaviorComponent.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -28,7 +29,7 @@ UENUM(BlueprintType)
 enum class EAttackType : uint8
 {
 	MeleeAttack			UMETA(DisplayName = "MeleeAttack"),
-	RemoteAttack		UMETA(DisplayName = "RemoteAttack")
+	RangeAttack			UMETA(DisplayName = "RangeAttack")
 };
 
 /** 目标相对方位 */
@@ -41,18 +42,12 @@ enum class ERelativeOrientation : uint8
 	Right				UMETA(DisplayName = "Right")
 };
 
-/** 角色所处状态 */
-UENUM(BlueprintType)
-enum class ECharacterState : uint8
-{
-	Disabled			UMETA(DisplayName = "Disabled"),	// 受击或者被控
-	Idle				UMETA(DisplayName = "Idle"),
-	Attacking			UMETA(DisplayName = "Attacking"),
-	Evading				UMETA(DisplayName = "Evading"),
-	Guarding			UMETA(DisplayName = "Guarding"),
-	Falling				UMETA(DisplayName = "Falling"),
-	Dead				UMETA(DisplayName = "Dead")
-};
+/** 攻击结束时调用 */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAttackEndedDelegate);
+/** 闪避结束时调用 */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEvadeEndedDelegate);
+/** 防御结束时调用 */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGuardEndedDelegate);
 
 UCLASS()
 class SMASHHEROES_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface
@@ -77,26 +72,30 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	int32 bAbilitiesInitialized;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
-	ECharacterState CurrentState;	// TODO 动作被打断时要重置为Idle
+	// 角色行为组件
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Behavior", meta = (AllowPrivateAccess = "true"))
+	UBehaviorComponent* BehaviorComponent;
 
 public:
 	/** 移动相关属性 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseControl")
 	bool IsRunning = false;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "BaseControl")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseControl")
 	float Speed = 0.0f;
 
 	/** 攻击相关属性 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	TMap<int32, UAnimMontage*> AttackMontageMap;		// 记录攻击动画索引和Montage的对应关系 
+	TMap<int32, UAnimMontage*> MeleeAttackMontageMap;		// 记录近战攻击动画索引和Montage的对应关系 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	TMap<int32, UAnimMontage*> RangeAttackMontageMap;		// 记录远程攻击动画索引和Montage的对应关系
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<ERelativeOrientation, UAnimMontage*> HitMontageMap;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	int32 ComboIndex = 0;		// 当前攻击动画索引		// TODO 改名AttackIndex
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attack")
+	int32 AttackIndex = 0;		// 当前攻击动画索引
 
 	/** 闪避相关属性 */
 
@@ -136,6 +135,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	UBaseAttributeSet* CharacterAttributeSet;
 
+	UPROPERTY(BlueprintAssignable)
+	FAttackEndedDelegate OnAttackEnded;
+
+	UPROPERTY(BlueprintAssignable)
+	FEvadeEndedDelegate OnEvadeEnded;
+
+	UPROPERTY(BlueprintAssignable)
+	FGuardEndedDelegate OnGuardEnded;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -172,16 +180,28 @@ public:
 
 	// 攻击相关
 	UFUNCTION(BlueprintCallable)
-	virtual bool Attack();
+	virtual bool MeleeAttack();
 	
 	UFUNCTION(BlueprintCallable)
-	virtual void BeginAttack();
+	virtual void BeginMeleeAttack();
 
 	UFUNCTION(BlueprintCallable)
-	virtual void EndAttack();
+	virtual void EndMeleeAttack();
 
 	UFUNCTION(BlueprintCallable)	
-	virtual UAnimMontage* GetAttackMontageByIndex();		// 根据AttackIndex获取当前的连击动画
+	virtual UAnimMontage* GetMeleeAttackMontageByIndex();		// 根据AttackIndex获取当前的近战攻击动画
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool RangeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginRangeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndRangeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual UAnimMontage* GetRangeAttackMontageByIndex();		// 根据AttackIndex获取当前的远程攻击动画
 
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
@@ -203,9 +223,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void EndGuard();
 
-	// 攻击检测
+	UFUNCTION(BlueprintPure)
+	UBehaviorComponent* GetBehaviorComponent();
+
+	// 近战攻击检测
 	UFUNCTION(BlueprintCallable)
-	bool AttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits);
+	bool MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits);
 	
 	/** Returns current health, will be 0 if dead */
 	UFUNCTION(BlueprintCallable)
@@ -237,12 +260,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsAlive();
-
-	UFUNCTION(BlueprintPure)
-	ECharacterState	GetCurrentState();
-
-	UFUNCTION(BlueprintCallable)
-	void SetState(ECharacterState NewState);
 
 	/**
 	 * 尝试激活指定Tag的所有能力, bAllowRemoteActivation为true时可以远程在服务器上激活能力, 否则只会在本地激活 */
