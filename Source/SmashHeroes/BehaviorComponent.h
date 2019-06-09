@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Components/ActorComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorComponent.generated.h"
 
 
@@ -22,7 +23,8 @@ enum class EBehaviorType : uint8
 	Investigate			UMETA(DisplayName = "Investigate"),
 	Evade				UMETA(DisplayName = "Evade"),
 	Guard				UMETA(DisplayName = "Guard"),
-	Hit					UMETA(DisplayName = "Hit")
+	Hit					UMETA(DisplayName = "Hit"),
+	Fall				UMETA(DisplayName = "Fall")
 };
 
 UENUM()
@@ -40,6 +42,12 @@ class SMASHHEROES_API UBehaviorComponent : public UActorComponent
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	bool IsAI = false;	// 是否由AI控制
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	UBehaviorTree* BehaviorTree;	// 当前AI使用的行为树
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	EBehaviorType InitBehavior = EBehaviorType::Idle;	// 初始行为
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
@@ -48,8 +56,56 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName BBKey_TargetActor = FName(TEXT("TargetActor"));	// 黑板键名称
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_StartLocation = FName(TEXT("StartLocation"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_TargetLocation = FName(TEXT("TargetLocation"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_IdleType = FName(TEXT("IdleType"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_MaxRandLocationDistance = FName(TEXT("MaxRandLocationDistance"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_RandLocationDelay = FName(TEXT("RandLocationDelay"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_FleeDistance = FName(TEXT("FleeDistance"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_MeleeAttackDistance = FName(TEXT("MeleeAttackDistance"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_RangeAttackDistance = FName(TEXT("RangeAttackDistance"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_FollowDistance = FName(TEXT("FollowDistance"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_SeekAcceptanceRadius = FName(TEXT("SeekAcceptanceRadius"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_InvestigateDistance = FName(TEXT("InvestigateDistance"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_InvestigateInterval = FName(TEXT("InvestigateInterval"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
+	EIdleType IdleType = EIdleType::Stationary;	// 闲置行为类型
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
+	float MaxRandLocationDistance = 300.0f;	// 最大随机走动距离
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
+	float RandLocationDelay = 10.0f;	// 随机走动间隔
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
 	float InvestigateDistance = 3000.0f;	// 侦查距离
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
+	float InvestigateInterval = 0.2f;	// 侦查间隔
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
 	float FollowDistance = 4000.0f;	// 追踪距离
@@ -58,13 +114,16 @@ public:
 	float FleeDistance = 1600.0f;	// 逃离距离
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	EBehaviorType FleeTransition;	// 逃离行为结束后进入的下一行为类型
+	EBehaviorType FleeTransition = EBehaviorType::Idle;	// 逃离行为结束后进入的下一行为类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
 	TArray<FName> SeekTargetTags;	// 寻找目标的Tag数组
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
 	float SeekAcceptanceRadius;		// 寻找行为的可接受半径
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
+	EBehaviorType SeekTransition = EBehaviorType::Idle;		// 寻找行为结束后进入的下一行为类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	float MeleeAttackDistance = 400.0f;	// 近战攻击距离
@@ -82,13 +141,16 @@ public:
 	TArray<FName> AttackTargetTags;	// 可攻击目标的Tag数组
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	EBehaviorType AttackTransition;	// 攻击行为结束后进入的下一行为类型
+	EBehaviorType MeleeAttackTransition = EBehaviorType::Idle;	// 近战攻击行为结束后进入的下一行为类型
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defend Settings")
-	EBehaviorType DefendTransition;	// 防守行为结束后进入的下一行为类型
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	EBehaviorType RangeAttackTransition = EBehaviorType::Idle;	// 远程攻击行为结束后进入的下一行为类型
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Guard Settings")
+	EBehaviorType GuardTransition = EBehaviorType::Idle;	// 防守行为结束后进入的下一行为类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Settings")
-	EBehaviorType HitTransition;	// 受击行为结束后进入的下一行为类型
+	EBehaviorType HitTransition = EBehaviorType::Idle;	// 受击行为结束后进入的下一行为类型
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
@@ -98,7 +160,7 @@ private:
 	AAIController* OwnerAIController;
 
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	EBehaviorType CurrentBehavior;	// 初始行为
+	EBehaviorType CurrentBehavior = EBehaviorType::Idle;	// 初始行为
 
 	UPROPERTY(VisibleAnywhere, Category = "Seek Settings")
 	AActor* SeekTarget;		// 寻找目标(不同于AttackTarget, 需要通过外部指定)
@@ -110,8 +172,8 @@ public:
 	// Sets default values for this component's properties
 	UBehaviorComponent();
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	/** 根据Key初始化Blackboard中的值 */
+	void InitBlackboard();
 
 	/** 设置寻找目标(外部调用) */
 	void SetSeekTarget(AActor* NewSeekTarget);

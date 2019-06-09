@@ -11,11 +11,10 @@ UBehaviorComponent::UBehaviorComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 }
-
 
 // Called when the game starts
 void UBehaviorComponent::BeginPlay()
@@ -25,24 +24,62 @@ void UBehaviorComponent::BeginPlay()
 	OwnerActor = GetOwner();
 	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
 	if (OwnerCharacter) {
-		OwnerAIController = Cast<AAIController>(OwnerCharacter->GetController());
-		
 		if (OwnerCharacter->HasAuthority()) {
 			// 初始化数据
-			CurrentBehavior = InitBehavior;
 			SeekTarget = nullptr;
 			AttackTarget = nullptr;
+		
+			// 如果是AI，初始化OwnerAIController
+			if (IsAI) {
+				OwnerAIController = Cast<AAIController>(OwnerCharacter->GetController());
+
+				if (OwnerAIController) {
+					// 在设置黑板值前运行行为树
+					OwnerAIController->RunBehaviorTree(BehaviorTree);
+					// 初始化黑板值信息
+					InitBlackboard();
+				}
+			}
+			
+			// 初始化当前行为信息
+			SetBehavior(InitBehavior);
 		}
 	}
 }
 
-
-// Called every frame
-void UBehaviorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UBehaviorComponent::InitBlackboard()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	if (OwnerAIController) {
+		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
+		if (Blackboard) {
+			if (OwnerActor) {
+				// 设置StartLocation
+				Blackboard->SetValueAsVector(BBKey_StartLocation, OwnerActor->GetActorLocation());
+				// 设置TargetLocation
+				Blackboard->SetValueAsVector(BBKey_TargetLocation, OwnerActor->GetActorLocation());
+			}
+			// 设置IdleType
+			Blackboard->SetValueAsEnum(BBKey_IdleType, (uint8)IdleType);
+			// 设置MaxRandLocationDistance
+			Blackboard->SetValueAsFloat(BBKey_MaxRandLocationDistance, MaxRandLocationDistance);
+			// 设置RandLocationDelay
+			Blackboard->SetValueAsFloat(BBKey_RandLocationDelay, RandLocationDelay);
+			// 设置FleeDistance
+			Blackboard->SetValueAsFloat(BBKey_FleeDistance, FleeDistance);
+			// 设置MeleeAttackDistance
+			Blackboard->SetValueAsFloat(BBKey_MeleeAttackDistance, MeleeAttackDistance);
+			// 设置RangeAttackDistance
+			Blackboard->SetValueAsFloat(BBKey_RangeAttackDistance, RangeAttackDistance);
+			// 设置FollowDistance
+			Blackboard->SetValueAsFloat(BBKey_FollowDistance, FollowDistance);
+			// 设置InvestigateDistance
+			Blackboard->SetValueAsFloat(BBKey_InvestigateDistance, InvestigateDistance);
+			// 设置InvestigateInterval
+			Blackboard->SetValueAsFloat(BBKey_InvestigateInterval, InvestigateInterval);
+			// 设置SeekAcceptanceRadius
+			Blackboard->SetValueAsFloat(BBKey_SeekAcceptanceRadius, SeekAcceptanceRadius);
+		}
+	}
 }
 
 void UBehaviorComponent::SetSeekTarget(AActor* NewSeekTarget)
@@ -50,7 +87,8 @@ void UBehaviorComponent::SetSeekTarget(AActor* NewSeekTarget)
 	SeekTarget = NewSeekTarget;
 	// 设置黑板TargetActor
 	if (OwnerAIController) {
-		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
+		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
+		if (Blackboard) {
 			Blackboard->SetValueAsObject(BBKey_TargetActor, SeekTarget);
 		}
 	}
@@ -67,7 +105,8 @@ AActor* UBehaviorComponent::FindSeekTarget(float &DistToTarget)
 	SeekTarget = FindNearestTargetWithTag(SeekTargetTags, DistToTarget);
 	// 设置黑板TargetActor
 	if (OwnerAIController) {
-		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
+		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
+		if (Blackboard) {
 			Blackboard->SetValueAsObject(BBKey_TargetActor, SeekTarget);
 		}
 	}
