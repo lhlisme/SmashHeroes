@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -9,7 +9,7 @@
 #include "BehaviorComponent.generated.h"
 
 
-/** AI ĞĞÎªÀàĞÍ */
+/** AI è¡Œä¸ºç±»å‹ */
 UENUM(BlueprintType)
 enum class EBehaviorType : uint8
 {
@@ -35,6 +35,56 @@ enum class EIdleType : uint8
 	RandomWork			UMETA(DisplayName = "RandomWork")
 };
 
+/** Idleå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FIdleBeginDelegate);
+/** Patrolå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPatrolBeginDelegate);
+/** Seekå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSeekBeginDelegate);
+/** Melee Attackå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMeleeAttackBeginDelegate);
+/** Range Attackå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRangeAttackBeginDelegate);
+/** Followå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFollowBeginDelegate);
+/** Fleeå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFleeBeginDelegate);
+/** Investigateå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInvestigateBeginDelegate);
+/** Evadeå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEvadeBeginDelegate);
+/** Guardå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGuardBeginDelegate);
+/** Hitå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHitBeginDelegate);
+/** Fallå¼€å§‹æ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFallBeginDelegate);
+
+/** Idleç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FIdleEndDelegate);
+/** Patrolç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPatrolEndDelegate);
+/** Seekç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSeekEndDelegate);
+/** Melee Attackç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMeleeAttackEndDelegate);
+/** Range Attackç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRangeAttackEndDelegate);
+/** Followç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFollowEndDelegate);
+/** Fleeç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFleeEndDelegate);
+/** Investigateç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInvestigateEndDelegate);
+/** Evadeç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEvadeEndDelegate);
+/** Guardç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGuardEndDelegate);
+/** Hitç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHitEndDelegate);
+/** Fallç»“æŸæ—¶è°ƒç”¨ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFallEndDelegate);
+
 UCLASS(ClassGroup=AIBehavior, hidecategories=(Object,LOD,Lighting,Transform,Sockets,TextureStreaming), editinlinenew, meta=(BlueprintSpawnableComponent))
 class SMASHHEROES_API UBehaviorComponent : public UActorComponent
 {
@@ -42,128 +92,256 @@ class SMASHHEROES_API UBehaviorComponent : public UActorComponent
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	bool IsAI = false;	// ÊÇ·ñÓÉAI¿ØÖÆ
+	bool IsAI = false;	// æ˜¯å¦ç”±AIæ§åˆ¶
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	UBehaviorTree* BehaviorTree;	// µ±Ç°AIÊ¹ÓÃµÄĞĞÎªÊ÷
+	UBehaviorTree* BehaviorTree;	// å½“å‰AIä½¿ç”¨çš„è¡Œä¸ºæ ‘
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	EBehaviorType InitBehavior = EBehaviorType::Idle;	// ³õÊ¼ĞĞÎª
+	EBehaviorType InitBehavior = EBehaviorType::Idle;	// åˆå§‹è¡Œä¸º
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_BehaviorType = FName(TEXT("BehaviorType"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_BehaviorType = FName(TEXT("BehaviorType"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_TargetActor = FName(TEXT("TargetActor"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_TargetActor = FName(TEXT("TargetActor"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_StartLocation = FName(TEXT("StartLocation"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_StartLocation = FName(TEXT("StartLocation"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_TargetLocation = FName(TEXT("TargetLocation"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_TargetLocation = FName(TEXT("TargetLocation"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_IdleType = FName(TEXT("IdleType"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_IdleType = FName(TEXT("IdleType"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_MaxRandLocationDistance = FName(TEXT("MaxRandLocationDistance"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_MaxRandLocationDistance = FName(TEXT("MaxRandLocationDistance"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_RandLocationDelay = FName(TEXT("RandLocationDelay"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_RandLocationDelay = FName(TEXT("RandLocationDelay"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_FleeDistance = FName(TEXT("FleeDistance"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_FleeDistance = FName(TEXT("FleeDistance"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_MeleeAttackDistance = FName(TEXT("MeleeAttackDistance"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_MeleeAttackDistance = FName(TEXT("MeleeAttackDistance"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_RangeAttackDistance = FName(TEXT("RangeAttackDistance"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_RangeAttackDistance = FName(TEXT("RangeAttackDistance"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_FollowDistance = FName(TEXT("FollowDistance"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_FollowDistance = FName(TEXT("FollowDistance"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_SeekAcceptanceRadius = FName(TEXT("SeekAcceptanceRadius"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_SeekAcceptanceRadius = FName(TEXT("SeekAcceptanceRadius"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_InvestigateDistance = FName(TEXT("InvestigateDistance"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_InvestigateDistance = FName(TEXT("InvestigateDistance"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_InvestigateInterval = FName(TEXT("InvestigateInterval"));	// ºÚ°å¼üÃû³Æ
+	FName BBKey_InvestigateInterval = FName(TEXT("InvestigateInterval"));	// é»‘æ¿é”®åç§°
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
-	EIdleType IdleType = EIdleType::Stationary;	// ÏĞÖÃĞĞÎªÀàĞÍ
+	EIdleType IdleType = EIdleType::Stationary;	// é—²ç½®è¡Œä¸ºç±»å‹
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
-	float MaxRandLocationDistance = 300.0f;	// ×î´óËæ»ú×ß¶¯¾àÀë
+	float MaxRandLocationDistance = 300.0f;	// æœ€å¤§éšæœºèµ°åŠ¨è·ç¦»
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
-	float RandLocationDelay = 10.0f;	// Ëæ»ú×ß¶¯¼ä¸ô
+	float RandLocationDelay = 10.0f;	// éšæœºèµ°åŠ¨é—´éš”
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
-	float InvestigateDistance = 3000.0f;	// Õì²é¾àÀë
+	float InvestigateDistance = 3000.0f;	// ä¾¦æŸ¥è·ç¦»
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
-	float InvestigateInterval = 0.2f;	// Õì²é¼ä¸ô
+	float InvestigateInterval = 0.2f;	// ä¾¦æŸ¥é—´éš”
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
+	EBehaviorType InvestigateTransition = EBehaviorType::Idle;	// ä¾¦æŸ¥è¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
-	float FollowDistance = 4000.0f;	// ×·×Ù¾àÀë
+	float FollowDistance = 4000.0f;	// è¿½è¸ªè·ç¦»
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
+	EBehaviorType FollowTransition = EBehaviorType::Idle;	// è¿½è¸ªè¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	float FleeDistance = 1600.0f;	// ÌÓÀë¾àÀë
+	float FleeDistance = 1600.0f;	// é€ƒç¦»è·ç¦»
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	EBehaviorType FleeTransition = EBehaviorType::Idle;	// ÌÓÀëĞĞÎª½áÊøºó½øÈëµÄÏÂÒ»ĞĞÎªÀàĞÍ
+	EBehaviorType FleeTransition = EBehaviorType::Idle;	// é€ƒç¦»è¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
-	TArray<FName> SeekTargetTags;	// Ñ°ÕÒÄ¿±êµÄTagÊı×é
+	TArray<FName> SeekTargetTags;	// å¯»æ‰¾ç›®æ ‡çš„Tagæ•°ç»„
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
-	float SeekAcceptanceRadius;		// Ñ°ÕÒĞĞÎªµÄ¿É½ÓÊÜ°ë¾¶
+	float SeekAcceptanceRadius;		// å¯»æ‰¾è¡Œä¸ºçš„å¯æ¥å—åŠå¾„
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
-	EBehaviorType SeekTransition = EBehaviorType::Idle;		// Ñ°ÕÒĞĞÎª½áÊøºó½øÈëµÄÏÂÒ»ĞĞÎªÀàĞÍ
+	EBehaviorType SeekTransition = EBehaviorType::Idle;		// å¯»æ‰¾è¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	float MeleeAttackDistance = 400.0f;	// ½üÕ½¹¥»÷¾àÀë
+	float MeleeAttackDistance = 400.0f;	// è¿‘æˆ˜æ”»å‡»è·ç¦»
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	bool CanRangeAttack = false;	// ÊÇ·ñÖ§³ÖÔ¶³Ì¹¥»÷
+	bool CanRangeAttack = false;	// æ˜¯å¦æ”¯æŒè¿œç¨‹æ”»å‡»
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	float RangeAttackDistance = 1600.0f;	// ·¶Î§¹¥»÷¾àÀë
+	float RangeAttackDistance = 1600.0f;	// èŒƒå›´æ”»å‡»è·ç¦»
 
 	UPROPERTY(VisibleAnywhere, Category = "Attack Settings")
-	bool IsRequireLineOfSight = false;	// ¹¥»÷ÊÇ·ñĞèÒª¿¼ÂÇÔÚÊÓÒ°ÄÚ
+	bool IsRequireLineOfSight = false;	// æ”»å‡»æ˜¯å¦éœ€è¦è€ƒè™‘åœ¨è§†é‡å†…
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	TArray<FName> AttackTargetTags;	// ¿É¹¥»÷Ä¿±êµÄTagÊı×é
+	TArray<FName> AttackTargetTags;	// å¯æ”»å‡»ç›®æ ‡çš„Tagæ•°ç»„
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	EBehaviorType MeleeAttackTransition = EBehaviorType::Idle;	// ½üÕ½¹¥»÷ĞĞÎª½áÊøºó½øÈëµÄÏÂÒ»ĞĞÎªÀàĞÍ
+	EBehaviorType MeleeAttackTransition = EBehaviorType::Idle;	// è¿‘æˆ˜æ”»å‡»è¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	EBehaviorType RangeAttackTransition = EBehaviorType::Idle;	// Ô¶³Ì¹¥»÷ĞĞÎª½áÊøºó½øÈëµÄÏÂÒ»ĞĞÎªÀàĞÍ
+	EBehaviorType RangeAttackTransition = EBehaviorType::Idle;	// è¿œç¨‹æ”»å‡»è¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Evade Settings")
+	EBehaviorType EvadeTransition = EBehaviorType::Idle;	// é˜²å®ˆè¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Guard Settings")
-	EBehaviorType GuardTransition = EBehaviorType::Idle;	// ·ÀÊØĞĞÎª½áÊøºó½øÈëµÄÏÂÒ»ĞĞÎªÀàĞÍ
+	EBehaviorType GuardTransition = EBehaviorType::Idle;	// é˜²å®ˆè¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Settings")
-	EBehaviorType HitTransition = EBehaviorType::Idle;	// ÊÜ»÷ĞĞÎª½áÊøºó½øÈëµÄÏÂÒ»ĞĞÎªÀàĞÍ
+	EBehaviorType HitTransition = EBehaviorType::Idle;	// å—å‡»è¡Œä¸ºç»“æŸåè¿›å…¥çš„ä¸‹ä¸€è¡Œä¸ºç±»å‹
+
+	/** (ä¸»åŠ¨)è¡Œä¸ºåˆ‡æ¢ç›¸å…³äº‹ä»¶,ä¾›è“å›¾ä¸­è°ƒç”¨ */
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginMeleeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndMeleeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginRangeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndRangeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginEvade();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndEvade();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginGuard();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndGuard();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginFollow();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndFollow();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginFlee();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndFlee();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginInvestigate();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndInvestigate();
+
+	/** è¡Œä¸ºå¼€å§‹ç›¸å…³å§”æ‰˜ */
+	UPROPERTY(BlueprintAssignable)
+	FIdleBeginDelegate OnIdleBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FPatrolBeginDelegate OnPatrolBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FSeekBeginDelegate OnSeekBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FMeleeAttackBeginDelegate OnMeleeAttackBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FRangeAttackBeginDelegate OnRangeAttackBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FFollowBeginDelegate OnFollowBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FFleeBeginDelegate OnFleeBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FInvestigateBeginDelegate OnInvestigateBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FEvadeBeginDelegate OnEvadeBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FGuardBeginDelegate OnGuardBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FHitBeginDelegate OnHitBegin;
+
+	UPROPERTY(BlueprintAssignable)
+	FFallBeginDelegate OnFallBegin;
+
+
+	/** è¡Œä¸ºç»“æŸç›¸å…³å§”æ‰˜ */
+	UPROPERTY(BlueprintAssignable)
+	FIdleEndDelegate OnIdleEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FPatrolEndDelegate OnPatrolEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FSeekEndDelegate OnSeekEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FMeleeAttackEndDelegate OnMeleeAttackEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FRangeAttackEndDelegate OnRangeAttackEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FFollowEndDelegate OnFollowEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FFleeEndDelegate OnFleeEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FInvestigateEndDelegate OnInvestigateEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FEvadeEndDelegate OnEvadeEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FGuardEndDelegate OnGuardEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FHitEndDelegate OnHitEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FFallEndDelegate OnFallEnd;
+
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "General Settings")
+	UPROPERTY(ReplicatedUsing = OnRep_Owner)
 	AActor* OwnerActor;
 
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	AAIController* OwnerAIController;
 
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	EBehaviorType CurrentBehavior = EBehaviorType::Idle;	// ³õÊ¼ĞĞÎª
+	EBehaviorType CurrentBehavior = EBehaviorType::Idle;	// åˆå§‹è¡Œä¸º
 
 	UPROPERTY(VisibleAnywhere, Category = "Seek Settings")
-	AActor* SeekTarget;		// Ñ°ÕÒÄ¿±ê(²»Í¬ÓÚAttackTarget, ĞèÒªÍ¨¹ıÍâ²¿Ö¸¶¨)
+	AActor* SeekTarget;		// å¯»æ‰¾ç›®æ ‡(ä¸åŒäºAttackTarget, éœ€è¦é€šè¿‡å¤–éƒ¨æŒ‡å®š)
 
 	UPROPERTY(VisibleAnywhere, Category = "Attack Settings")
 	AActor* AttackTarget;
@@ -172,41 +350,40 @@ public:
 	// Sets default values for this component's properties
 	UBehaviorComponent();
 
-	/** ¸ù¾İKey³õÊ¼»¯BlackboardÖĞµÄÖµ */
+	/** æ ¹æ®Keyåˆå§‹åŒ–Blackboardä¸­çš„å€¼ */
 	void InitBlackboard();
 
-	/** ÉèÖÃÑ°ÕÒÄ¿±ê(Íâ²¿µ÷ÓÃ) */
+	/** è®¾ç½®å¯»æ‰¾ç›®æ ‡(å¤–éƒ¨è°ƒç”¨) */
 	void SetSeekTarget(AActor* NewSeekTarget);
 
-	/** È·¶¨Ñ°ÕÒÄ¿±ê */
+	/** ç¡®å®šå¯»æ‰¾ç›®æ ‡ */
 	AActor* FindSeekTarget(float &DistToTarget);
 
-	/** »ñÈ¡Ñ°ÕÒÄ¿±ê(Íâ²¿µ÷ÓÃ) */
+	/** è·å–å¯»æ‰¾ç›®æ ‡(å¤–éƒ¨è°ƒç”¨) */
 	AActor* GetSeekTarget();
 
-	/** È·¶¨¹¥»÷Ä¿±ê */
+	/** ç¡®å®šæ”»å‡»ç›®æ ‡ */
 	AActor* FindAttackTarget(float &DistToTarget);
 
-	/** »ñÈ¡µ±Ç°¹¥»÷Ä¿±ê¶ÔÏó */
+	/** è·å–å½“å‰æ”»å‡»ç›®æ ‡å¯¹è±¡ */
 	UFUNCTION(BlueprintCallable)
 	AActor* GetAttackTarget();
 
-	/** ¸ù¾İÖ¸¶¨TagÕÒµ½×î½üµÄÄ¿±ê */
+	/** æ ¹æ®æŒ‡å®šTagæ‰¾åˆ°æœ€è¿‘çš„ç›®æ ‡ */
 	UFUNCTION(BlueprintCallable)
 	AActor* FindNearestTargetWithTag(TArray<FName> TargerTags, float &DistToTarget);
 
-	/** »ñÈ¡µ±Ç°ĞĞÎªÀàĞÍ */
+	/** è·å–å½“å‰è¡Œä¸ºç±»å‹ */
 	UFUNCTION(BlueprintPure)
 	EBehaviorType GetBehavior();
 
-	/** ÉèÖÃºÚ°åĞĞÎªĞÅÏ¢ */
+	/** è®¾ç½®é»‘æ¿è¡Œä¸ºä¿¡æ¯ */
 	UFUNCTION(BlueprintCallable)
-	void SetBehavior(EBehaviorType NewBehavior);
+	bool ChangeBehavior(EBehaviorType NewBehavior);
 
-	/** ¸üĞÂĞĞÎª */
+	/** æ›´æ–°è¡Œä¸º */
 	UFUNCTION(BlueprintCallable)
 	void UpdateBehavior();
-
 
 protected:
 	// Called when the game starts

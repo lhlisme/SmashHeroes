@@ -42,6 +42,12 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (BehaviorComponent) {
+		// 添加攻击状态初始化回调事件
+		/*BehaviorComponent->OnMeleeAttackEnd.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
+		BehaviorComponent->OnEvadeBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
+		BehaviorComponent->OnGuardBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);*/
+	}
 }
 
 // Called every frame
@@ -140,18 +146,6 @@ bool APlayerCharacter::MeleeAttack()
 	return false;
 }
 
-void APlayerCharacter::BeginMeleeAttack()
-{
-	Super::BeginMeleeAttack();
-}
-
-void APlayerCharacter::EndMeleeAttack()
-{
-	Super::EndMeleeAttack();
-	AttackIndex = 0;		// 攻击结束后重置AttackIndex和ComboSetIndex
-	ComboSetIndex = 0;
-}
-
 UAnimMontage* APlayerCharacter::GetMeleeAttackMontageByIndex()
 {
 	int Index = AttackIndex + ComboSetIndex * 10;
@@ -165,29 +159,10 @@ UAnimMontage* APlayerCharacter::GetMeleeAttackMontageByIndex()
 	return nullptr;
 }
 
-void APlayerCharacter::BeginEvade()
+void APlayerCharacter::ResetAttackStatus()
 {
-	Super::BeginEvade();
-	// 如果攻击被中断的话, 重新初始化AttackIndex
+	// 如果攻击结束或被中断的话, 重新初始化AttackIndex
 	AttackIndex = 0;
 	ComboSetIndex = 0;
-}
-
-void APlayerCharacter::EndEvade()
-{
-	Super::EndEvade();
-}
-
-void APlayerCharacter::BeginGuard()
-{
-	Super::BeginGuard();
-	// 如果攻击被中断的话, 重新初始化AttackIndex
-	AttackIndex = 0;
-	ComboSetIndex = 0;
-}
-
-void APlayerCharacter::EndGuard()
-{
-	Super::EndGuard();
 }
 

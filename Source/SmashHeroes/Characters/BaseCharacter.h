@@ -42,13 +42,6 @@ enum class ERelativeOrientation : uint8
 	Right				UMETA(DisplayName = "Right")
 };
 
-/** 攻击结束时调用 */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAttackEndedDelegate);
-/** 闪避结束时调用 */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEvadeEndedDelegate);
-/** 防御结束时调用 */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGuardEndedDelegate);
-
 UCLASS()
 class SMASHHEROES_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface
 {
@@ -135,15 +128,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	UBaseAttributeSet* CharacterAttributeSet;
 
-	UPROPERTY(BlueprintAssignable)
-	FAttackEndedDelegate OnAttackEnded;
-
-	UPROPERTY(BlueprintAssignable)
-	FEvadeEndedDelegate OnEvadeEnded;
-
-	UPROPERTY(BlueprintAssignable)
-	FGuardEndedDelegate OnGuardEnded;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -181,12 +165,6 @@ public:
 	// 攻击相关
 	UFUNCTION(BlueprintCallable)
 	virtual bool MeleeAttack();
-	
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginMeleeAttack();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndMeleeAttack();
 
 	UFUNCTION(BlueprintCallable)	
 	virtual UAnimMontage* GetMeleeAttackMontageByIndex();		// 根据AttackIndex获取当前的近战攻击动画
@@ -195,33 +173,15 @@ public:
 	virtual bool RangeAttack();
 
 	UFUNCTION(BlueprintCallable)
-	virtual void BeginRangeAttack();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndRangeAttack();
-
-	UFUNCTION(BlueprintCallable)
 	virtual UAnimMontage* GetRangeAttackMontageByIndex();		// 根据AttackIndex获取当前的远程攻击动画
 
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
 	virtual bool Evade();
 
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginEvade();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndEvade();
-
 	// 防御相关
 	UFUNCTION(BlueprintCallable)
 	virtual bool Guard();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginGuard();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndGuard();
 
 	UFUNCTION(BlueprintPure)
 	UBehaviorComponent* GetBehaviorComponent();

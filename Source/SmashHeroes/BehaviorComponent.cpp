@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "BehaviorComponent.h"
@@ -21,29 +21,25 @@ void UBehaviorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwnerActor = GetOwner();
 	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
-	if (OwnerCharacter) {
-		if (OwnerCharacter->HasAuthority()) {
-			// ³õÊ¼»¯Êı¾İ
-			SeekTarget = nullptr;
-			AttackTarget = nullptr;
-		
-			// Èç¹ûÊÇAI£¬³õÊ¼»¯OwnerAIController
-			if (IsAI) {
-				OwnerAIController = Cast<AAIController>(OwnerCharacter->GetController());
+	if (OwnerCharacter && OwnerCharacter->HasAuthority()) {
+		// å¦‚æœæ˜¯AIï¼Œåˆå§‹åŒ–OwnerAIController
+		if (IsAI) {
+			OwnerAIController = Cast<AAIController>(OwnerCharacter->GetController());
 
-				if (OwnerAIController) {
-					// ÔÚÉèÖÃºÚ°åÖµÇ°ÔËĞĞĞĞÎªÊ÷
-					OwnerAIController->RunBehaviorTree(BehaviorTree);
-					// ³õÊ¼»¯ºÚ°åÖµĞÅÏ¢
-					InitBlackboard();
-				}
+			if (OwnerAIController) {
+				// åœ¨è®¾ç½®é»‘æ¿å€¼å‰è¿è¡Œè¡Œä¸ºæ ‘
+				OwnerAIController->RunBehaviorTree(BehaviorTree);
+				// åˆå§‹åŒ–é»‘æ¿å€¼ä¿¡æ¯
+				InitBlackboard();
 			}
-			
-			// ³õÊ¼»¯µ±Ç°ĞĞÎªĞÅÏ¢
-			SetBehavior(InitBehavior);
 		}
+
+		// åˆå§‹åŒ–å½“å‰è¡Œä¸ºä¿¡æ¯
+		ChangeBehavior(InitBehavior);
+		// åˆå§‹åŒ–ç›®æ ‡ä¿¡æ¯
+		SeekTarget = nullptr;
+		AttackTarget = nullptr;
 	}
 }
 
@@ -53,30 +49,30 @@ void UBehaviorComponent::InitBlackboard()
 		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
 		if (Blackboard) {
 			if (OwnerActor) {
-				// ÉèÖÃStartLocation
+				// è®¾ç½®StartLocation
 				Blackboard->SetValueAsVector(BBKey_StartLocation, OwnerActor->GetActorLocation());
-				// ÉèÖÃTargetLocation
+				// è®¾ç½®TargetLocation
 				Blackboard->SetValueAsVector(BBKey_TargetLocation, OwnerActor->GetActorLocation());
 			}
-			// ÉèÖÃIdleType
+			// è®¾ç½®IdleType
 			Blackboard->SetValueAsEnum(BBKey_IdleType, (uint8)IdleType);
-			// ÉèÖÃMaxRandLocationDistance
+			// è®¾ç½®MaxRandLocationDistance
 			Blackboard->SetValueAsFloat(BBKey_MaxRandLocationDistance, MaxRandLocationDistance);
-			// ÉèÖÃRandLocationDelay
+			// è®¾ç½®RandLocationDelay
 			Blackboard->SetValueAsFloat(BBKey_RandLocationDelay, RandLocationDelay);
-			// ÉèÖÃFleeDistance
+			// è®¾ç½®FleeDistance
 			Blackboard->SetValueAsFloat(BBKey_FleeDistance, FleeDistance);
-			// ÉèÖÃMeleeAttackDistance
+			// è®¾ç½®MeleeAttackDistance
 			Blackboard->SetValueAsFloat(BBKey_MeleeAttackDistance, MeleeAttackDistance);
-			// ÉèÖÃRangeAttackDistance
+			// è®¾ç½®RangeAttackDistance
 			Blackboard->SetValueAsFloat(BBKey_RangeAttackDistance, RangeAttackDistance);
-			// ÉèÖÃFollowDistance
+			// è®¾ç½®FollowDistance
 			Blackboard->SetValueAsFloat(BBKey_FollowDistance, FollowDistance);
-			// ÉèÖÃInvestigateDistance
+			// è®¾ç½®InvestigateDistance
 			Blackboard->SetValueAsFloat(BBKey_InvestigateDistance, InvestigateDistance);
-			// ÉèÖÃInvestigateInterval
+			// è®¾ç½®InvestigateInterval
 			Blackboard->SetValueAsFloat(BBKey_InvestigateInterval, InvestigateInterval);
-			// ÉèÖÃSeekAcceptanceRadius
+			// è®¾ç½®SeekAcceptanceRadius
 			Blackboard->SetValueAsFloat(BBKey_SeekAcceptanceRadius, SeekAcceptanceRadius);
 		}
 	}
@@ -85,7 +81,7 @@ void UBehaviorComponent::InitBlackboard()
 void UBehaviorComponent::SetSeekTarget(AActor* NewSeekTarget)
 {
 	SeekTarget = NewSeekTarget;
-	// ÉèÖÃºÚ°åTargetActor
+	// è®¾ç½®é»‘æ¿TargetActor
 	if (OwnerAIController) {
 		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
 		if (Blackboard) {
@@ -101,9 +97,9 @@ AActor* UBehaviorComponent::FindSeekTarget(float &DistToTarget)
 		return SeekTarget;
 	}
 
-	// Èç¹ûÃ»ÓĞÉèÖÃ£¬Ñ°ÕÒ×î½üµÄÂú×ãSeekTargetTagµÄActor×÷ÎªÄ¿±ê
+	// å¦‚æœæ²¡æœ‰è®¾ç½®ï¼Œå¯»æ‰¾æœ€è¿‘çš„æ»¡è¶³SeekTargetTagçš„Actorä½œä¸ºç›®æ ‡
 	SeekTarget = FindNearestTargetWithTag(SeekTargetTags, DistToTarget);
-	// ÉèÖÃºÚ°åTargetActor
+	// è®¾ç½®é»‘æ¿TargetActor
 	if (OwnerAIController) {
 		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
 		if (Blackboard) {
@@ -131,33 +127,33 @@ AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 	float NearestDistance = 99999997952.0f;
 	float TempDistance = 0.0f;
 	bool TargetInSight = false;
-	FVector ViewPoint = FVector(0.0f, 0.0f, 0.0f);	// ÊÓÏß¼ì²âÓÃÊÓµã£¬´«Èë(0,0,0)Ê±Ê¹ÓÃµ±Ç°²é¿´Ä¿±êµÄÑÛ¾¦Î»ÖÃ
+	FVector ViewPoint = FVector(0.0f, 0.0f, 0.0f);	// è§†çº¿æ£€æµ‹ç”¨è§†ç‚¹ï¼Œä¼ å…¥(0,0,0)æ—¶ä½¿ç”¨å½“å‰æŸ¥çœ‹ç›®æ ‡çš„çœ¼ç›ä½ç½®
 
-	// ¸ù¾İAttackTargetTagsËÑÑ°µĞÈË
+	// æ ¹æ®AttackTargetTagsæœå¯»æ•Œäºº
 	for (FName CurrentTag : AttackTargetTags) {
 		TArray<AActor*> FindedActors;
-		// ¸ù¾İµ±Ç°Tag»ñÈ¡³¡¾°ÄÚµÄËùÓĞÏà¹Ø¶ÔÏó
+		// æ ¹æ®å½“å‰Tagè·å–åœºæ™¯å†…çš„æ‰€æœ‰ç›¸å…³å¯¹è±¡
 		UGameplayStatics::GetAllActorsWithTag(GetWorld(), CurrentTag, FindedActors);
 
 		for (AActor* CurrentActor : FindedActors) {
 			if (OwnerActor) {
 				TempDistance = OwnerActor->GetDistanceTo(CurrentActor);
-				// Ä¿±êÔÚÕì²â¾àÀëÄÚ
+				// ç›®æ ‡åœ¨ä¾¦æµ‹è·ç¦»å†…
 				if (TempDistance < InvestigateDistance) {
-					// Èç¹ûĞèÒªÄ¿±ê¿É¼û²ÅÄÜ¹¥»÷
+					// å¦‚æœéœ€è¦ç›®æ ‡å¯è§æ‰èƒ½æ”»å‡»
 					if (IsRequireLineOfSight && OwnerAIController) {
 						TargetInSight = OwnerAIController->LineOfSightTo(CurrentActor, ViewPoint, false);
-						// Èç¹ûÄ¿±ê²»ÔÚÊÓÏß·¶Î§ÄÚ, ÔòÌø¹ı(ºöÂÔ)
+						// å¦‚æœç›®æ ‡ä¸åœ¨è§†çº¿èŒƒå›´å†…, åˆ™è·³è¿‡(å¿½ç•¥)
 						if (!TargetInSight) {
 							continue;
 						}
 					}
 					EnemyCharacter = Cast<ABaseCharacter>(CurrentActor);
-					// Èç¹ûµ±Ç°Ä¿±êÊÇ½ÇÉ«, ÅĞ¶ÏÆäÊÇ·ñ´æ»î(¹¥»÷Ä¿±ê¿ÉÄÜ²»ÊÇCharacter, Èç¿ÉÆÆ»µ³¡¾°ÎïÌå)
+					// å¦‚æœå½“å‰ç›®æ ‡æ˜¯è§’è‰², åˆ¤æ–­å…¶æ˜¯å¦å­˜æ´»(æ”»å‡»ç›®æ ‡å¯èƒ½ä¸æ˜¯Character, å¦‚å¯ç ´ååœºæ™¯ç‰©ä½“)
 					if (EnemyCharacter && !EnemyCharacter->IsAlive()) {
 						continue;
 					}
-					// ¸üĞÂ×î½ü¿É¹¥»÷Ä¿±êĞÅÏ¢
+					// æ›´æ–°æœ€è¿‘å¯æ”»å‡»ç›®æ ‡ä¿¡æ¯
 					if (TempDistance < NearestDistance) {
 						NearestDistance = TempDistance;
 						NearestTarget = CurrentActor;
@@ -167,11 +163,11 @@ AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 		}
 	}
 
-	// ¼ÇÂ¼µ½¹¥»÷Ä¿±êµÄ¾àÀë
+	// è®°å½•åˆ°æ”»å‡»ç›®æ ‡çš„è·ç¦»
 	DistToTarget = NearestDistance;
-	// ÉèÖÃ¹¥»÷Ä¿±ê
+	// è®¾ç½®æ”»å‡»ç›®æ ‡
 	AttackTarget = NearestTarget;
-	// ¸üĞÂºÚ°åTargetActorĞÅÏ¢
+	// æ›´æ–°é»‘æ¿TargetActorä¿¡æ¯
 	if (OwnerAIController) {
 		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
 			Blackboard->SetValueAsObject(BBKey_TargetActor, AttackTarget);
@@ -220,52 +216,168 @@ EBehaviorType UBehaviorComponent::GetBehavior()
 	return CurrentBehavior;
 }
 
-void UBehaviorComponent::SetBehavior(EBehaviorType NewBehavior)
+bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 {
-	CurrentBehavior = NewBehavior;
-	if (OwnerAIController) {
-		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
-			Blackboard->SetValueAsEnum(BBKey_BehaviorType, (uint8)NewBehavior);
+	UE_LOG(LogTemp, Log, TEXT("ChangeBehavior"));
+	if (OwnerActor) {
+		if (OwnerActor->HasAuthority()) {
+			UE_LOG(LogTemp, Log, TEXT("OwnerActor HasAuthority"));
+		}
+		else {
+			UE_LOG(LogTemp, Log, TEXT("OwnerActor NoAuthority"));
 		}
 	}
+	else {
+		UE_LOG(LogTemp, Log, TEXT("OwnerActor Fail"));
+	}
+	//OwnerActor = GetOwner();
+	if (OwnerActor && OwnerActor->HasAuthority()) {
+		UE_LOG(LogTemp, Log, TEXT("ChangeBehavior  NewBehavior:%d, CurrentBehavior:%d"), NewBehavior, CurrentBehavior);
+		// å¦‚æœæ–°çš„Behaviorä¸å½“å‰Behaviorç›¸åŒ,æ— éœ€ä¿®æ”¹
+		if (NewBehavior == CurrentBehavior) {
+			return false;
+		}
+
+		// è°ƒç”¨å½“å‰è¡Œä¸ºçš„ç»“æŸäº‹ä»¶
+		switch (CurrentBehavior)
+		{
+		case EBehaviorType::Idle:
+			UE_LOG(LogTemp, Log, TEXT("CurrentBehavior  Idle"));
+			OnIdleEnd.Broadcast();
+			break;
+		case EBehaviorType::Patrol:
+			OnPatrolEnd.Broadcast();
+			break;
+		case EBehaviorType::Seek:
+			OnSeekEnd.Broadcast();
+			break;
+		case EBehaviorType::MeleeAttack:
+			OnMeleeAttackEnd.Broadcast();
+			break;
+		case EBehaviorType::RangeAttack:
+			OnRangeAttackEnd.Broadcast();
+			break;
+		case EBehaviorType::Follow:
+			OnFollowEnd.Broadcast();
+			break;
+		case EBehaviorType::Flee:
+			OnFleeEnd.Broadcast();
+			break;
+		case EBehaviorType::Investigate:
+			OnInvestigateEnd.Broadcast();
+			break;
+		case EBehaviorType::Evade:
+			OnEvadeEnd.Broadcast();
+			break;
+		case EBehaviorType::Guard:
+			UE_LOG(LogTemp, Log, TEXT("CurrentBehavior  Guard"));
+			OnGuardEnd.Broadcast();
+			break;
+		case EBehaviorType::Hit:
+			OnHitEnd.Broadcast();
+			break;
+		case EBehaviorType::Fall:
+			OnFallEnd.Broadcast();
+			break;
+		default:
+			break;
+		}
+
+		// æ›´æ–°å½“å‰è¡Œä¸ºä¿¡æ¯
+		CurrentBehavior = NewBehavior;
+		if (OwnerAIController) {
+			if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
+				Blackboard->SetValueAsEnum(BBKey_BehaviorType, (uint8)NewBehavior);
+			}
+		}
+
+		// è°ƒç”¨æ–°è¡Œä¸ºçš„å¼€å§‹äº‹ä»¶
+		switch (NewBehavior)
+		{
+		case EBehaviorType::Idle:
+			UE_LOG(LogTemp, Log, TEXT("NewBehavior  Idle"));
+			OnIdleBegin.Broadcast();
+			break;
+		case EBehaviorType::Patrol:
+			OnPatrolBegin.Broadcast();
+			break;
+		case EBehaviorType::Seek:
+			OnSeekBegin.Broadcast();
+			break;
+		case EBehaviorType::MeleeAttack:
+			OnMeleeAttackBegin.Broadcast();
+			break;
+		case EBehaviorType::RangeAttack:
+			OnRangeAttackBegin.Broadcast();
+			break;
+		case EBehaviorType::Follow:
+			OnFollowBegin.Broadcast();
+			break;
+		case EBehaviorType::Flee:
+			OnFleeBegin.Broadcast();
+			break;
+		case EBehaviorType::Investigate:
+			OnInvestigateBegin.Broadcast();
+			break;
+		case EBehaviorType::Evade:
+			OnEvadeBegin.Broadcast();
+			break;
+		case EBehaviorType::Guard:
+			UE_LOG(LogTemp, Log, TEXT("NewBehavior  Guard"));
+			OnGuardBegin.Broadcast();
+			break;
+		case EBehaviorType::Hit:
+			OnHitBegin.Broadcast();
+			break;
+		case EBehaviorType::Fall:
+			OnFallBegin.Broadcast();
+			break;
+		default:
+			break;
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 void UBehaviorComponent::UpdateBehavior()
 {
-	// Ö»ÓĞµ±Ç°ĞĞÎªÀàĞÍÎªIdleÊ±²Å¸üĞÂĞĞÎª
+	// åªæœ‰å½“å‰è¡Œä¸ºç±»å‹ä¸ºIdleæ—¶æ‰æ›´æ–°è¡Œä¸º
 	if (CurrentBehavior != EBehaviorType::Idle) {
 		return;
 	}
 
-	// µ½Ä¿±ê¶ÔÏóµÄ¾àÀë
+	// åˆ°ç›®æ ‡å¯¹è±¡çš„è·ç¦»
 	float DistToTarget = 0.0f;
 
 	AttackTarget = FindAttackTarget(DistToTarget);
-	// Èç¹ûÕÒµ½¹¥»÷Ä¿±ê²¢ÇÒµ±Ç°¿ÉÒÔ·¢¶¯¹¥»÷
+	// å¦‚æœæ‰¾åˆ°æ”»å‡»ç›®æ ‡å¹¶ä¸”å½“å‰å¯ä»¥å‘åŠ¨æ”»å‡»
 	if (AttackTarget) {
-		// ÅĞ¶ÏÊÇ·ñÖ§³ÖÔ¶³Ì¹¥»÷(½üÕ½¹¥»÷±ØĞëÖ§³Ö)
+		// åˆ¤æ–­æ˜¯å¦æ”¯æŒè¿œç¨‹æ”»å‡»(è¿‘æˆ˜æ”»å‡»å¿…é¡»æ”¯æŒ)
 		if (CanRangeAttack) {
 			if (DistToTarget < MeleeAttackDistance) {
-				// ¿ªÊ¼½üÕ½¹¥»÷
-				SetBehavior(EBehaviorType::MeleeAttack);
+				// å¼€å§‹è¿‘æˆ˜æ”»å‡»
+				BeginMeleeAttack();
 			}
-			else if(DistToTarget < RangeAttackDistance){
-				// ¿ªÊ¼Ô¶³Ì¹¥»÷
-				SetBehavior(EBehaviorType::RangeAttack);
+			else if (DistToTarget < RangeAttackDistance) {
+				// å¼€å§‹è¿œç¨‹æ”»å‡»
+				BeginRangeAttack();
 			}
 			else {
-				// ¿ªÊ¼×·×Ù
-				SetBehavior(EBehaviorType::Follow);
+				// å¼€å§‹è¿½è¸ª
+				ChangeBehavior(EBehaviorType::Follow);
 			}
 		}
 		else {
 			if (DistToTarget < MeleeAttackDistance) {
-				// ¿ªÊ¼½üÕ½¹¥»÷
-				SetBehavior(EBehaviorType::MeleeAttack);
+				// å¼€å§‹è¿‘æˆ˜æ”»å‡»
+				BeginMeleeAttack();
 			}
 			else {
-				// ¿ªÊ¼×·×Ù
-				SetBehavior(EBehaviorType::Follow);
+				// å¼€å§‹è¿½è¸ª
+				ChangeBehavior(EBehaviorType::Follow);
 			}
 		}
 
@@ -273,12 +385,82 @@ void UBehaviorComponent::UpdateBehavior()
 	}
 
 	SeekTarget = FindSeekTarget(DistToTarget);
-	// Èç¹ûÕÒµ½Ñ°ÕÒÄ¿±ê
+	// å¦‚æœæ‰¾åˆ°å¯»æ‰¾ç›®æ ‡
 	if (SeekTarget) {
 		return;
 	}
 
-	// Ã»ÓĞÄ¿±ê£¬½øĞĞÑ²Âß
+	// æ²¡æœ‰ç›®æ ‡ï¼Œè¿›è¡Œå·¡é€»
+
+}
+
+void UBehaviorComponent::BeginMeleeAttack()
+{
+	ChangeBehavior(EBehaviorType::MeleeAttack);
+}
+
+void UBehaviorComponent::EndMeleeAttack()
+{
+	ChangeBehavior(MeleeAttackTransition);
+}
+
+void UBehaviorComponent::BeginRangeAttack()
+{
+	ChangeBehavior(EBehaviorType::RangeAttack);
+}
+
+void UBehaviorComponent::EndRangeAttack()
+{
+	ChangeBehavior(RangeAttackTransition);
+}
+
+void UBehaviorComponent::BeginEvade()
+{
+	ChangeBehavior(EBehaviorType::Evade);
+}
+
+void UBehaviorComponent::EndEvade()
+{
+	ChangeBehavior(EvadeTransition);
+}
+
+void UBehaviorComponent::BeginGuard()
+{
+	ChangeBehavior(EBehaviorType::Guard);
+}
+
+void UBehaviorComponent::EndGuard()
+{
+	ChangeBehavior(GuardTransition);
+}
+
+void UBehaviorComponent::BeginFollow()
+{
+	ChangeBehavior(EBehaviorType::Follow);
+}
+
+void UBehaviorComponent::EndFollow()
+{
+	ChangeBehavior(FollowTransition);
+}
+
+void UBehaviorComponent::BeginFlee()
+{
+	ChangeBehavior(EBehaviorType::Flee);
+}
+
+void UBehaviorComponent::EndFlee()
+{
+	ChangeBehavior(FleeTransition);
+}
+
+void UBehaviorComponent::BeginInvestigate()
+{
+
+}
+
+void UBehaviorComponent::EndInvestigate()
+{
 
 }
 

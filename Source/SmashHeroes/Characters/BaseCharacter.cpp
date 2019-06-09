@@ -165,25 +165,6 @@ bool ABaseCharacter::MeleeAttack()
 	return false;
 }
 
-void ABaseCharacter::BeginMeleeAttack()
-{
-	EBehaviorType CurrentBehavior = BehaviorComponent->GetBehavior();
-	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (CurrentBehavior == EBehaviorType::Evade) {
-		EndEvade();
-	}
-	if (CurrentBehavior == EBehaviorType::Guard) {
-		EndGuard();
-	}
-	BehaviorComponent->SetBehavior(EBehaviorType::MeleeAttack);
-}
-
-void ABaseCharacter::EndMeleeAttack()
-{
-	BehaviorComponent->SetBehavior(EBehaviorType::Idle);
-	OnAttackEnded.Broadcast();
-}
-
 UAnimMontage* ABaseCharacter::GetMeleeAttackMontageByIndex()
 {
 	UAnimMontage** CurAttackMontagePtr = MeleeAttackMontageMap.Find(AttackIndex);
@@ -199,25 +180,6 @@ bool ABaseCharacter::RangeAttack()
 {
 	// 返回值表示是否有效执行
 	return false;
-}
-
-void ABaseCharacter::BeginRangeAttack()
-{
-	EBehaviorType CurrentBehavior = BehaviorComponent->GetBehavior();
-	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (CurrentBehavior == EBehaviorType::Evade) {
-		EndEvade();
-	}
-	if (CurrentBehavior == EBehaviorType::Guard) {
-		EndGuard();
-	}
-	BehaviorComponent->SetBehavior(EBehaviorType::RangeAttack);
-}
-
-void ABaseCharacter::EndRangeAttack()
-{
-	BehaviorComponent->SetBehavior(EBehaviorType::Idle);
-	OnAttackEnded.Broadcast();
 }
 
 UAnimMontage* ABaseCharacter::GetRangeAttackMontageByIndex()
@@ -237,52 +199,10 @@ bool ABaseCharacter::Evade()
 	return false;
 }
 
-void ABaseCharacter::BeginEvade()
-{
-	EBehaviorType CurrentBehavior = BehaviorComponent->GetBehavior();
-	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (CurrentBehavior == EBehaviorType::MeleeAttack) {
-		EndMeleeAttack();
-	}
-	else if (CurrentBehavior == EBehaviorType::RangeAttack) {
-		EndRangeAttack();
-	} else if (CurrentBehavior == EBehaviorType::Guard) {
-		EndGuard();
-	}
-	BehaviorComponent->SetBehavior(EBehaviorType::Evade);
-}
-
-void ABaseCharacter::EndEvade()
-{
-	BehaviorComponent->SetBehavior(EBehaviorType::Idle);
-	OnEvadeEnded.Broadcast();
-}
-
 bool ABaseCharacter::Guard()
 {
 	// 返回值表示是否有效执行
 	return false;
-}
-
-void ABaseCharacter::BeginGuard()
-{
-	EBehaviorType CurrentBehavior = BehaviorComponent->GetBehavior();
-	// 如果其他动作被中断，需要调用相应EndXXX函数
-	if (CurrentBehavior == EBehaviorType::MeleeAttack) {
-		EndMeleeAttack();
-	} else if (CurrentBehavior == EBehaviorType::RangeAttack) {
-		EndRangeAttack();
-	}
-	else if (CurrentBehavior == EBehaviorType::Evade) {
-		EndEvade();
-	}
-	BehaviorComponent->SetBehavior(EBehaviorType::Guard);
-}
-
-void ABaseCharacter::EndGuard()
-{
-	BehaviorComponent->SetBehavior(EBehaviorType::Idle);
-	OnGuardEnded.Broadcast();
 }
 
 bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits)

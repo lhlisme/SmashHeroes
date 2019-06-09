@@ -51,9 +51,6 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	bool ComboSwitched = false;		// 连击动作已切换
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool IsLastCombo = false;	// 是否为连击的最后一个动作
-
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -85,24 +82,10 @@ public:
 	UFUNCTION()
 	void StopJump();
 
-	// 攻击相关
+	// 行为相关
 	virtual bool MeleeAttack() override;
-
-	virtual void BeginMeleeAttack() override;
-	
-	virtual void EndMeleeAttack() override;
-
 	virtual UAnimMontage* GetMeleeAttackMontageByIndex() override;
-
-	// 闪避相关
-	virtual void BeginEvade() override;
-
-	virtual void EndEvade() override;
-
-	// 防御相关
-	virtual void BeginGuard() override;
-
-	virtual void EndGuard() override;
+	void ResetAttackStatus();
 
 protected:
 	// Called when the game starts or when spawned
