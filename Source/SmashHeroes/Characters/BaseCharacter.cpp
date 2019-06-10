@@ -25,6 +25,7 @@ ABaseCharacter::ABaseCharacter()
 	// 创建行为组件
 	BehaviorComponent = CreateDefaultSubobject<UBehaviorComponent>(TEXT("BehaviorComponent"));
 	BehaviorComponent->SetIsReplicated(true);
+	BehaviorComponent->Init();
 }
 
 // Called when the game starts or when spawned

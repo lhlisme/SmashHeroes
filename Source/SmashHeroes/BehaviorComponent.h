@@ -331,7 +331,7 @@ public:
 
 
 private:
-	UPROPERTY(ReplicatedUsing = OnRep_Owner)
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	AActor* OwnerActor;
 
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
@@ -349,6 +349,9 @@ private:
 public:	
 	// Sets default values for this component's properties
 	UBehaviorComponent();
+
+	/** 初始化 */
+	void Init();
 
 	/** 根据Key初始化Blackboard中的值 */
 	void InitBlackboard();
@@ -385,8 +388,4 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateBehavior();
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-		
 };

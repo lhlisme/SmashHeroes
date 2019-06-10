@@ -16,11 +16,9 @@ UBehaviorComponent::UBehaviorComponent()
 	// ...
 }
 
-// Called when the game starts
-void UBehaviorComponent::BeginPlay()
+void UBehaviorComponent::Init()
 {
-	Super::BeginPlay();
-
+	OwnerActor = GetOwner();
 	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
 	if (OwnerCharacter && OwnerCharacter->HasAuthority()) {
 		// 如果是AI，初始化OwnerAIController
@@ -218,21 +216,7 @@ EBehaviorType UBehaviorComponent::GetBehavior()
 
 bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 {
-	UE_LOG(LogTemp, Log, TEXT("ChangeBehavior"));
-	if (OwnerActor) {
-		if (OwnerActor->HasAuthority()) {
-			UE_LOG(LogTemp, Log, TEXT("OwnerActor HasAuthority"));
-		}
-		else {
-			UE_LOG(LogTemp, Log, TEXT("OwnerActor NoAuthority"));
-		}
-	}
-	else {
-		UE_LOG(LogTemp, Log, TEXT("OwnerActor Fail"));
-	}
-	//OwnerActor = GetOwner();
 	if (OwnerActor && OwnerActor->HasAuthority()) {
-		UE_LOG(LogTemp, Log, TEXT("ChangeBehavior  NewBehavior:%d, CurrentBehavior:%d"), NewBehavior, CurrentBehavior);
 		// 如果新的Behavior与当前Behavior相同,无需修改
 		if (NewBehavior == CurrentBehavior) {
 			return false;
@@ -242,7 +226,6 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 		switch (CurrentBehavior)
 		{
 		case EBehaviorType::Idle:
-			UE_LOG(LogTemp, Log, TEXT("CurrentBehavior  Idle"));
 			OnIdleEnd.Broadcast();
 			break;
 		case EBehaviorType::Patrol:
@@ -270,7 +253,6 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 			OnEvadeEnd.Broadcast();
 			break;
 		case EBehaviorType::Guard:
-			UE_LOG(LogTemp, Log, TEXT("CurrentBehavior  Guard"));
 			OnGuardEnd.Broadcast();
 			break;
 		case EBehaviorType::Hit:
@@ -295,7 +277,6 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 		switch (NewBehavior)
 		{
 		case EBehaviorType::Idle:
-			UE_LOG(LogTemp, Log, TEXT("NewBehavior  Idle"));
 			OnIdleBegin.Broadcast();
 			break;
 		case EBehaviorType::Patrol:
@@ -323,7 +304,6 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 			OnEvadeBegin.Broadcast();
 			break;
 		case EBehaviorType::Guard:
-			UE_LOG(LogTemp, Log, TEXT("NewBehavior  Guard"));
 			OnGuardBegin.Broadcast();
 			break;
 		case EBehaviorType::Hit:
