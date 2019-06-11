@@ -101,7 +101,10 @@ public:
 	EBehaviorType InitBehavior = EBehaviorType::Idle;	// 初始行为
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_BehaviorType = FName(TEXT("BehaviorType"));	// 黑板键名称
+	FName BBKey_CurrentBehaviorType = FName(TEXT("CurrentBehaviorType"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_TargetBehaviorType = FName(TEXT("TargetBehaviorType"));		// 黑板键名称
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName BBKey_TargetActor = FName(TEXT("TargetActor"));	// 黑板键名称
@@ -211,7 +214,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Settings")
 	EBehaviorType HitTransition = EBehaviorType::Idle;	// 受击行为结束后进入的下一行为类型
 
-	/** (主动)行为切换相关事件,供蓝图中调用 */
+	/** (主动)行为切换相关事件, 在GameplayAbility或BTTask中调用 */
 	UFUNCTION(BlueprintCallable)
 	virtual void BeginMeleeAttack();
 
@@ -338,6 +341,9 @@ private:
 	AAIController* OwnerAIController;
 
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
+	EBehaviorType TargetBehavior = EBehaviorType::Idle;		// 目标行为, AI专用
+
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	EBehaviorType CurrentBehavior = EBehaviorType::Idle;	// 初始行为
 
 	UPROPERTY(VisibleAnywhere, Category = "Seek Settings")
@@ -387,5 +393,9 @@ public:
 	/** 更新行为 */
 	UFUNCTION(BlueprintCallable)
 	void UpdateBehavior();
+
+	/** 设置目标行为 */
+	UFUNCTION(BlueprintCallable)
+	void SetTargetBehavior(EBehaviorType NewBehavior);
 
 };

@@ -167,7 +167,8 @@ AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 	AttackTarget = NearestTarget;
 	// 更新黑板TargetActor信息
 	if (OwnerAIController) {
-		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
+		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
+		if (Blackboard) {
 			Blackboard->SetValueAsObject(BBKey_TargetActor, AttackTarget);
 		}
 	}
@@ -267,9 +268,11 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 
 		// 更新当前行为信息
 		CurrentBehavior = NewBehavior;
-		if (OwnerAIController) {
-			if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) {
-				Blackboard->SetValueAsEnum(BBKey_BehaviorType, (uint8)NewBehavior);
+		if (OwnerAIController) 
+		{
+			if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) 
+			{
+				Blackboard->SetValueAsEnum(BBKey_CurrentBehaviorType, (uint8)NewBehavior);
 			}
 		}
 
@@ -325,39 +328,47 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 void UBehaviorComponent::UpdateBehavior()
 {
 	// 只有当前行为类型为Idle时才更新行为
-	if (CurrentBehavior != EBehaviorType::Idle) {
+	/*if (CurrentBehavior != EBehaviorType::Idle) {
 		return;
-	}
+	}*/
 
 	// 到目标对象的距离
 	float DistToTarget = 0.0f;
 
 	AttackTarget = FindAttackTarget(DistToTarget);
 	// 如果找到攻击目标并且当前可以发动攻击
-	if (AttackTarget) {
+	if (AttackTarget) 
+	{
 		// 判断是否支持远程攻击(近战攻击必须支持)
-		if (CanRangeAttack) {
-			if (DistToTarget < MeleeAttackDistance) {
-				// 开始近战攻击
-				BeginMeleeAttack();
+		if (CanRangeAttack) 
+		{
+			if (DistToTarget < MeleeAttackDistance) 
+			{
+				// 准备开始近战攻击
+				SetTargetBehavior(EBehaviorType::MeleeAttack);
 			}
-			else if (DistToTarget < RangeAttackDistance) {
-				// 开始远程攻击
-				BeginRangeAttack();
+			else if (DistToTarget < RangeAttackDistance) 
+			{
+				// 准备开始远程攻击
+				SetTargetBehavior(EBehaviorType::RangeAttack);
 			}
-			else {
-				// 开始追踪
-				ChangeBehavior(EBehaviorType::Follow);
+			else 
+			{
+				// 准备开始追踪
+				SetTargetBehavior(EBehaviorType::Follow);
 			}
 		}
-		else {
-			if (DistToTarget < MeleeAttackDistance) {
-				// 开始近战攻击
-				BeginMeleeAttack();
+		else 
+		{
+			if (DistToTarget < MeleeAttackDistance) 
+			{
+				// 准备开始近战攻击
+				SetTargetBehavior(EBehaviorType::MeleeAttack);
 			}
-			else {
-				// 开始追踪
-				ChangeBehavior(EBehaviorType::Follow);
+			else 
+			{
+				// 准备开始追踪
+				SetTargetBehavior(EBehaviorType::Follow);
 			}
 		}
 
@@ -366,12 +377,28 @@ void UBehaviorComponent::UpdateBehavior()
 
 	SeekTarget = FindSeekTarget(DistToTarget);
 	// 如果找到寻找目标
-	if (SeekTarget) {
+	if (SeekTarget) 
+	{
 		return;
 	}
 
 	// 没有目标，进行巡逻
 
+}
+
+void UBehaviorComponent::SetTargetBehavior(EBehaviorType NewBehavior)
+{
+	// 更新目标行为
+	TargetBehavior = NewBehavior;
+	// 更新黑板信息
+	if (OwnerAIController)
+	{
+		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
+		if (Blackboard) 
+		{
+			Blackboard->SetValueAsEnum(BBKey_TargetBehaviorType, (uint8)NewBehavior);
+		}
+	}
 }
 
 void UBehaviorComponent::BeginMeleeAttack()
@@ -382,6 +409,10 @@ void UBehaviorComponent::BeginMeleeAttack()
 void UBehaviorComponent::EndMeleeAttack()
 {
 	ChangeBehavior(MeleeAttackTransition);
+	// 如果当前对象由AI控制，在攻击结束时，重置攻击目标
+	if (IsAI) {
+		AttackTarget = nullptr;
+	}
 }
 
 void UBehaviorComponent::BeginRangeAttack()
@@ -392,6 +423,10 @@ void UBehaviorComponent::BeginRangeAttack()
 void UBehaviorComponent::EndRangeAttack()
 {
 	ChangeBehavior(RangeAttackTransition);
+	// 如果当前对象由AI控制，在攻击结束时，重置攻击目标
+	if (IsAI) {
+		AttackTarget = nullptr;
+	}
 }
 
 void UBehaviorComponent::BeginEvade()

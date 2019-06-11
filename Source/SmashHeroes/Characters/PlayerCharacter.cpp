@@ -44,9 +44,9 @@ void APlayerCharacter::BeginPlay()
 	
 	if (BehaviorComponent) {
 		// 添加攻击状态初始化回调事件
-		/*BehaviorComponent->OnMeleeAttackEnd.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
+		BehaviorComponent->OnMeleeAttackEnd.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
 		BehaviorComponent->OnEvadeBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
-		BehaviorComponent->OnGuardBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);*/
+		BehaviorComponent->OnGuardBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
 	}
 }
 
@@ -131,7 +131,7 @@ bool APlayerCharacter::MeleeAttack()
 		if (CanCombo) {
 			if (CanSwitchCombo) {
 				ComboStatus = EComboStatus::ComboSwitched;
-				++ComboSetIndex;
+				ComboSetIndex = AttackIndex;
 			}
 			else {
 				ComboStatus = EComboStatus::NormalCombo;
@@ -150,6 +150,7 @@ UAnimMontage* APlayerCharacter::GetMeleeAttackMontageByIndex()
 {
 	int Index = AttackIndex + ComboSetIndex * 10;
 
+	UE_LOG(LogTemp, Log, TEXT("Index: %d"), Index);
 	UAnimMontage** CurAttackMontagePtr = MeleeAttackMontageMap.Find(Index);
 
 	if (CurAttackMontagePtr) {
@@ -161,6 +162,7 @@ UAnimMontage* APlayerCharacter::GetMeleeAttackMontageByIndex()
 
 void APlayerCharacter::ResetAttackStatus()
 {
+	UE_LOG(LogTemp, Log, TEXT("ResetAttackStatus"));
 	// 如果攻击结束或被中断的话, 重新初始化AttackIndex
 	AttackIndex = 0;
 	ComboSetIndex = 0;
