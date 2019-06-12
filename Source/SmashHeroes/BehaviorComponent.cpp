@@ -16,7 +16,7 @@ UBehaviorComponent::UBehaviorComponent()
 	// ...
 }
 
-void UBehaviorComponent::Init()
+void UBehaviorComponent::Initialize()
 {
 	OwnerActor = GetOwner();
 	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
@@ -339,6 +339,7 @@ void UBehaviorComponent::UpdateBehavior()
 	// 如果找到攻击目标并且当前可以发动攻击
 	if (AttackTarget) 
 	{
+		UE_LOG(LogTemp, Log, TEXT("AttackTarget: %s"), *(AttackTarget->GetName()));
 		// 判断是否支持远程攻击(近战攻击必须支持)
 		if (CanRangeAttack) 
 		{
@@ -362,11 +363,13 @@ void UBehaviorComponent::UpdateBehavior()
 		{
 			if (DistToTarget < MeleeAttackDistance) 
 			{
+				UE_LOG(LogTemp, Log, TEXT("MeleeAttack"));
 				// 准备开始近战攻击
 				SetTargetBehavior(EBehaviorType::MeleeAttack);
 			}
 			else 
 			{
+				UE_LOG(LogTemp, Log, TEXT("Follow"));
 				// 准备开始追踪
 				SetTargetBehavior(EBehaviorType::Follow);
 			}

@@ -356,8 +356,8 @@ public:
 	// Sets default values for this component's properties
 	UBehaviorComponent();
 
-	/** 初始化 */
-	void Init();
+	/** 初始化行为组件 */
+	void Initialize();
 
 	/** 根据Key初始化Blackboard中的值 */
 	void InitBlackboard();

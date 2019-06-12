@@ -25,7 +25,6 @@ ABaseCharacter::ABaseCharacter()
 	// 创建行为组件
 	BehaviorComponent = CreateDefaultSubobject<UBehaviorComponent>(TEXT("BehaviorComponent"));
 	BehaviorComponent->SetIsReplicated(true);
-	BehaviorComponent->Init();
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +34,8 @@ void ABaseCharacter::BeginPlay()
 
 	// 生成武器
 	GenerateWeapon();
+	// 初始化行为组件
+	BehaviorComponent->Initialize();
 }
 
 // Called every frame
