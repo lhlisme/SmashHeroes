@@ -24,7 +24,8 @@ enum class EBehaviorType : uint8
 	Evade				UMETA(DisplayName = "Evade"),
 	Guard				UMETA(DisplayName = "Guard"),
 	Hit					UMETA(DisplayName = "Hit"),
-	Fall				UMETA(DisplayName = "Fall")
+	Fall				UMETA(DisplayName = "Fall"),
+	Dead				UMETA(DisplayName = "Dead")
 };
 
 UENUM()
@@ -59,6 +60,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGuardBeginDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHitBeginDelegate);
 /** Fall开始时调用 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFallBeginDelegate);
+/** Dead开始时调用 */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeadBeginDelegate);
 
 /** Idle结束时调用 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FIdleEndDelegate);
@@ -84,6 +87,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGuardEndDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHitEndDelegate);
 /** Fall结束时调用 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFallEndDelegate);
+/** Dead结束时调用 */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeadEndDelegate);
 
 UCLASS(ClassGroup=AIBehavior, hidecategories=(Object,LOD,Lighting,Transform,Sockets,TextureStreaming), editinlinenew, meta=(BlueprintSpawnableComponent))
 class SMASHHEROES_API UBehaviorComponent : public UActorComponent
@@ -214,7 +219,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Settings")
 	EBehaviorType HitTransition = EBehaviorType::Idle;	// 受击行为结束后进入的下一行为类型
 
-	/** (主动)行为切换相关事件, 在GameplayAbility或BTTask中调用 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dead Settings")
+	EBehaviorType DeadTransition = EBehaviorType::Idle;	// 死亡行为结束后进入的下一行为类型
+
+	/** 行为切换相关事件, 在GameplayAbility或BTTask中调用 */
 	UFUNCTION(BlueprintCallable)
 	virtual void BeginMeleeAttack();
 
@@ -257,6 +265,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void EndInvestigate();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginDead();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndDead();
+
 	/** 行为开始相关委托 */
 	UPROPERTY(BlueprintAssignable)
 	FIdleBeginDelegate OnIdleBegin;
@@ -294,6 +308,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FFallBeginDelegate OnFallBegin;
 
+	UPROPERTY(BlueprintAssignable)
+	FDeadBeginDelegate OnDeadBegin;
 
 	/** 行为结束相关委托 */
 	UPROPERTY(BlueprintAssignable)
@@ -332,6 +348,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FFallEndDelegate OnFallEnd;
 
+	UPROPERTY(BlueprintAssignable)
+	FDeadEndDelegate OnDeadEnd;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")

@@ -262,6 +262,9 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 		case EBehaviorType::Fall:
 			OnFallEnd.Broadcast();
 			break;
+		case EBehaviorType::Dead:
+			OnDeadEnd.Broadcast();
+			break;
 		default:
 			break;
 		}
@@ -315,6 +318,9 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 		case EBehaviorType::Fall:
 			OnFallBegin.Broadcast();
 			break;
+		case EBehaviorType::Dead:
+			OnDeadBegin.Broadcast();
+			break;
 		default:
 			break;
 		}
@@ -331,6 +337,15 @@ void UBehaviorComponent::UpdateBehavior()
 	/*if (CurrentBehavior != EBehaviorType::Idle) {
 		return;
 	}*/
+
+	if (OwnerActor)
+	{
+		ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
+		if (OwnerCharacter && !OwnerCharacter->IsAlive()) {
+			SetTargetBehavior(EBehaviorType::Dead);
+			return;
+		}
+	}
 
 	// 到目标对象的距离
 	float DistToTarget = 0.0f;
@@ -480,5 +495,15 @@ void UBehaviorComponent::BeginInvestigate()
 void UBehaviorComponent::EndInvestigate()
 {
 
+}
+
+void UBehaviorComponent::BeginDead()
+{
+	ChangeBehavior(EBehaviorType::Dead);
+}
+
+void UBehaviorComponent::EndDead()
+{
+	ChangeBehavior(DeadTransition);
 }
 
