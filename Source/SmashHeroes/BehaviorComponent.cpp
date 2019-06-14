@@ -22,14 +22,27 @@ void UBehaviorComponent::Initialize()
 	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
 	if (OwnerCharacter && OwnerCharacter->HasAuthority()) {
 		// 如果是AI，初始化OwnerAIController
-		if (IsAI) {
+		if (IsAI) 
+		{
 			OwnerAIController = Cast<AAIController>(OwnerCharacter->GetController());
 
-			if (OwnerAIController) {
+			if (OwnerAIController) 
+			{
 				// 在设置黑板值前运行行为树
 				OwnerAIController->RunBehaviorTree(BehaviorTree);
 				// 初始化黑板值信息
 				InitBlackboard();
+			}
+
+			// 初始化巡逻路径
+			TArray<AActor*> AllPatrolRoutes;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), APatrolRoute::StaticClass(), AllPatrolRoutes);
+			for (AActor* CurrentPatrolRoute : AllPatrolRoutes)
+			{
+				if (CurrentPatrolRoute && PatrolRouteName.Compare(CurrentPatrolRoute->GetName()) == 0)
+				{
+					PatrolRoute = Cast<APatrolRoute>(CurrentPatrolRoute);
+				}
 			}
 		}
 
@@ -122,7 +135,7 @@ AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 
 	AActor* NearestTarget = nullptr;
 	ABaseCharacter* EnemyCharacter = nullptr;
-	float NearestDistance = 99999997952.0f;
+	float NearestDistance = FLT_MAX;
 	float TempDistance = 0.0f;
 	bool TargetInSight = false;
 	FVector ViewPoint = FVector(0.0f, 0.0f, 0.0f);	// 视线检测用视点，传入(0,0,0)时使用当前查看目标的眼睛位置
@@ -188,7 +201,7 @@ AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags, f
 	}
 
 	AActor* NearestActor = nullptr;
-	float NearestDistance = 99999997952.0f;
+	float NearestDistance = FLT_MAX;
 	float TempDistance = 0.0f;
 
 	for (FName CurrentTag : TargerTags) {
@@ -208,6 +221,61 @@ AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags, f
 
 	DistToTarget = NearestDistance;
 	return NearestActor;
+}
+
+void UBehaviorComponent::FindNextPatrolLocation()
+{
+	if (PatrolType == EPatrolType::Single || PatrolType == EPatrolType::Looping) 
+	{
+		++PatrolSplineIndex;
+	}
+	else if (PatrolType == EPatrolType::BackAndForth)
+	{
+		if (PatrolDirection) 
+		{
+			// 正向巡逻
+			++PatrolSplineIndex;
+			// 如果到达了最终点, 则调转方向
+			if (PatrolSplineIndex >= PatrolRoute->GetSplinePointNum())
+			{
+				PatrolDirection = false;
+			}
+		}
+		else
+		{
+			// 反向巡逻
+			--PatrolSplineIndex;
+			// 如果到达了最初点, 则调转方向
+			if (PatrolSplineIndex < 0)
+			{
+				PatrolDirection = true;
+			}
+		}
+	}
+
+	// 设置目标巡逻位置
+	int32 PointIndex = 0;
+	switch (PatrolType)
+	{
+	case EPatrolType::Single:
+		PointIndex = PatrolSplineIndex;
+		break;
+	case EPatrolType::Looping:
+		PointIndex = PatrolSplineIndex % PatrolRoute->GetSplinePointNum();
+		break;
+	case EPatrolType::BackAndForth:
+		PointIndex = PatrolSplineIndex;
+		break;
+	}
+
+	FVector TargetPatrolLocation = PatrolRoute->GetPatrolLocationByPointIndex(PointIndex, ESplineCoordinateSpace::World);
+	if (OwnerAIController)
+	{
+		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent())
+		{
+			Blackboard->SetValueAsVector(BBKey_TargetLocation, TargetPatrolLocation);
+		}
+	}
 }
 
 EBehaviorType UBehaviorComponent::GetBehavior()
@@ -500,6 +568,16 @@ void UBehaviorComponent::EndInvestigate()
 void UBehaviorComponent::BeginDead()
 {
 	ChangeBehavior(EBehaviorType::Dead);
+	
+	// 死亡前清空目标
+	if (SeekTarget)
+	{
+		SeekTarget = nullptr;
+	}
+	if (AttackTarget)
+	{
+		AttackTarget = nullptr;
+	}
 }
 
 void UBehaviorComponent::EndDead()

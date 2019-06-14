@@ -52,6 +52,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 			RightWeapon->UpdateSocketLocations();
 		}
 	}
+
 }
 
 // Called to bind functionality to input

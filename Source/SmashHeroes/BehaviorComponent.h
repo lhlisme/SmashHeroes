@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "Components/ActorComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "PatrolRoute.h"
 #include "BehaviorComponent.generated.h"
 
 
@@ -34,6 +35,15 @@ enum class EIdleType : uint8
 	Stationary			UMETA(DisplayName = "Stationary"),
 	RandomLocation		UMETA(DisplayName = "RandomLocation"),
 	RandomWork			UMETA(DisplayName = "RandomWork")
+};
+
+UENUM()
+enum class EPatrolType : uint8
+{
+	Disabled			UMETA(DisplayName = "Disabled"),
+	Single				UMETA(DisplayName = "Single"),
+	Looping				UMETA(DisplayName = "Looping"),
+	BackAndForth		UMETA(DisplayName = "BackAndForth")
 };
 
 /** Idle开始时调用 */
@@ -158,6 +168,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
 	float RandLocationDelay = 10.0f;	// 随机走动间隔
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	FString PatrolRouteName;		// 巡逻路径名称
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	APatrolRoute* PatrolRoute;		// 巡逻路径
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	EPatrolType PatrolType = EPatrolType::Single;		// 巡逻类型
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	int32 PatrolSplineIndex = -1;		// 巡逻点索引
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	bool PatrolDirection = false;		// 巡逻方向，正向，反向
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
 	float InvestigateDistance = 3000.0f;	// 侦查距离
@@ -399,6 +424,10 @@ public:
 	/** 根据指定Tag找到最近的目标 */
 	UFUNCTION(BlueprintCallable)
 	AActor* FindNearestTargetWithTag(TArray<FName> TargerTags, float &DistToTarget);
+
+	/** 寻找下一个巡逻点 */
+	UFUNCTION(BlueprintCallable)
+	void FindNextPatrolLocation();
 
 	/** 获取当前行为类型 */
 	UFUNCTION(BlueprintPure)
