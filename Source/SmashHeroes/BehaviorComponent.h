@@ -107,7 +107,7 @@ class SMASHHEROES_API UBehaviorComponent : public UActorComponent
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	bool IsAI = false;	// 是否由AI控制
+	bool bIsAI = false;	// 是否由AI控制
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	UBehaviorTree* BehaviorTree;	// 当前AI使用的行为树
@@ -395,14 +395,17 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	EBehaviorType CurrentBehavior = EBehaviorType::Idle;	// 初始行为
 
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
+	bool bIsTransition = false;		// 当前行为是否由其他行为结束过渡所致
+
 	UPROPERTY(VisibleAnywhere, Category = "Seek Settings")
 	AActor* SeekTarget;		// 寻找目标(不同于AttackTarget, 需要通过外部指定)
 
+	UPROPERTY(VisibleAnywhere, Category = "Patrol Settings")
+	bool bIsPatrolEnded = false;		// 巡逻是否结束标记(仅在PatrolType=Single时有效)
+
 	UPROPERTY(VisibleAnywhere, Category = "Attack Settings")
 	AActor* AttackTarget;
-
-	/** 当前行为是否由其他行为结束过渡所致 */
-	bool IsTransition = false;
 
 public:	
 	// Sets default values for this component's properties
