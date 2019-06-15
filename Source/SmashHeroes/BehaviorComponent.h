@@ -176,13 +176,22 @@ public:
 	APatrolRoute* PatrolRoute;		// 巡逻路径
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
-	EPatrolType PatrolType = EPatrolType::Single;		// 巡逻类型
+	float MinPatrolMoveSpeed = 300.0f;		// 最小巡逻移动速度
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	float MaxPatrolMoveSpeed = 340.0f;		// 最大巡逻移动速度
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	EPatrolType PatrolType = EPatrolType::BackAndForth;		// 巡逻类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
 	int32 PatrolSplineIndex = -1;		// 巡逻点索引
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
 	bool PatrolDirection = false;		// 巡逻方向，正向，反向
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	EBehaviorType PatrolTransition = EBehaviorType::Idle;	// 巡逻行为结束后进入的下一行为类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
 	float InvestigateDistance = 3000.0f;	// 侦查距离
@@ -197,13 +206,22 @@ public:
 	float FollowDistance = 4000.0f;	// 追踪距离
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
-	EBehaviorType FollowTransition = EBehaviorType::Idle;	// 追踪行为结束后进入的下一行为类型
+	float MinFollowMoveSpeed = 400.0f;		// 最小追踪移动速度
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
+	float MaxFollowMoveSpeed = 420.0f;		// 最大追踪移动速度
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
 	float FleeDistance = 1600.0f;	// 逃离距离
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
 	EBehaviorType FleeTransition = EBehaviorType::Idle;	// 逃离行为结束后进入的下一行为类型
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
+	float MinFleeMoveSpeed = 560.0f;		// 最小逃跑移动速度
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
+	float MaxFleeMoveSpeed = 600.0f;		// 最大逃跑移动速度
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
 	TArray<FName> SeekTargetTags;	// 寻找目标的Tag数组
@@ -213,6 +231,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
 	EBehaviorType SeekTransition = EBehaviorType::Idle;		// 寻找行为结束后进入的下一行为类型
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
+	float MinSeekMoveSpeed = 560.0f;		// 最小搜寻移动速度
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
+	float MaxSeekMoveSpeed = 600.0f;		// 最大搜寻移动速度
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	float MeleeAttackDistance = 400.0f;	// 近战攻击距离
@@ -271,24 +295,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void EndGuard();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginFollow();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndFollow();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginFlee();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndFlee();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginInvestigate();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndInvestigate();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void BeginDead();
@@ -395,6 +401,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Attack Settings")
 	AActor* AttackTarget;
 
+	/** 当前行为是否由其他行为结束过渡所致 */
+	bool IsTransition = false;
+
 public:	
 	// Sets default values for this component's properties
 	UBehaviorComponent();
@@ -441,8 +450,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateBehavior();
 
+	/** 行为过渡 */
+	UFUNCTION(BlueprintCallable)
+	void TransitionBehavior();
+
+
 	/** 设置目标行为 */
 	UFUNCTION(BlueprintCallable)
 	void SetTargetBehavior(EBehaviorType NewBehavior);
 
+	/** 更新当前移动速度 */
+	UFUNCTION(BlueprintCallable)
+	void UpdateMoveSpeed();
 };

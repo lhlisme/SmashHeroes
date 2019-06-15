@@ -258,7 +258,7 @@ void UBehaviorComponent::FindNextPatrolLocation()
 	switch (PatrolType)
 	{
 	case EPatrolType::Single:
-		PointIndex = PatrolSplineIndex;
+		PointIndex = FMath::Clamp(PatrolSplineIndex, 0, PatrolRoute->GetSplinePointNum());
 		break;
 	case EPatrolType::Looping:
 		PointIndex = PatrolSplineIndex % PatrolRoute->GetSplinePointNum();
@@ -271,6 +271,14 @@ void UBehaviorComponent::FindNextPatrolLocation()
 	FVector TargetPatrolLocation = PatrolRoute->GetPatrolLocationByPointIndex(PointIndex, ESplineCoordinateSpace::World);
 	if (OwnerAIController)
 	{
+		float RemainDistance = (OwnerActor->GetActorLocation() - TargetPatrolLocation).Size();
+		UE_LOG(LogTemp, Log, TEXT("RemainDistance: %f"), RemainDistance);
+		// 如果已到达目标地点, 则结束巡逻
+		if (FMath::IsNearlyZero(RemainDistance, 0.1f))
+		{
+			TransitionBehavior();
+		}
+
 		if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent())
 		{
 			Blackboard->SetValueAsVector(BBKey_TargetLocation, TargetPatrolLocation);
@@ -408,11 +416,19 @@ void UBehaviorComponent::UpdateBehavior()
 
 	if (OwnerActor)
 	{
+		// 死亡状态判断
 		ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
 		if (OwnerCharacter && !OwnerCharacter->IsAlive()) {
 			SetTargetBehavior(EBehaviorType::Dead);
 			return;
 		}
+	}
+
+	// 如果刚由其他行为过渡至另一行为, 则跳过本次更新, 以直接进入其子树
+	if (IsTransition)
+	{
+		IsTransition = false;
+		return;
 	}
 
 	// 到目标对象的距离
@@ -468,8 +484,48 @@ void UBehaviorComponent::UpdateBehavior()
 		return;
 	}
 
-	// 没有目标，进行巡逻
+	// 没有目标, 判断是否可以进行巡逻
+	if (PatrolType != EPatrolType::Disabled)
+	{
+		// 准备开始巡逻
+		SetTargetBehavior(EBehaviorType::Patrol);
+	}
+}
 
+void UBehaviorComponent::TransitionBehavior()
+{
+	EBehaviorType TransionTo = EBehaviorType::Idle;
+
+	switch (CurrentBehavior)
+	{
+	case EBehaviorType::Patrol:
+		TransionTo = PatrolTransition;
+		break;
+	case EBehaviorType::MeleeAttack:
+		TransionTo = MeleeAttackTransition;
+		break;
+	case EBehaviorType::RangeAttack:
+		TransionTo = RangeAttackTransition;
+		break;
+	case EBehaviorType::Hit:
+		TransionTo = HitTransition;
+		break;
+	case EBehaviorType::Guard:
+		TransionTo = GuardTransition;
+		break;
+	case EBehaviorType::Evade:
+		TransionTo = EvadeTransition;
+		break;
+	default:
+		break;
+	}
+
+	SetTargetBehavior(TransionTo);
+	ChangeBehavior(TransionTo);
+	// 设置过渡标记
+	IsTransition = true;
+
+	UE_LOG(LogTemp, Log, TEXT("Transition Behavior"));
 }
 
 void UBehaviorComponent::SetTargetBehavior(EBehaviorType NewBehavior)
@@ -535,36 +591,6 @@ void UBehaviorComponent::EndGuard()
 	ChangeBehavior(GuardTransition);
 }
 
-void UBehaviorComponent::BeginFollow()
-{
-	ChangeBehavior(EBehaviorType::Follow);
-}
-
-void UBehaviorComponent::EndFollow()
-{
-	ChangeBehavior(FollowTransition);
-}
-
-void UBehaviorComponent::BeginFlee()
-{
-	ChangeBehavior(EBehaviorType::Flee);
-}
-
-void UBehaviorComponent::EndFlee()
-{
-	ChangeBehavior(FleeTransition);
-}
-
-void UBehaviorComponent::BeginInvestigate()
-{
-
-}
-
-void UBehaviorComponent::EndInvestigate()
-{
-
-}
-
 void UBehaviorComponent::BeginDead()
 {
 	ChangeBehavior(EBehaviorType::Dead);
@@ -583,5 +609,41 @@ void UBehaviorComponent::BeginDead()
 void UBehaviorComponent::EndDead()
 {
 	ChangeBehavior(DeadTransition);
+}
+
+void UBehaviorComponent::UpdateMoveSpeed()
+{
+	if (OwnerActor)
+	{
+		ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
+		if (OwnerCharacter)
+		{
+			switch (CurrentBehavior)
+			{
+			case EBehaviorType::Follow:
+				OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = FMath::FRandRange(MinFollowMoveSpeed, MaxFollowMoveSpeed);
+				UE_LOG(LogTemp, Log, TEXT("Follow Update Move Speed: %f"), OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed);
+				break;
+			case EBehaviorType::Patrol:
+				OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = FMath::FRandRange(MinPatrolMoveSpeed, MaxPatrolMoveSpeed);
+				UE_LOG(LogTemp, Log, TEXT("Patrol Update Move Speed: %f"), OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed);
+				break;
+			case EBehaviorType::Flee:
+				OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = FMath::FRandRange(MinFleeMoveSpeed, MaxFleeMoveSpeed);
+				UE_LOG(LogTemp, Log, TEXT("Flee Update Move Speed: %f"), OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed);
+				break;
+			case EBehaviorType::Seek:
+				OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = FMath::FRandRange(MinSeekMoveSpeed, MaxSeekMoveSpeed);
+				UE_LOG(LogTemp, Log, TEXT("Seek Update Move Speed: %f"), OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed);
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("Update Move Speed Failed"));
+		}
+	}
 }
 
