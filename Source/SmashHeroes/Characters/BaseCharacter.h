@@ -198,6 +198,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual float GetMaxHealth() const;
 
+	/** 获取血量百分比 */
+	UFUNCTION(BlueprintCallable)
+	virtual float GetHealthPercentage() const;
+
 	/** Returns current mana */
 	UFUNCTION(BlueprintCallable)
 	virtual float GetEnergy() const;
@@ -205,6 +209,10 @@ public:
 	/** Returns maximum mana, mana will never be greater than this */
 	UFUNCTION(BlueprintCallable)
 	virtual float GetMaxEnergy() const;
+
+	/** 获取能量百分比 */
+	UFUNCTION(BlueprintCallable)
+	virtual float GetEnergyPercentage() const;
 
 	/** Returns current movement speed */
 	UFUNCTION(BlueprintCallable)

@@ -267,6 +267,11 @@ float ABaseCharacter::GetMaxHealth() const
 	return CharacterAttributeSet->GetMaxHealth();
 }
 
+float ABaseCharacter::GetHealthPercentage() const
+{
+	return CharacterAttributeSet->GetHealth() / CharacterAttributeSet->GetMaxHealth();
+}
+
 float ABaseCharacter::GetEnergy() const
 {
 	return CharacterAttributeSet->GetEnergy();
@@ -275,6 +280,11 @@ float ABaseCharacter::GetEnergy() const
 float ABaseCharacter::GetMaxEnergy() const
 {
 	return CharacterAttributeSet->GetMaxEnergy();
+}
+
+float ABaseCharacter::GetEnergyPercentage() const
+{
+	return CharacterAttributeSet->GetEnergy() / CharacterAttributeSet->GetMaxEnergy();
 }
 
 float ABaseCharacter::GetMoveSpeed() const

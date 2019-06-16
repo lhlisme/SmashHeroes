@@ -51,6 +51,12 @@ void UBehaviorComponent::Initialize()
 		// 初始化目标信息
 		SeekTarget = nullptr;
 		AttackTarget = nullptr;
+
+		// 添加目标清除回调事件
+		OnDeadBegin.AddDynamic(this, &UBehaviorComponent::ResetSeekTarget);
+		OnDeadBegin.AddDynamic(this, &UBehaviorComponent::ResetAttackTarget);
+		OnMeleeAttackEnd.AddDynamic(this, &UBehaviorComponent::ResetAttackTarget);
+		OnRangeAttackEnd.AddDynamic(this, &UBehaviorComponent::ResetAttackTarget);
 	}
 }
 
@@ -85,6 +91,8 @@ void UBehaviorComponent::InitBlackboard()
 			Blackboard->SetValueAsFloat(BBKey_InvestigateInterval, InvestigateInterval);
 			// 设置SeekAcceptanceRadius
 			Blackboard->SetValueAsFloat(BBKey_SeekAcceptanceRadius, SeekAcceptanceRadius);
+			// 设置FollowAcceptanceRadius
+			Blackboard->SetValueAsFloat(BBKey_FollowAcceptanceRadius, FollowAcceptanceRadius);
 		}
 	}
 }
@@ -98,6 +106,14 @@ void UBehaviorComponent::SetSeekTarget(AActor* NewSeekTarget)
 		if (Blackboard) {
 			Blackboard->SetValueAsObject(BBKey_TargetActor, SeekTarget);
 		}
+	}
+}
+
+void UBehaviorComponent::ResetSeekTarget()
+{
+	if (bIsAI)
+	{
+		SeekTarget = nullptr;
 	}
 }
 
@@ -189,6 +205,14 @@ AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 	return AttackTarget;
 }
 
+void UBehaviorComponent::ResetAttackTarget()
+{
+	// 如果当前对象由AI控制，在攻击结束时，重置攻击目标
+	if (bIsAI) {
+		AttackTarget = nullptr;
+	}
+}
+
 AActor* UBehaviorComponent::GetAttackTarget()
 {
 	return AttackTarget;
@@ -263,7 +287,6 @@ void UBehaviorComponent::FindNextPatrolLocation()
 			// 已到达目的地, 结束巡逻
 			bIsPatrolEnded = true;
 			TransitionBehavior();
-			UE_LOG(LogTemp, Log, TEXT("Patrol Destination Reached!"));
 			return;
 		}
 		PointIndex = FMath::Clamp(PatrolSplineIndex, 0, PatrolRoute->GetSplinePointNum());
@@ -409,25 +432,33 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 
 void UBehaviorComponent::UpdateBehavior()
 {
-	// 只有当前行为类型为Idle时才更新行为
-	/*if (CurrentBehavior != EBehaviorType::Idle) {
-		return;
-	}*/
-
+	ABaseCharacter* OwnerCharacter = nullptr;
 	if (OwnerActor)
 	{
-		// 死亡状态判断
-		ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
-		if (OwnerCharacter && !OwnerCharacter->IsAlive()) {
-			SetTargetBehavior(EBehaviorType::Dead);
+		OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
+		if (!OwnerCharacter)
+		{
 			return;
 		}
+	}
+
+	// 死亡状态判断
+	if (!OwnerCharacter->IsAlive()) {
+		SetTargetBehavior(EBehaviorType::Dead);
+		return;
 	}
 
 	// 如果刚由其他行为过渡至另一行为, 则跳过本次更新, 以直接进入其子树
 	if (bIsTransition)
 	{
 		bIsTransition = false;
+		return;
+	}
+
+	// 如果血量过低, 触发逃离
+	if (bCanFlee && OwnerCharacter->GetHealthPercentage() <= FleeHealthThreshold)
+	{
+		SetTargetBehavior(EBehaviorType::Flee);
 		return;
 	}
 
@@ -501,6 +532,9 @@ void UBehaviorComponent::TransitionBehavior()
 	case EBehaviorType::Patrol:
 		TransionTo = PatrolTransition;
 		break;
+	case EBehaviorType::Flee:
+		TransionTo = FleeTransition;
+		break;
 	case EBehaviorType::MeleeAttack:
 		TransionTo = MeleeAttackTransition;
 		break;
@@ -549,10 +583,6 @@ void UBehaviorComponent::BeginMeleeAttack()
 void UBehaviorComponent::EndMeleeAttack()
 {
 	ChangeBehavior(MeleeAttackTransition);
-	// 如果当前对象由AI控制，在攻击结束时，重置攻击目标
-	if (bIsAI) {
-		AttackTarget = nullptr;
-	}
 }
 
 void UBehaviorComponent::BeginRangeAttack()
@@ -563,10 +593,6 @@ void UBehaviorComponent::BeginRangeAttack()
 void UBehaviorComponent::EndRangeAttack()
 {
 	ChangeBehavior(RangeAttackTransition);
-	// 如果当前对象由AI控制，在攻击结束时，重置攻击目标
-	if (bIsAI) {
-		AttackTarget = nullptr;
-	}
 }
 
 void UBehaviorComponent::BeginEvade()
@@ -589,19 +615,19 @@ void UBehaviorComponent::EndGuard()
 	ChangeBehavior(GuardTransition);
 }
 
+void UBehaviorComponent::BeginHit()
+{
+	ChangeBehavior(EBehaviorType::Hit);
+}
+
+void UBehaviorComponent::EndHit()
+{
+	ChangeBehavior(HitTransition);
+}
+
 void UBehaviorComponent::BeginDead()
 {
 	ChangeBehavior(EBehaviorType::Dead);
-	
-	// 死亡前清空目标
-	if (SeekTarget)
-	{
-		SeekTarget = nullptr;
-	}
-	if (AttackTarget)
-	{
-		AttackTarget = nullptr;
-	}
 }
 
 void UBehaviorComponent::EndDead()

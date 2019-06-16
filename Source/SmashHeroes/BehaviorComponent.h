@@ -155,6 +155,9 @@ public:
 	FName BBKey_SeekAcceptanceRadius = FName(TEXT("SeekAcceptanceRadius"));	// 黑板键名称
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_FollowAcceptanceRadius = FName(TEXT("FollowAcceptanceRadius"));	// 黑板键名称
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName BBKey_InvestigateDistance = FName(TEXT("InvestigateDistance"));	// 黑板键名称
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
@@ -206,10 +209,19 @@ public:
 	float FollowDistance = 4000.0f;	// 追踪距离
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
+	float FollowAcceptanceRadius = 100.0f;		// 追踪行为的可接受半径
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
 	float MinFollowMoveSpeed = 400.0f;		// 最小追踪移动速度
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
 	float MaxFollowMoveSpeed = 420.0f;		// 最大追踪移动速度
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
+	bool bCanFlee = true;	// 是否会逃离
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
+	float FleeHealthThreshold = 0.2f;	// 触发逃离的血量百分比
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
 	float FleeDistance = 1600.0f;	// 逃离距离
@@ -239,7 +251,7 @@ public:
 	float MaxSeekMoveSpeed = 600.0f;		// 最大搜寻移动速度
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	float MeleeAttackDistance = 400.0f;	// 近战攻击距离
+	float MeleeAttackDistance = 200.0f;	// 近战攻击距离
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	bool CanRangeAttack = false;	// 是否支持远程攻击
@@ -247,8 +259,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	float RangeAttackDistance = 1600.0f;	// 范围攻击距离
 
-	UPROPERTY(VisibleAnywhere, Category = "Attack Settings")
-	bool IsRequireLineOfSight = false;	// 攻击是否需要考虑在视野内
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	bool IsRequireLineOfSight = true;	// 攻击是否需要考虑在视野内
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	TArray<FName> AttackTargetTags;	// 可攻击目标的Tag数组
@@ -295,6 +307,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void EndGuard();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginHit();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndHit();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void BeginDead();
@@ -396,7 +414,7 @@ private:
 	EBehaviorType CurrentBehavior = EBehaviorType::Idle;	// 初始行为
 
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	bool bIsTransition = false;		// 当前行为是否由其他行为结束过渡所致
+	bool bIsTransition = false;		// 当前行为是否由其他行为结束过渡所至
 
 	UPROPERTY(VisibleAnywhere, Category = "Seek Settings")
 	AActor* SeekTarget;		// 寻找目标(不同于AttackTarget, 需要通过外部指定)
@@ -420,6 +438,10 @@ public:
 	/** 设置寻找目标(外部调用) */
 	void SetSeekTarget(AActor* NewSeekTarget);
 
+	/** 清除寻找目标(在死亡时回调) */
+	UFUNCTION()
+	void ResetSeekTarget();
+
 	/** 确定寻找目标 */
 	AActor* FindSeekTarget(float &DistToTarget);
 
@@ -428,6 +450,10 @@ public:
 
 	/** 确定攻击目标 */
 	AActor* FindAttackTarget(float &DistToTarget);
+
+	/** 清除攻击目标(在死亡或攻击结束时回调) */
+	UFUNCTION()
+	void ResetAttackTarget();
 
 	/** 获取当前攻击目标对象 */
 	UFUNCTION(BlueprintCallable)
@@ -456,7 +482,6 @@ public:
 	/** 行为过渡 */
 	UFUNCTION(BlueprintCallable)
 	void TransitionBehavior();
-
 
 	/** 设置目标行为 */
 	UFUNCTION(BlueprintCallable)
