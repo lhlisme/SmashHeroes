@@ -114,6 +114,13 @@ void UBehaviorComponent::ResetSeekTarget()
 	if (bIsAI)
 	{
 		SeekTarget = nullptr;
+		// 设置黑板TargetActor
+		if (OwnerAIController) {
+			UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
+			if (Blackboard) {
+				Blackboard->SetValueAsObject(BBKey_TargetActor, SeekTarget);
+			}
+		}
 	}
 }
 
@@ -210,6 +217,13 @@ void UBehaviorComponent::ResetAttackTarget()
 	// 如果当前对象由AI控制，在攻击结束时，重置攻击目标
 	if (bIsAI) {
 		AttackTarget = nullptr;
+		// 更新黑板TargetActor信息
+		if (OwnerAIController) {
+			UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
+			if (Blackboard) {
+				Blackboard->SetValueAsObject(BBKey_TargetActor, AttackTarget);
+			}
+		}
 	}
 }
 
@@ -245,6 +259,12 @@ AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags, f
 
 	DistToTarget = NearestDistance;
 	return NearestActor;
+}
+
+void UBehaviorComponent::InitPatrolStatus()
+{
+	PatrolSplineIndex = -1;
+	bIsPatrolEnded = false;
 }
 
 void UBehaviorComponent::FindNextPatrolLocation()
@@ -483,10 +503,25 @@ void UBehaviorComponent::UpdateBehavior()
 				// 准备开始远程攻击
 				SetTargetBehavior(EBehaviorType::RangeAttack);
 			}
-			else 
+			else if(DistToTarget < FollowDistance)
 			{
 				// 准备开始追踪
 				SetTargetBehavior(EBehaviorType::Follow);
+			}
+			else
+			{
+				// 超出追逐距离, 继续巡逻或进入闲置状态
+				if (PatrolType != EPatrolType::Disabled)
+				{
+					// 初始化巡逻状态
+					InitPatrolStatus();
+					SetTargetBehavior(EBehaviorType::Patrol);
+				}
+				else
+				{
+					SetTargetBehavior(EBehaviorType::Idle);
+				}
+				ResetAttackTarget();
 			}
 		}
 		else 
@@ -497,11 +532,26 @@ void UBehaviorComponent::UpdateBehavior()
 				// 准备开始近战攻击
 				SetTargetBehavior(EBehaviorType::MeleeAttack);
 			}
-			else 
+			else if(DistToTarget < FollowDistance)
 			{
 				UE_LOG(LogTemp, Log, TEXT("Follow"));
 				// 准备开始追踪
 				SetTargetBehavior(EBehaviorType::Follow);
+			}
+			else
+			{
+				// 超出追逐距离, 继续巡逻或进入闲置状态
+				if (PatrolType != EPatrolType::Disabled)
+				{
+					// 初始化巡逻状态
+					InitPatrolStatus();
+					SetTargetBehavior(EBehaviorType::Patrol);
+				}
+				else
+				{
+					SetTargetBehavior(EBehaviorType::Idle);
+				}
+				ResetAttackTarget();
 			}
 		}
 
@@ -525,37 +575,37 @@ void UBehaviorComponent::UpdateBehavior()
 
 void UBehaviorComponent::TransitionBehavior()
 {
-	EBehaviorType TransionTo = EBehaviorType::Idle;
+	EBehaviorType TransitionTo = EBehaviorType::Idle;
 
 	switch (CurrentBehavior)
 	{
 	case EBehaviorType::Patrol:
-		TransionTo = PatrolTransition;
+		TransitionTo = PatrolTransition;
 		break;
 	case EBehaviorType::Flee:
-		TransionTo = FleeTransition;
+		TransitionTo = FleeTransition;
 		break;
 	case EBehaviorType::MeleeAttack:
-		TransionTo = MeleeAttackTransition;
+		TransitionTo = MeleeAttackTransition;
 		break;
 	case EBehaviorType::RangeAttack:
-		TransionTo = RangeAttackTransition;
+		TransitionTo = RangeAttackTransition;
 		break;
 	case EBehaviorType::Hit:
-		TransionTo = HitTransition;
+		TransitionTo = HitTransition;
 		break;
 	case EBehaviorType::Guard:
-		TransionTo = GuardTransition;
+		TransitionTo = GuardTransition;
 		break;
 	case EBehaviorType::Evade:
-		TransionTo = EvadeTransition;
+		TransitionTo = EvadeTransition;
 		break;
 	default:
 		break;
 	}
 
-	SetTargetBehavior(TransionTo);
-	ChangeBehavior(TransionTo);
+	SetTargetBehavior(TransitionTo);
+	ChangeBehavior(TransitionTo);
 	// 设置过渡标记
 	bIsTransition = true;
 }

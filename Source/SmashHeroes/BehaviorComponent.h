@@ -463,6 +463,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AActor* FindNearestTargetWithTag(TArray<FName> TargerTags, float &DistToTarget);
 
+	/** 初始化巡逻状态 */
+	UFUNCTION(BlueprintCallable)
+	void InitPatrolStatus();
+
 	/** 寻找下一个巡逻点 */
 	UFUNCTION(BlueprintCallable)
 	void FindNextPatrolLocation();
