@@ -190,8 +190,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
 	int32 PatrolSplineIndex = -1;		// 巡逻点索引
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
-	bool PatrolDirection = false;		// 巡逻方向，正向，反向
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Patrol Settings")
+	bool PatrolDirection = true;		// 巡逻方向, true:正向, false:反向, 目前仅用于BackAndForth巡逻类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
 	EBehaviorType PatrolTransition = EBehaviorType::Idle;	// 巡逻行为结束后进入的下一行为类型
@@ -462,10 +462,6 @@ public:
 	/** 根据指定Tag找到最近的目标 */
 	UFUNCTION(BlueprintCallable)
 	AActor* FindNearestTargetWithTag(TArray<FName> TargerTags, float &DistToTarget);
-
-	/** 初始化巡逻状态 */
-	UFUNCTION(BlueprintCallable)
-	void InitPatrolStatus();
 
 	/** 寻找下一个巡逻点 */
 	UFUNCTION(BlueprintCallable)

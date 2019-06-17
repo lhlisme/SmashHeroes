@@ -22,11 +22,11 @@ void UBehaviorComponent::Initialize()
 	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
 	if (OwnerCharacter && OwnerCharacter->HasAuthority()) {
 		// 如果是AI，初始化OwnerAIController
-		if (bIsAI) 
+		if (bIsAI)
 		{
 			OwnerAIController = Cast<AAIController>(OwnerCharacter->GetController());
 
-			if (OwnerAIController) 
+			if (OwnerAIController)
 			{
 				// 在设置黑板值前运行行为树
 				OwnerAIController->RunBehaviorTree(BehaviorTree);
@@ -261,26 +261,41 @@ AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags, f
 	return NearestActor;
 }
 
-void UBehaviorComponent::InitPatrolStatus()
-{
-	PatrolSplineIndex = -1;
-	bIsPatrolEnded = false;
-}
-
 void UBehaviorComponent::FindNextPatrolLocation()
 {
-	if (PatrolType == EPatrolType::Single || PatrolType == EPatrolType::Looping) 
+	// 设置目标巡逻位置
+	int32 PointIndex = 0;
+	switch (PatrolType)
+	{
+	case EPatrolType::Single:
 	{
 		++PatrolSplineIndex;
+		if (PatrolSplineIndex >= PatrolRoute->GetSplinePointNum())
+		{
+			// 已到达目的地, 结束巡逻
+			bIsPatrolEnded = true;
+			TransitionBehavior();
+			return;
+		}
+		PointIndex = FMath::Clamp(PatrolSplineIndex, 0, PatrolRoute->GetSplinePointNum());
+		UE_LOG(LogTemp, Log, TEXT("Single Patrol Point Index: %d"), PointIndex);
+		break;
 	}
-	else if (PatrolType == EPatrolType::BackAndForth)
+	case EPatrolType::Looping:
 	{
-		if (PatrolDirection) 
+		++PatrolSplineIndex;
+		PointIndex = PatrolSplineIndex % PatrolRoute->GetSplinePointNum();
+		UE_LOG(LogTemp, Log, TEXT("Looping Patrol Point Index: %d"), PointIndex);
+		break;
+	}
+	case EPatrolType::BackAndForth:
+	{
+		if (PatrolDirection)
 		{
 			// 正向巡逻
 			++PatrolSplineIndex;
 			// 如果到达了最终点, 则调转方向
-			if (PatrolSplineIndex >= PatrolRoute->GetSplinePointNum())
+			if (PatrolSplineIndex >= PatrolRoute->GetSplinePointNum() - 1)
 			{
 				PatrolDirection = false;
 			}
@@ -290,33 +305,15 @@ void UBehaviorComponent::FindNextPatrolLocation()
 			// 反向巡逻
 			--PatrolSplineIndex;
 			// 如果到达了最初点, 则调转方向
-			if (PatrolSplineIndex < 0)
+			if (PatrolSplineIndex <= 0)
 			{
 				PatrolDirection = true;
 			}
 		}
-	}
-
-	// 设置目标巡逻位置
-	int32 PointIndex = 0;
-	switch (PatrolType)
-	{
-	case EPatrolType::Single:
-		if (PatrolSplineIndex >= PatrolRoute->GetSplinePointNum())
-		{
-			// 已到达目的地, 结束巡逻
-			bIsPatrolEnded = true;
-			TransitionBehavior();
-			return;
-		}
-		PointIndex = FMath::Clamp(PatrolSplineIndex, 0, PatrolRoute->GetSplinePointNum());
-		break;
-	case EPatrolType::Looping:
-		PointIndex = PatrolSplineIndex % PatrolRoute->GetSplinePointNum();
-		break;
-	case EPatrolType::BackAndForth:
 		PointIndex = PatrolSplineIndex;
+		UE_LOG(LogTemp, Log, TEXT("BackAndForth Patrol Point Index: %d"), PointIndex);
 		break;
+	}
 	}
 
 	FVector TargetPatrolLocation = PatrolRoute->GetPatrolLocationByPointIndex(PointIndex, ESplineCoordinateSpace::World);
@@ -390,9 +387,9 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 
 		// 更新当前行为信息
 		CurrentBehavior = NewBehavior;
-		if (OwnerAIController) 
+		if (OwnerAIController)
 		{
-			if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent()) 
+			if (UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent())
 			{
 				Blackboard->SetValueAsEnum(BBKey_CurrentBehaviorType, (uint8)NewBehavior);
 			}
@@ -487,23 +484,23 @@ void UBehaviorComponent::UpdateBehavior()
 
 	AttackTarget = FindAttackTarget(DistToTarget);
 	// 如果找到攻击目标并且当前可以发动攻击
-	if (AttackTarget) 
+	if (AttackTarget)
 	{
 		UE_LOG(LogTemp, Log, TEXT("AttackTarget: %s"), *(AttackTarget->GetName()));
 		// 判断是否支持远程攻击(近战攻击必须支持)
-		if (CanRangeAttack) 
+		if (CanRangeAttack)
 		{
-			if (DistToTarget < MeleeAttackDistance) 
+			if (DistToTarget < MeleeAttackDistance)
 			{
 				// 准备开始近战攻击
 				SetTargetBehavior(EBehaviorType::MeleeAttack);
 			}
-			else if (DistToTarget < RangeAttackDistance) 
+			else if (DistToTarget < RangeAttackDistance)
 			{
 				// 准备开始远程攻击
 				SetTargetBehavior(EBehaviorType::RangeAttack);
 			}
-			else if(DistToTarget < FollowDistance)
+			else if (DistToTarget < FollowDistance)
 			{
 				// 准备开始追踪
 				SetTargetBehavior(EBehaviorType::Follow);
@@ -513,8 +510,6 @@ void UBehaviorComponent::UpdateBehavior()
 				// 超出追逐距离, 继续巡逻或进入闲置状态
 				if (PatrolType != EPatrolType::Disabled)
 				{
-					// 初始化巡逻状态
-					InitPatrolStatus();
 					SetTargetBehavior(EBehaviorType::Patrol);
 				}
 				else
@@ -524,15 +519,15 @@ void UBehaviorComponent::UpdateBehavior()
 				ResetAttackTarget();
 			}
 		}
-		else 
+		else
 		{
-			if (DistToTarget < MeleeAttackDistance) 
+			if (DistToTarget < MeleeAttackDistance)
 			{
 				UE_LOG(LogTemp, Log, TEXT("MeleeAttack"));
 				// 准备开始近战攻击
 				SetTargetBehavior(EBehaviorType::MeleeAttack);
 			}
-			else if(DistToTarget < FollowDistance)
+			else if (DistToTarget < FollowDistance)
 			{
 				UE_LOG(LogTemp, Log, TEXT("Follow"));
 				// 准备开始追踪
@@ -543,8 +538,6 @@ void UBehaviorComponent::UpdateBehavior()
 				// 超出追逐距离, 继续巡逻或进入闲置状态
 				if (PatrolType != EPatrolType::Disabled)
 				{
-					// 初始化巡逻状态
-					InitPatrolStatus();
 					SetTargetBehavior(EBehaviorType::Patrol);
 				}
 				else
@@ -560,7 +553,7 @@ void UBehaviorComponent::UpdateBehavior()
 
 	SeekTarget = FindSeekTarget(DistToTarget);
 	// 如果找到寻找目标
-	if (SeekTarget) 
+	if (SeekTarget)
 	{
 		return;
 	}
@@ -618,7 +611,7 @@ void UBehaviorComponent::SetTargetBehavior(EBehaviorType NewBehavior)
 	if (OwnerAIController)
 	{
 		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
-		if (Blackboard) 
+		if (Blackboard)
 		{
 			Blackboard->SetValueAsEnum(BBKey_TargetBehaviorType, (uint8)NewBehavior);
 		}
