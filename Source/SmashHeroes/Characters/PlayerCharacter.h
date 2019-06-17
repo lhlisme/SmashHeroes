@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "SmashHeroes.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.h"
+#include "Components/BoxComponent.h"
 #include "PlayerCharacter.generated.h"
 
 
@@ -29,6 +30,10 @@ private:
 	/** Camera boom positioning the camera above the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
+
+	/** 相机碰撞体积 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* CameraVolume;
 	
 	float ForwardInput = 0.f;
 
@@ -37,7 +42,7 @@ private:
 public:
 	/** 主相机视角 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float ViewAngle = -15.0f;
+	float ViewAngle = -45.0f;
 
 	/** 攻击相关属性 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")

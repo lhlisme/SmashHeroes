@@ -18,22 +18,27 @@ APlayerCharacter::APlayerCharacter()
 	// 初始化角色移动控制参数
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 640.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->JumpZVelocity = 600.f;
+	GetCharacterMovement()->JumpZVelocity = 600.0f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
-	// Create a camera boom...
+	// 创建相机臂
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->bAbsoluteRotation = true; // Don't want arm to rotate when character does
-	CameraBoom->TargetArmLength = 800.f;
+	CameraBoom->TargetArmLength = 1600.0f;
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 	CameraBoom->bEnableCameraLag = true;
 
-	// Create a camera...
+	// 创建相机
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	// 创建相机碰撞体积
+	CameraVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("CameraCollision"));
+	CameraVolume->SetupAttachment(FollowCamera);
+	CameraVolume->SetBoxExtent(FVector(45.0f, 22.0f, 22.0f), true);
+	CameraVolume->SetCollisionResponseToAllChannels(ECR_Overlap);
 }
 
 // Called when the game starts or when spawned
