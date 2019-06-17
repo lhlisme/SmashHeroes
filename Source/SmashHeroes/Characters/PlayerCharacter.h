@@ -32,8 +32,8 @@ private:
 	class USpringArmComponent* CameraBoom;
 
 	/** 相机碰撞体积 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* CameraVolume;
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* CameraVolume;*/
 	
 	float ForwardInput = 0.f;
 

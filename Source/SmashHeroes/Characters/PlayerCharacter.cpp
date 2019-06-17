@@ -35,10 +35,10 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// 创建相机碰撞体积
-	CameraVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("CameraCollision"));
+	/*CameraVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("CameraCollision"));
 	CameraVolume->SetupAttachment(FollowCamera);
 	CameraVolume->SetBoxExtent(FVector(45.0f, 22.0f, 22.0f), true);
-	CameraVolume->SetCollisionResponseToAllChannels(ECR_Overlap);
+	CameraVolume->SetCollisionResponseToAllChannels(ECR_Overlap);*/
 }
 
 // Called when the game starts or when spawned
