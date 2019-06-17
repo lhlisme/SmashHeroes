@@ -25,8 +25,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->bAbsoluteRotation = true; // Don't want arm to rotate when character does
-	CameraBoom->TargetArmLength = 1000.f;
-	CameraBoom->RelativeRotation = FRotator(-45.f, 0.f, 0.f);
+	CameraBoom->TargetArmLength = 800.f;
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 	CameraBoom->bEnableCameraLag = true;
 
@@ -48,6 +47,9 @@ void APlayerCharacter::BeginPlay()
 		BehaviorComponent->OnEvadeBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
 		BehaviorComponent->OnGuardBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
 	}
+
+	// 初始化相机臂朝向
+	CameraBoom->SetWorldRotation(FRotator(ViewAngle, GetActorRotation().Yaw, 0.0f));
 }
 
 // Called every frame

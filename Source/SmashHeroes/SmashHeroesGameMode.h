@@ -13,6 +13,7 @@ class ASmashHeroesGameMode : public AGameModeBase
 
 public:
 	ASmashHeroesGameMode();
+
 };
 
 
