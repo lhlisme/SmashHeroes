@@ -196,6 +196,11 @@ UAnimMontage* ABaseCharacter::GetRangeAttackMontageByIndex()
 	return nullptr;
 }
 
+void ABaseCharacter::HitPause()
+{
+
+}
+
 bool ABaseCharacter::Evade()
 {
 	// 返回值表示是否有效执行
