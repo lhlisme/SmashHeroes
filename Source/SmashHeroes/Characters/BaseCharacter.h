@@ -175,9 +175,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual UAnimMontage* GetRangeAttackMontageByIndex();		// 根据AttackIndex获取当前的远程攻击动画
 
-	UFUNCTION(BlueprintCallable)
-	void HitPause();								// 受击时定帧效果
-
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
 	virtual bool Evade();
