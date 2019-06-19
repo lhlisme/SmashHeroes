@@ -453,7 +453,7 @@ void ABaseCharacter::OnDamaged(float DamageAmount, const FHitResult& HitInfo, co
 		if (BehaviorComponent && BehaviorComponent->bIsAI) 
 		{
 			// 目前直接使用人物受到的伤害作为仇恨值增量
-			BehaviorComponent->AddHateTarget(DamageCauser, DamageAmount);
+			BehaviorComponent->UpdateHateTarget(DamageCauser, DamageAmount);
 		}
 	}
 }

@@ -57,6 +57,8 @@ void UBehaviorComponent::Initialize()
 		OnDeadBegin.AddDynamic(this, &UBehaviorComponent::ResetAttackTarget);
 		OnMeleeAttackEnd.AddDynamic(this, &UBehaviorComponent::ResetAttackTarget);
 		OnRangeAttackEnd.AddDynamic(this, &UBehaviorComponent::ResetAttackTarget);
+		// 添加仇恨列表清空回调事件
+		OnDeadBegin.AddDynamic(this, &UBehaviorComponent::ResetHateTargets);
 	}
 }
 
@@ -149,7 +151,17 @@ AActor* UBehaviorComponent::GetSeekTarget()
 	return SeekTarget;
 }
 
-void UBehaviorComponent::AddHateTarget(AActor *NewTarget, float HateValue)
+void UBehaviorComponent::AddHateTarget(AActor* NewTarget)
+{
+	float* TargetHateValue = HateTargets.Find(NewTarget);
+	// 如果NewTarget不存在, 则添加并初始化仇恨值
+	if (!TargetHateValue)
+	{
+		HateTargets.Add(NewTarget, InitHateValue);
+	}
+}
+
+void UBehaviorComponent::UpdateHateTarget(AActor *NewTarget, float HateValue)
 {
 	float* TargetHateValue = HateTargets.Find(NewTarget);
 	// 如果NewTarget已存在, 则更新仇恨值
@@ -164,63 +176,146 @@ void UBehaviorComponent::AddHateTarget(AActor *NewTarget, float HateValue)
 	}
 }
 
-AActor* UBehaviorComponent::GetHatestTarget()
+void UBehaviorComponent::RemoveHateTarget(AActor *Target)
+{
+	bool bTargetExist = HateTargets.Find(Target) != nullptr ? true : false;
+	if (bTargetExist)
+	{
+		HateTargets.Remove(Target);
+	}
+}
+
+AActor* UBehaviorComponent::GetHatestNearTarget(float &DistToTarget)
+{
+	// 寻找仇恨值最大的目标
+	AActor* HatestNearTarget = nullptr;
+	float TempDistance = 0.0f;
+	float MaxHateValue = FLT_MIN;
+	float CurrentDistance = FLT_MAX;	// 当前仇恨值最大目标的距离
+	
+	for (auto& CurItem : HateTargets)
+	{
+		// 仇恨值相同的情况下优先寻找距离更近的目标
+		if (FMath::IsNearlyEqual(CurItem.Value, MaxHateValue, 0.1f))
+		{
+			if (OwnerActor)
+			{
+				TempDistance = OwnerActor->GetDistanceTo(CurItem.Key);
+				if (TempDistance < CurrentDistance)
+				{
+					HatestNearTarget = CurItem.Key;
+					CurrentDistance = TempDistance;
+				}
+			}
+		}
+		else if (CurItem.Value > MaxHateValue)
+		{
+			HatestNearTarget = CurItem.Key;
+			MaxHateValue = CurItem.Value;
+			if (OwnerActor)
+			{
+				CurrentDistance = OwnerActor->GetDistanceTo(CurItem.Key);
+			}
+		}
+	}
+
+	DistToTarget = CurrentDistance;
+	return HatestNearTarget;
+}
+
+AActor* UBehaviorComponent::FindNextHatestTargetInRange(AActor* OldTarget, float Range)
 {
 	return nullptr;
 }
 
+void UBehaviorComponent::ResetHateTargets()
+{
+	HateTargets.Empty();
+}
+
 AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 {
+	ABaseCharacter* EnemyCharacter = nullptr;
+
 	if (AttackTarget) {
 		DistToTarget = OwnerActor->GetDistanceTo(AttackTarget);
-		return AttackTarget;
+		EnemyCharacter = Cast<ABaseCharacter>(AttackTarget);
+		if (EnemyCharacter)
+		{
+			// 如果当前攻击目标不存活的话需要继续在下面的逻辑中寻找有效攻击目标
+			if (EnemyCharacter->IsAlive())
+			{
+				return AttackTarget;
+			}
+		}
+		else
+		{
+			// 如果是非BaseCharacter的其他物体, 仍为有效攻击目标
+			return AttackTarget;
+		}
+		
 	}
 
-	AActor* NearestTarget = nullptr;
-	ABaseCharacter* EnemyCharacter = nullptr;
-	float NearestDistance = FLT_MAX;
 	float TempDistance = 0.0f;
 	bool TargetInSight = false;
 	FVector ViewPoint = FVector(0.0f, 0.0f, 0.0f);	// 视线检测用视点，传入(0,0,0)时使用当前查看目标的眼睛位置
 
-	// 根据AttackTargetTags搜寻敌人
-	for (FName CurrentTag : AttackTargetTags) {
+	// 根据AttackTargetTags搜寻敌人, 更新仇恨列表
+	for (FName CurrentTag : AttackTargetTags) 
+	{
 		TArray<AActor*> FindedActors;
 		// 根据当前Tag获取场景内的所有相关对象
 		UGameplayStatics::GetAllActorsWithTag(GetWorld(), CurrentTag, FindedActors);
 
-		for (AActor* CurrentActor : FindedActors) {
-			if (OwnerActor) {
+		for (AActor* CurrentActor : FindedActors) 
+		{
+			if (OwnerActor) 
+			{
 				TempDistance = OwnerActor->GetDistanceTo(CurrentActor);
 				// 目标在侦测距离内
-				if (TempDistance < InvestigateDistance) {
-					// 如果需要目标可见才能攻击
-					if (IsRequireLineOfSight && OwnerAIController) {
-						TargetInSight = OwnerAIController->LineOfSightTo(CurrentActor, ViewPoint, false);
-						// 如果目标不在视线范围内, 则跳过(忽略)
-						if (!TargetInSight) {
-							continue;
-						}
-					}
-					EnemyCharacter = Cast<ABaseCharacter>(CurrentActor);
+				if (TempDistance < InvestigateDistance) 
+				{
 					// 如果当前目标是角色, 判断其是否存活(攻击目标可能不是Character, 如可破坏场景物体)
-					if (EnemyCharacter && !EnemyCharacter->IsAlive()) {
+					EnemyCharacter = Cast<ABaseCharacter>(CurrentActor);
+					if (EnemyCharacter && !EnemyCharacter->IsAlive())
+					{
+						// 如果目标不存活, 但位于仇恨列表里, 则移除
+						RemoveHateTarget(CurrentActor);
 						continue;
 					}
-					// 更新最近可攻击目标信息
-					if (TempDistance < NearestDistance) {
-						NearestDistance = TempDistance;
-						NearestTarget = CurrentActor;
+
+					// 如果需要目标可见才能攻击
+					if (IsRequireLineOfSight) 
+					{
+						if (OwnerAIController)
+						{
+							TargetInSight = OwnerAIController->LineOfSightTo(CurrentActor, ViewPoint, false);
+							// 如果目标不在视线范围内, 则跳过(忽略)
+							if (!TargetInSight) 
+							{
+								continue;
+							}
+							// 添加仇恨目标并初始化仇恨值, 如果其已存在, 不做处理
+							AddHateTarget(CurrentActor);
+						}
 					}
+					else
+					{
+						// 添加仇恨目标并初始化仇恨值, 如果其已存在, 不做处理
+						AddHateTarget(CurrentActor);
+					}
+				}
+				else
+				{
+					// 如果目标不在侦测距离内, 判断其是否位于仇恨列表, 是的话需要删除
+					RemoveHateTarget(CurrentActor);
 				}
 			}
 		}
 	}
 
-	// 记录到攻击目标的距离
-	DistToTarget = NearestDistance;
-	// 设置攻击目标
-	AttackTarget = NearestTarget;
+	// 找到仇恨值最高的最近目标, 并记录到攻击目标的距离
+	AttackTarget = GetHatestNearTarget(DistToTarget);
 	// 更新黑板TargetActor信息
 	if (OwnerAIController) {
 		UBlackboardComponent* Blackboard = OwnerAIController->GetBlackboardComponent();
@@ -527,7 +622,14 @@ void UBehaviorComponent::UpdateBehavior()
 			}
 			else
 			{
-				// 超出追逐距离, 继续巡逻或进入闲置状态
+				// 超出追逐距离, 寻找范围内的下一个仇恨最高目标
+				AActor* NextTarget = FindNextHatestTargetInRange();
+				if (NextTarget)
+				{
+					return;
+				}
+
+				// 附近没有其他仇恨目标, 继续巡逻或进入闲置状态
 				if (PatrolType != EPatrolType::Disabled)
 				{
 					SetTargetBehavior(EBehaviorType::Patrol);
@@ -536,7 +638,9 @@ void UBehaviorComponent::UpdateBehavior()
 				{
 					SetTargetBehavior(EBehaviorType::Idle);
 				}
+				// 清空攻击目标和仇恨目标列表
 				ResetAttackTarget();
+				ResetHateTargets();
 			}
 		}
 		else
@@ -555,7 +659,14 @@ void UBehaviorComponent::UpdateBehavior()
 			}
 			else
 			{
-				// 超出追逐距离, 继续巡逻或进入闲置状态
+				// 超出追逐距离, 寻找范围内的下一个仇恨最高目标
+				AActor* NextTarget = FindNextHatestTargetInRange();
+				if (NextTarget)
+				{
+					return;
+				}
+
+				// 附近没有其他仇恨目标, 继续巡逻或进入闲置状态
 				if (PatrolType != EPatrolType::Disabled)
 				{
 					SetTargetBehavior(EBehaviorType::Patrol);
@@ -564,7 +675,9 @@ void UBehaviorComponent::UpdateBehavior()
 				{
 					SetTargetBehavior(EBehaviorType::Idle);
 				}
+				// 清空攻击目标和仇恨目标列表
 				ResetAttackTarget();
+				ResetHateTargets();
 			}
 		}
 
