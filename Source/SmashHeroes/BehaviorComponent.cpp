@@ -149,6 +149,26 @@ AActor* UBehaviorComponent::GetSeekTarget()
 	return SeekTarget;
 }
 
+void UBehaviorComponent::AddHateTarget(AActor *NewTarget, float HateValue)
+{
+	float* TargetHateValue = HateTargets.Find(NewTarget);
+	// 如果NewTarget已存在, 则更新仇恨值
+	if (TargetHateValue)
+	{
+		(*TargetHateValue) += HateValue;
+	}
+	else
+	{
+		// 如果NewTarget不存在, 则添加
+		HateTargets.Add(NewTarget, HateValue);
+	}
+}
+
+AActor* UBehaviorComponent::GetHatestTarget()
+{
+	return nullptr;
+}
+
 AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 {
 	if (AttackTarget) {

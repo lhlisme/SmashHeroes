@@ -271,6 +271,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	EBehaviorType RangeAttackTransition = EBehaviorType::Idle;	// 远程攻击行为结束后进入的下一行为类型
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack Settings")
+	TMap<AActor*, float> HateTargets;	// 仇恨列表(仅用于AI), 仇恨值 = 初始仇恨值 + 受到来自仇恨目标的伤害值 + （后续考虑的“嘲讽”等特殊技能带来的仇恨值增量）
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Evade Settings")
 	EBehaviorType EvadeTransition = EBehaviorType::Idle;	// 防守行为结束后进入的下一行为类型
 
@@ -447,6 +450,12 @@ public:
 
 	/** 获取寻找目标(外部调用) */
 	AActor* GetSeekTarget();
+
+	/** 添加新的仇恨目标或更新已有目标仇恨值 */
+	void AddHateTarget(AActor *NewTarget, float HateValue);
+
+	/** 获取仇恨值最高的目标 */
+	AActor* GetHatestTarget();
 
 	/** 确定攻击目标 */
 	AActor* FindAttackTarget(float &DistToTarget);

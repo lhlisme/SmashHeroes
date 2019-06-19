@@ -438,13 +438,22 @@ void ABaseCharacter::RemoveStartupGameplayAbilities()
 void ABaseCharacter::OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser)
 {
 	UE_LOG(LogTemp, Log, TEXT("On Damaged RestHealth: %f, DamageAmount: %f"), CharacterAttributeSet->GetHealth(), DamageAmount);
-	if (IsAlive()) {
+	if (IsAlive()) 
+	{
 		// 根据受击方向确定要播放的Montage
 		ERelativeOrientation RelativeOrientation = CalculateRelativeOrientation(DamageCauser);
 		UAnimMontage** HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
 		
-		if (HitMontagePtr) {
+		if (HitMontagePtr) 
+		{
 			PlayAnimMontage(*HitMontagePtr);
+		}
+
+		// 如果当前对象是AI, 则添加仇恨目标
+		if (BehaviorComponent && BehaviorComponent->bIsAI) 
+		{
+			// 目前直接使用人物受到的伤害作为仇恨值增量
+			BehaviorComponent->AddHateTarget(DamageCauser, DamageAmount);
 		}
 	}
 }
