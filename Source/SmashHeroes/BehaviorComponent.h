@@ -457,8 +457,11 @@ public:
 	/** 添加新的仇恨目标, 并设置初始仇恨值(发现目标时调用) */
 	void AddHateTarget(AActor* NewTarget);
 
-	/** 添加新的仇恨目标或更新已有目标仇恨值(受击时调用) */
-	void UpdateHateTarget(AActor *NewTarget, float HateValue);
+	/** 更新仇恨目标列表 */
+	void UpdateHateTargets();
+
+	/** 更新已有目标仇恨值(受击时调用)或添加新的仇恨目标 */
+	void UpdateTargetHateValue(AActor *NewTarget, float HateValue);
 
 	/** 添加新的仇恨目标或更新已有目标仇恨值 */
 	void RemoveHateTarget(AActor *Target);
@@ -466,13 +469,13 @@ public:
 	/** 获取仇恨值最高的最近目标 */
 	AActor* GetHatestNearTarget(float &DistToTarget);
 
-	/** 获取除OldTarget外下一个在范围内的最高仇恨值目标 */
-	AActor* FindNextHatestTargetInRange(AActor* OldTarget, float Range);
+	/** 获取在范围内的最高仇恨值目标 */
+	AActor* FindHatestTargetInRange(float Range);
 
 	/** 清空所有仇恨目标 */
 	void ResetHateTargets();
 
-	/** 确定攻击目标 */
+	/** 根据仇恨列表确定攻击目标 */
 	AActor* FindAttackTarget(float &DistToTarget);
 
 	/** 清除攻击目标(在死亡或攻击结束时回调) */
