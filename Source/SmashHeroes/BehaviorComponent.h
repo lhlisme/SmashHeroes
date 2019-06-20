@@ -469,9 +469,6 @@ public:
 	/** 获取仇恨值最高的最近目标 */
 	AActor* GetHatestNearTarget(float &DistToTarget);
 
-	/** 获取在范围内的最高仇恨值目标 */
-	AActor* FindHatestTargetInRange(float Range);
-
 	/** 清空所有仇恨目标 */
 	void ResetHateTargets();
 
