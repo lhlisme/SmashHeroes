@@ -12,7 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapons/Weapon.h"
-#include "BehaviorComponent.h"
+#include "AI/BehaviorComponent.h"
 #include "BaseCharacter.generated.h"
 
 
