@@ -55,10 +55,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Max")
 	int32 MaxLevel;
 
-	/** 道具附加能力列表 */
-	typedef TPair<TSubclassOf<USHGameplayAbility>, int32> TGrantedAbilityPair;	// Key: 附加能力, Value: 附加能力对应等级
+	/** 道具附加能力 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
-	TArray<TGrantedAbilityPair> GrantedAbilities;
+	TSubclassOf<USHGameplayAbility> GrantedAbilities;
+
+	/** 道具附加能力等级(<= 0 表示角色等级) */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
+	int32 AbilityLevel;
 
 	/** 获取道具的唯一名称(Primary Asset ID) */
 	UFUNCTION(BlueprintCallable, Category = "Item")
