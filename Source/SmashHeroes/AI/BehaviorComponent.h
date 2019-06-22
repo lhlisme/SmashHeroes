@@ -206,7 +206,7 @@ public:
 	EBehaviorType InvestigateTransition = EBehaviorType::Idle;	// 侦查行为结束后进入的下一行为类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
-	float FollowDistance = 4000.0f;	// 追踪距离
+	float FollowDistance = 2000.0f;	// 追踪距离
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
 	float FollowAcceptanceRadius = 100.0f;		// 追踪行为的可接受半径
