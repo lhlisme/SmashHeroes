@@ -45,7 +45,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (BehaviorComponent) {
 		// 添加攻击状态初始化回调事件
 		BehaviorComponent->OnMeleeAttackEnd.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
