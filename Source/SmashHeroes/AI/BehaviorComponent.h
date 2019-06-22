@@ -470,6 +470,7 @@ public:
 	AActor* GetHatestNearTarget(float &DistToTarget);
 
 	/** 清空所有仇恨目标 */
+	UFUNCTION()
 	void ResetHateTargets();
 
 	/** 根据仇恨列表确定攻击目标 */
