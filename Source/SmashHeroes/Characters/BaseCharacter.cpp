@@ -196,6 +196,29 @@ UAnimMontage* ABaseCharacter::GetRangeAttackMontageByIndex()
 	return nullptr;
 }
 
+void ABaseCharacter::PlayHitMontage(AActor* DamageCauser)
+{
+	// 根据受击方向确定要播放的Montage(调用前应判断是否存活)
+	ERelativeOrientation RelativeOrientation = CalculateRelativeOrientation(DamageCauser);
+	UAnimMontage** HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
+
+	if (HitMontagePtr)
+	{
+		PlayAnimMontage(*HitMontagePtr);
+	}
+}
+
+void ABaseCharacter::UpdateHateValue(float DamageAmount, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Log, TEXT("On Damaged RestHealth: %f, DamageAmount: %f"), CharacterAttributeSet->GetHealth(), DamageAmount);
+	// 如果当前对象是AI, 则添加仇恨目标(调用前应判断是否存活)
+	if (BehaviorComponent && BehaviorComponent->bIsAI)
+	{
+		// 目前直接使用人物受到的伤害作为仇恨值增量
+		BehaviorComponent->UpdateTargetHateValue(DamageCauser, DamageAmount);
+	}
+}
+
 bool ABaseCharacter::Evade()
 {
 	// 返回值表示是否有效执行
@@ -433,44 +456,6 @@ void ABaseCharacter::RemoveStartupGameplayAbilities()
 
 		bAbilitiesInitialized = false;
 	}
-}
-
-void ABaseCharacter::OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser)
-{
-	UE_LOG(LogTemp, Log, TEXT("On Damaged RestHealth: %f, DamageAmount: %f"), CharacterAttributeSet->GetHealth(), DamageAmount);
-	if (IsAlive()) 
-	{
-		// 根据受击方向确定要播放的Montage
-		ERelativeOrientation RelativeOrientation = CalculateRelativeOrientation(DamageCauser);
-		UAnimMontage** HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
-		
-		if (HitMontagePtr) 
-		{
-			PlayAnimMontage(*HitMontagePtr);
-		}
-
-		// 如果当前对象是AI, 则添加仇恨目标
-		if (BehaviorComponent && BehaviorComponent->bIsAI) 
-		{
-			// 目前直接使用人物受到的伤害作为仇恨值增量
-			BehaviorComponent->UpdateTargetHateValue(DamageCauser, DamageAmount);
-		}
-	}
-}
-
-void ABaseCharacter::OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
-{
-
-}
-
-void ABaseCharacter::OnEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
-{
-
-}
-
-void ABaseCharacter::OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
-{
-
 }
 
 void ABaseCharacter::HandleDamage(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorPawn, AActor* DamageCauser)

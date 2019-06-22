@@ -166,14 +166,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual bool MeleeAttack();
 
+	/** 根据AttackIndex获取当前的近战攻击动画 */
 	UFUNCTION(BlueprintCallable)	
-	virtual UAnimMontage* GetMeleeAttackMontageByIndex();		// 根据AttackIndex获取当前的近战攻击动画
+	virtual UAnimMontage* GetMeleeAttackMontageByIndex();
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool RangeAttack();
 
+	/** 根据AttackIndex获取当前的远程攻击动画 */
 	UFUNCTION(BlueprintCallable)
-	virtual UAnimMontage* GetRangeAttackMontageByIndex();		// 根据AttackIndex获取当前的远程攻击动画
+	virtual UAnimMontage* GetRangeAttackMontageByIndex();
+
+	/** 计算受击方向, 播放对应受击动画 */
+	UFUNCTION(BlueprintCallable)
+	void PlayHitMontage(AActor* DamageCauser);
+
+	/** 更新目标仇恨值 */
+	UFUNCTION(BlueprintCallable)
+	void UpdateHateValue(float DamageAmount, AActor* DamageCauser);
 
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
@@ -259,7 +269,7 @@ public:
 	 * @param InstigatorCharacter The character that initiated this damage
 	 * @param DamageCauser The actual actor that did the damage, might be a weapon or projectile
 	 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser);
 
 	/**
@@ -269,7 +279,7 @@ public:
 	 * @param DeltaValue Change in health value, positive for heal, negative for cost. If 0 the delta is unknown
 	 * @param EventTags The gameplay tags of the event that changed mana
 	 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	/**
@@ -278,7 +288,7 @@ public:
 	 * @param DeltaValue Change in energy value, positive for heal, negative for cost. If 0 the delta is unknown
 	 * @param EventTags The gameplay tags of the event that changed energy
 	 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	/**
@@ -287,7 +297,7 @@ public:
 	 * @param DeltaValue Change in move speed
 	 * @param EventTags The gameplay tags of the event that changed mana
 	 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	/** 应用初始化能力和效果 */
