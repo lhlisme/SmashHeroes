@@ -224,6 +224,11 @@ void UBehaviorComponent::UpdateHateTargets()
 void UBehaviorComponent::UpdateTargetHateValue(AActor *NewTarget, float HateValue)
 {
 	float* TargetHateValue = HateTargets.Find(NewTarget);
+	if (!TargetHateValue)
+	{
+		return;
+	}
+
 	float OldHateValue = *TargetHateValue;
 	// 如果NewTarget已存在, 则更新仇恨值
 	if (TargetHateValue)

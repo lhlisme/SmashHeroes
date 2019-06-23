@@ -88,7 +88,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::MoveForward(float Value)
 {
 	ForwardInput = Value;
-	if ((Controller != NULL) && (Value != 0.0f))
+	if (IsAlive() && (Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -103,7 +103,7 @@ void APlayerCharacter::MoveForward(float Value)
 void APlayerCharacter::MoveRight(float Value)
 {
 	RightInput = Value;
-	if ((Controller != NULL) && (Value != 0.0f))
+	if (IsAlive() && (Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -118,12 +118,18 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::StartJump()
 {
-	bPressedJump = true;
+	if (IsAlive())
+	{
+		bPressedJump = true;
+	}
 }
 
 void APlayerCharacter::StopJump()
 {
-	bPressedJump = false;
+	if (IsAlive())
+	{
+		bPressedJump = false;
+	}
 }
 
 bool APlayerCharacter::MeleeAttack()
