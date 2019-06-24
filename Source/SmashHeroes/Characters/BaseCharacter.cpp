@@ -219,6 +219,23 @@ void ABaseCharacter::UpdateHateValue(float DamageAmount, AActor* DamageCauser)
 	}
 }
 
+// TODO 增加组队概念时, 需要考虑玩家之间的队伍关系
+bool ABaseCharacter::IsTargetHostile(AActor* TargetActor)
+{
+	if (BehaviorComponent)
+	{
+		for (auto CurTag : BehaviorComponent->AttackTargetTags)
+		{
+			if (TargetActor->ActorHasTag(CurTag))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 bool ABaseCharacter::Evade()
 {
 	// 返回值表示是否有效执行

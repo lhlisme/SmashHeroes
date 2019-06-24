@@ -185,6 +185,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateHateValue(float DamageAmount, AActor* DamageCauser);
 
+	/** 判断目标是否为敌方单位 */
+	UFUNCTION(BlueprintPure)
+	virtual bool IsTargetHostile(AActor* TargetActor);
+
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
 	virtual bool Evade();
