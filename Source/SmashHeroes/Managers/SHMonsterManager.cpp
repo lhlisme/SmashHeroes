@@ -61,7 +61,7 @@ void USHMonsterManager::SpawnEnemy()
 			{
 				break;
 			}
-			RandomIndex = FMath::RandRange(0, SpawnBoxes.Num());
+			RandomIndex = FMath::RandRange(0, SpawnBoxes.Num() - 1);
 			FTransform SpawnPoint = SpawnBoxes[RandomIndex]->GetActorTransform();
 			GetWorld()->SpawnActor<AMonsterCharacter>(CurMonsterClass, SpawnPoint, SpawnParams);
 			// 删除已经Spawn过怪物的生成盒
