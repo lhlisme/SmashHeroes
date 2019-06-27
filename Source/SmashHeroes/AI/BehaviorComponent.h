@@ -130,7 +130,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName BBKey_TargetLocation = FName(TEXT("TargetLocation"));	// 黑板键名称
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "General Settings")
 	FName BBKey_IdleType = FName(TEXT("IdleType"));	// 黑板键名称
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
@@ -172,10 +172,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
 	float RandLocationDelay = 10.0f;	// 随机走动间隔
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Patrol Settings")
 	FString PatrolRouteName;		// 巡逻路径名称
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Patrol Settings")
 	APatrolRoute* PatrolRoute;		// 巡逻路径
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
@@ -184,7 +184,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
 	float MaxPatrolMoveSpeed = 340.0f;		// 最大巡逻移动速度
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Patrol Settings")
 	EPatrolType PatrolType = EPatrolType::BackAndForth;		// 巡逻类型
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
