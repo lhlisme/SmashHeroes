@@ -54,7 +54,7 @@ void USHMonsterManager::SpawnEnemy()
 	if (CurrentWave < MonsterWaves.SpawnGroups.Num())
 	{
 		int32 RandomIndex = 0;
-		for (auto CurMonsterClass : MonsterWaves.SpawnGroups[CurrentWave].Monsters)
+		for (auto& CurMonsterClass : MonsterWaves.SpawnGroups[CurrentWave].Monsters)
 		{
 			// 所有生成盒都生成过对象后, 不继续生成
 			if (SpawnBoxes.Num() <= 0)
