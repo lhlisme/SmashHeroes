@@ -43,3 +43,12 @@ bool AMonsterCharacter::RangeAttack()
 	return true;
 }
 
+void AMonsterCharacter::SetMonsterBaseInfo(FMonsterBaseInfoStruct& MonsterInfo)
+{
+	if (BehaviorComponent)
+	{
+		BehaviorComponent->IdleType = MonsterInfo.IdleType;
+		BehaviorComponent->PatrolType = MonsterInfo.PatrolType;
+		BehaviorComponent->PatrolRouteName = MonsterInfo.PatrolRouteName;
+	}
+}

@@ -9,6 +9,24 @@
 #include "Characters/MonsterCharacter.h"
 #include "SHMonsterManager.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FMonsterConfigStruct
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FMonsterConfigStruct() {}
+
+	/** 怪物蓝图 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AMonsterCharacter> MonsterBP;
+
+	/** 怪物基本信息 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FMonsterBaseInfoStruct MonsterInfo;
+};
+
 USTRUCT(BlueprintType)
 struct FSpawnGroupStruct
 {
@@ -18,7 +36,7 @@ public:
 	FSpawnGroupStruct() {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TSubclassOf<AMonsterCharacter>> Monsters;
+	TArray<FMonsterConfigStruct> Monsters;
 };
 
 USTRUCT(BlueprintType)

@@ -2,11 +2,34 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "SmashHeroes.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.h"
 #include "MonsterCharacter.generated.h"
 
+
+/** 需要通过表格配置的怪物基本信息(即同一蓝图间可能有区别的属性) */
+USTRUCT(BlueprintType)
+struct FMonsterBaseInfoStruct
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FMonsterBaseInfoStruct() {}
+
+	/** 怪物Idle类型 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EIdleType IdleType;
+
+	/** 怪物巡逻类型 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EPatrolType PatrolType;
+
+	/** 怪物巡逻路径名称 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString PatrolRouteName;
+
+};
 
 UCLASS()
 class SMASHHEROES_API AMonsterCharacter : public ABaseCharacter
@@ -31,4 +54,8 @@ public:
 
 	virtual bool RangeAttack() override;
 
+	// 设置怪物基础信息
+	void SetMonsterBaseInfo(FMonsterBaseInfoStruct& MonsterInfo);
+
 };
+
