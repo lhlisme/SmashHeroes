@@ -355,6 +355,17 @@ bool ABaseCharacter::IsAlive()
 	return GetHealth() > 0.0f;
 }
 
+void ABaseCharacter::PlayHitEffect(FLinearColor InLinearColor)
+{
+	USkeletalMeshComponent* Mesh = GetMesh();
+
+	if (Mesh)
+	{
+		Mesh->SetVectorParameterValueOnMaterials(FName(TEXT("EffectColor")), FVector(InLinearColor));
+		Mesh->SetScalarParameterValueOnMaterials(FName(TEXT("StartTime")), UGameplayStatics::GetTimeSeconds(GetWorld()));
+	}
+}
+
 bool ABaseCharacter::ActivateAbilitiesWithTags(FGameplayTagContainer AbilityTags, bool bAllowRemoteActivation)
 {
 	if (AbilitySystem)

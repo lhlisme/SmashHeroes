@@ -243,6 +243,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsAlive();
 
+	// 特效相关
+	/** 播放受击特效 */
+	UFUNCTION(BlueprintCallable)
+	void PlayHitEffect(FLinearColor InLinearColor);
+
 	/**
 	 * 尝试激活指定Tag的所有能力, bAllowRemoteActivation为true时可以远程在服务器上激活能力, 否则只会在本地激活 */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
@@ -316,7 +321,7 @@ public:
 	virtual void HandleEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
-	// 将UBaseAttributeSet声明为友元类，使其能访问上述Handle函数
+	// 将UBaseAttributeSet声明为友元类，使其能访问下述Handle函数
 	friend UBaseAttributeSet;
 };
 
