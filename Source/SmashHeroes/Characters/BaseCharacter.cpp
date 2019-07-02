@@ -486,6 +486,11 @@ void ABaseCharacter::RemoveStartupGameplayAbilities()
 	}
 }
 
+void ABaseCharacter::HandleDead()
+{
+	OnDead();
+}
+
 void ABaseCharacter::HandleDamage(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorPawn, AActor* DamageCauser)
 {
 	OnDamaged(DamageAmount, HitInfo, DamageTags, InstigatorPawn, DamageCauser);

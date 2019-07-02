@@ -309,17 +309,25 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
+	/** 死亡时回调 */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDead();
+
 	/** 应用初始化能力和效果 */
 	void AddStartupGameplayAbilities();
 
 	/** 移除所有初始能力和效果 */
 	void RemoveStartupGameplayAbilities();
 
-	// Called from RPGAttributeSet, these call BP events above
+	UFUNCTION(BlueprintCallable)
+	virtual void HandleDead();
+
+	// Called from BaseAttributeSet, these call BP events above
 	virtual void HandleDamage(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ABaseCharacter* InstigatorCharacter, AActor* DamageCauser);
 	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+
 
 	// 将UBaseAttributeSet声明为友元类，使其能访问下述Handle函数
 	friend UBaseAttributeSet;
