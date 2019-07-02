@@ -98,10 +98,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnEnemy();
 	/** 获取已生成的怪物数量 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	int32 GetSpawnedMonsterCount();
 	/** 获取被杀死的怪物数量 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	int32 GetKilledMonsterCount();
 	/** 更新被杀死的怪物数量 */
 	UFUNCTION(BlueprintCallable)
