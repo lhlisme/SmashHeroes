@@ -78,6 +78,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Monster Spawn")
 	int32 CurrentWave = 0;
 	FWavesStruct MonsterWaves;
+	/** 被杀死的怪物数量 */
+	UPROPERTY(VisibleAnywhere, Category = "Monster Kill")
+	int32 KilledMonsterCount = 0;
 
 protected:
 	/** 初始化状态 */
@@ -97,4 +100,10 @@ public:
 	/** 获取已生成的怪物数量 */
 	UFUNCTION(BlueprintCallable)
 	int32 GetSpawnedMonsterCount();
+	/** 获取被杀死的怪物数量 */
+	UFUNCTION(BlueprintCallable)
+	int32 GetKilledMonsterCount();
+	/** 更新被杀死的怪物数量 */
+	UFUNCTION(BlueprintCallable)
+	void IncreaseKilledMonsterCount();
 };

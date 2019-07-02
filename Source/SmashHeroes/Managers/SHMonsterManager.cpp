@@ -81,3 +81,13 @@ int32 USHMonsterManager::GetSpawnedMonsterCount()
 {
 	return SpawnedMonsterCount;
 }
+
+int32 USHMonsterManager::GetKilledMonsterCount()
+{
+	return KilledMonsterCount;
+}
+
+void USHMonsterManager::IncreaseKilledMonsterCount()
+{
+	++KilledMonsterCount;
+}
