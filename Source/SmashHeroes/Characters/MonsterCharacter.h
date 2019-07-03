@@ -57,5 +57,8 @@ public:
 	// 设置怪物基础信息
 	void SetMonsterBaseInfo(FMonsterBaseInfoStruct& MonsterInfo);
 
+	/** 生成掉落物 */
+	/*UFUNCTION(BlueprintCallable)
+	void SpawnLoot();*/
 };
 
