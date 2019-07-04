@@ -2,6 +2,7 @@
 
 
 #include "MonsterCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AMonsterCharacter::AMonsterCharacter()
@@ -50,5 +51,36 @@ void AMonsterCharacter::SetMonsterBaseInfo(FMonsterBaseInfoStruct& MonsterInfo)
 		BehaviorComponent->IdleType = MonsterInfo.IdleType;
 		BehaviorComponent->PatrolType = MonsterInfo.PatrolType;
 		BehaviorComponent->PatrolRouteName = MonsterInfo.PatrolRouteName;
+	}
+	Loots = MonsterInfo.Loots;
+}
+
+void AMonsterCharacter::SpawnLoot()
+{
+	// 掉落物生成位置相对包围盒的拓展范围
+	FVector SpawnBoxExtent = FVector(40.0f, 40.0f, 40.0f);
+	// 生成参数
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	for (auto& CurLoot : Loots)
+	{
+		// 根据掉落率计算当前是否掉落该物品
+		bool IsDrop = UKismetMathLibrary::RandomBoolWithWeight(CurLoot.DropRate);
+
+		if (IsDrop)
+		{
+			// 计算生成数量
+			int32 SpawnCount = FMath::RandRange(CurLoot.MinDropCount, CurLoot.MaxDropCount);
+			for (int32 i = 0; i < SpawnCount; ++i)
+			{
+				// 掉落物生成位置
+				FVector SpawnPosition = GetActorLocation();
+				// 修正生成位置高度
+				SpawnPosition.Z -= 50.0f;
+				FTransform SpawnTransform(UKismetMathLibrary::RandomPointInBoundingBox(GetActorLocation(), SpawnBoxExtent));
+				GetWorld()->SpawnActor<AActor>(CurLoot.LootBP, SpawnTransform, Params);
+			}
+		}
 	}
 }
