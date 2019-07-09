@@ -7,7 +7,7 @@
 #include "SHPlayerControllerBase.generated.h"
 
 /**
- * 
+ * Base class for PlayerController, should be blueprinted
  */
 UCLASS()
 class SMASHHEROES_API ASHPlayerControllerBase : public APlayerController
