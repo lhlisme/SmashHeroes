@@ -5,5 +5,6 @@
 #include "EngineMinimal.h"
 #include "Engine/Engine.h"
 #include "Net/UnrealNetwork.h"
+#include "SHTypes.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogSmashHeroes, Log, All);
+SMASHHEROES_API DECLARE_LOG_CATEGORY_EXTERN(LogSmashHeroes, Log, All);

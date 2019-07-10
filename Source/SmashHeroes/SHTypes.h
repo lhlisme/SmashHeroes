@@ -62,7 +62,7 @@ struct SMASHHEROES_API FSHItemSlot
 	}
 };
 
-/** 玩家仓库中USHItem的额外信息 */
+/** 玩家背包中USHItem的额外信息 */
 USTRUCT(BlueprintType)
 struct SMASHHEROES_API FSHItemData
 {
@@ -78,7 +78,7 @@ struct SMASHHEROES_API FSHItemData
 		, ItemLevel(InItemLevel)
 	{}
 
-	/** 仓库中Item的实例数量, 不能小于1 */
+	/** 背包中Item的实例数量, 不能小于1 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	int32 ItemCount;
 
@@ -119,7 +119,7 @@ struct SMASHHEROES_API FSHItemData
 	}
 };
 
-/** 仓库中Item发生变化时调用 */
+/** 背包中Item发生变化时调用 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInventoryItemChanged, bool, bAdded, USHItem*, Item);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnInventoryItemChangedNative, bool, USHItem*);
 
@@ -127,7 +127,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnInventoryItemChangedNative, bool, USHIte
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSlottedItemChanged, FSHItemSlot, ItemSlot, USHItem*, Item);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSlottedItemChangedNative, FSHItemSlot, USHItem*);
 
-/** 整个仓库加载完毕后调用, 所有之前的Item信息会被覆盖 */
+/** 整个背包加载完毕后调用, 所有之前的Item信息会被覆盖 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryLoaded);
 DECLARE_MULTICAST_DELEGATE(FOnInventoryLoadedNative);
 

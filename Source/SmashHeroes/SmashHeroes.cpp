@@ -6,4 +6,3 @@
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, SmashHeroes, "SmashHeroes" );
 
 DEFINE_LOG_CATEGORY(LogSmashHeroes)
- 
