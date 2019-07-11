@@ -4,6 +4,7 @@
 
 #include "SmashHeroes.h"
 #include "Items/SHItem.h"
+#include "Items/SHItemTypes.h"
 #include "GameFramework/SaveGame.h"
 #include "SHSaveGame.generated.h"
 

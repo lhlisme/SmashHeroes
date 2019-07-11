@@ -2,17 +2,13 @@
 
 #pragma once
 
-// ----------------------------------------------------------------------------------------------------------------
-// 此头文件统一存放游戏中的公共结构体信息
-// ----------------------------------------------------------------------------------------------------------------
-
 #include "UObject/PrimaryAssetId.h"
-#include "SHTypes.generated.h"
+#include "SHItemTypes.generated.h"
 
 class USHItem;
 
 /** UI中显示的物品插槽结构 */
-UCLASS(BlueprintType)
+USTRUCT(BlueprintType)
 struct SMASHHEROES_API FSHItemSlot
 {
 	GENERATED_BODY()

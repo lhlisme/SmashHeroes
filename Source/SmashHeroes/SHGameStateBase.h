@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "SmashHeroes.h"
 #include "GameFramework/GameStateBase.h"
 #include "SHGameStateBase.generated.h"
 

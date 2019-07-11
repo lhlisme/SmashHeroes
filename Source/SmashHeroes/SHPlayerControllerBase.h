@@ -32,12 +32,34 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory)
 	TMap<FSHItemSlot, USHItem*> SlottedItems;
 
-	/** 当背包物品发生改变时调用 */
+	/** 背包物品发生改变时回调 */
 	UPROPERTY(BlueprintAssignable, Category = Inventory)
 	FOnInventoryItemChanged OnInventoryItemChanged;
 
-	/** 上述委托的Nativebanben, 在BP委托前调用 */
+	/** 上述委托的Native版本, 在BP委托前调用 */
 	FOnInventoryItemChangedNative OnInventoryItemChangedNative;
+
+	/** 插槽物品改变时回调 */
+	UPROPERTY(BlueprintAssignable, Category = Inventory)
+	FOnSlottedItemChanged OnSlottedItemChanged;
+
+	/** 上述委托的Native版本, 在BP委托前调用 */
+	FOnSlottedItemChangedNative OnSlottedItemChangedNative;
+
+	/** 背包加载完毕后回调 */
+	UPROPERTY(BlueprintAssignable, Category = Inventory)
+	FOnInventoryLoaded OnInventoryLoaded;
+
+	/** 上述委托的Native版本, 在BP委托前调用 */
+	FOnInventoryLoadedNative OnInventoryLoadedNative;
+
+	/** 背包物品改变 */
+	UFUNCTION(BlueprintImplementableEvent, Category = Inventory)
+	void InventoryItemChanged(bool bAdded, USHItem* Item);
+
+	/** Slot物品改变 */
+	UFUNCTION(BlueprintImplementableEvent, Category = Inventory)
+	void SlottedItemChanged(FSHItemSlot ItemSlot, USHItem* Item);
 
 	/** 添加一项新的物品到背包中 */
 	UFUNCTION(BlueprintCallable, Category = Inventory)

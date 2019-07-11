@@ -3,6 +3,7 @@
 #pragma once
 
 #include "SmashHeroes.h"
+#include "Items/SHItemTypes.h"
 #include "SHInventoryInterface.generated.h"
 
 /**

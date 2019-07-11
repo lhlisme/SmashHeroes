@@ -4,6 +4,7 @@
 
 #include "SmashHeroes.h"
 #include "Engine/GameInstance.h"
+#include "Items/SHItemTypes.h"
 #include "SHGameInstanceBase.generated.h"
 
 class USHItem;
