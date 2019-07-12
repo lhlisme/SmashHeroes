@@ -152,8 +152,12 @@ public:
 	// Returns AbilitySystem subobject
 	UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystem; }
 
-	// 生成武器
+	/** 生成武器 */
 	void GenerateWeapon();
+
+	/** 销毁武器 */
+	UFUNCTION(BlueprintCallable)
+	void DestroyWeapon();
 
 	bool AddLeftDamagedActor(AActor* CurDamagedActor);
 

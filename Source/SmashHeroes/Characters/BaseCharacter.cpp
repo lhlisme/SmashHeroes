@@ -132,6 +132,19 @@ void ABaseCharacter::GenerateWeapon()
 	}
 }
 
+void ABaseCharacter::DestroyWeapon()
+{
+	if (LeftWeapon)
+	{
+		LeftWeapon->Destroy();
+	}
+
+	if (RightWeapon)
+	{
+		RightWeapon->Destroy();
+	}
+}
+
 // 已存在返回false, 否则返回true
 bool ABaseCharacter::AddLeftDamagedActor(AActor* CurDamagedActor)
 {
