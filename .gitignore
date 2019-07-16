@@ -3,6 +3,6 @@
 # Ignore Dirs
 .vs
 Binaries
-
+Build
 Intermediate
 Saved
