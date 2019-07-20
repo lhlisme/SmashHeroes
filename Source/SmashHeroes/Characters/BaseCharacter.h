@@ -175,7 +175,7 @@ public:
 	virtual bool MeleeAttack();
 
 	/** 根据AttackIndex获取当前的近战攻击动画 */
-	UFUNCTION(BlueprintCallable)	
+	UFUNCTION(BlueprintPure)
 	virtual UAnimMontage* GetMeleeAttackMontageByIndex();
 
 	UFUNCTION(BlueprintCallable)
