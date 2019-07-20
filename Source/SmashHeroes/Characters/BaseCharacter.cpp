@@ -255,10 +255,21 @@ bool ABaseCharacter::Evade()
 	return false;
 }
 
+UAnimMontage* ABaseCharacter::GetEvadeMontage()
+{
+	// TODO 根据和目标的相对位置朝不同地方闪避
+	return EvadeMontage;
+}
+
 bool ABaseCharacter::Guard()
 {
 	// 返回值表示是否有效执行
 	return false;
+}
+
+UAnimMontage* ABaseCharacter::GetGuardMontage()
+{
+	return GuardMontage;
 }
 
 bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits)
@@ -370,12 +381,12 @@ bool ABaseCharacter::IsAlive()
 
 void ABaseCharacter::PlayHitEffect(FLinearColor InLinearColor)
 {
-	USkeletalMeshComponent* Mesh = GetMesh();
+	USkeletalMeshComponent* CharacterMesh = GetMesh();
 
-	if (Mesh)
+	if (CharacterMesh)
 	{
-		Mesh->SetVectorParameterValueOnMaterials(FName(TEXT("EffectColor")), FVector(InLinearColor));
-		Mesh->SetScalarParameterValueOnMaterials(FName(TEXT("StartTime")), UGameplayStatics::GetTimeSeconds(GetWorld()));
+		CharacterMesh->SetVectorParameterValueOnMaterials(FName(TEXT("EffectColor")), FVector(InLinearColor));
+		CharacterMesh->SetScalarParameterValueOnMaterials(FName(TEXT("StartTime")), UGameplayStatics::GetTimeSeconds(GetWorld()));
 	}
 }
 

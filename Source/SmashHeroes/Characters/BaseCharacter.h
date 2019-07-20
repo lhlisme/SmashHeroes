@@ -77,7 +77,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseControl")
 	float Speed = 0.0f;
 
-	/** 攻击相关属性 */
+	// 攻击相关属性
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, UAnimMontage*> MeleeAttackMontageMap;		// 记录近战攻击动画索引和Montage的对应关系 
 
@@ -90,9 +90,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attack")
 	int32 AttackIndex = 0;		// 当前攻击动画索引
 
-	/** 闪避相关属性 */
+	// 闪避相关属性
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Evade")
+	UAnimMontage* EvadeMontage;		 
 
-	/** 防御相关属性 */
+	// 防御相关属性
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Guard")
+	UAnimMontage* GuardMontage;
 
 	/** 角色武器 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
@@ -197,9 +201,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual bool Evade();
 
+	UFUNCTION(BlueprintPure)
+	virtual UAnimMontage* GetEvadeMontage();
+
 	// 防御相关
 	UFUNCTION(BlueprintCallable)
 	virtual bool Guard();
+
+	UFUNCTION(BlueprintPure)
+	virtual UAnimMontage* GetGuardMontage();
 
 	UFUNCTION(BlueprintPure)
 	UBehaviorComponent* GetBehaviorComponent();
