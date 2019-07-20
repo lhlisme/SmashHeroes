@@ -29,6 +29,16 @@ enum class EBehaviorType : uint8
 	Dead				UMETA(DisplayName = "Dead")
 };
 
+/** 性格类型 */
+UENUM(BlueprintType)
+enum class EDispositionType : uint8
+{
+	Aggressive			UMETA(DisplayName = "Aggressive"),	// 侵略型, 倾向通过闪避应对攻击
+	Defensive			UMETA(DisplayName = "Defensive"),	// 防守型, 倾向通过防御应对攻击
+	Balanced			UMETA(DisplayName = "Balanced")		// 均衡型, 随机应变
+};
+
+
 UENUM()
 enum class EIdleType : uint8
 {
@@ -106,11 +116,17 @@ class SMASHHEROES_API UBehaviorComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	/** 是否由AI控制 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	bool bIsAI = false;	// 是否由AI控制
+	bool bIsAI = false;
 
+	/** 性格类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	UBehaviorTree* BehaviorTree;	// 当前AI使用的行为树
+	EDispositionType Disposition = EDispositionType::Balanced;
+
+	/** 当前AI使用的行为树 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	UBehaviorTree* BehaviorTree;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	EBehaviorType InitBehavior = EBehaviorType::Idle;	// 初始行为
@@ -289,43 +305,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dead Settings")
 	EBehaviorType DeadTransition = EBehaviorType::Idle;	// 死亡行为结束后进入的下一行为类型
 
-	/** 行为切换相关事件, 在GameplayAbility或BTTask中调用 */
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginMeleeAttack();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndMeleeAttack();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginRangeAttack();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndRangeAttack();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginEvade();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndEvade();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginGuard();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndGuard();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginHit();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndHit();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginDead();
-
-	UFUNCTION(BlueprintCallable)
-	virtual void EndDead();
-
 	/** 行为开始相关委托 */
 	UPROPERTY(BlueprintAssignable)
 	FIdleBeginDelegate OnIdleBegin;
@@ -441,6 +420,43 @@ public:
 	/** 根据Key初始化Blackboard中的值 */
 	void InitBlackboard();
 
+	/** 行为切换相关事件, 在GameplayAbility或BTTask中调用 */
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginMeleeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndMeleeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginRangeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndRangeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginEvade();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndEvade();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginGuard();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndGuard();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginHit();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndHit();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void BeginDead();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndDead();
+
 	/** 设置寻找目标(外部调用) */
 	void SetSeekTarget(AActor* NewSeekTarget);
 
@@ -511,6 +527,10 @@ public:
 	/** 设置目标行为 */
 	UFUNCTION(BlueprintCallable)
 	void SetTargetBehavior(EBehaviorType NewBehavior);
+
+	/** 根据性格类型采取攻击应对措施(闪避、防御) */
+	UFUNCTION(BlueprintCallable)
+	EBehaviorType DealWithAttack();
 
 	/** 更新当前移动速度 */
 	UFUNCTION(BlueprintCallable)

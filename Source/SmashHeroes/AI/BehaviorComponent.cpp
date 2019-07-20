@@ -297,8 +297,6 @@ void UBehaviorComponent::ResetHateTargets()
 
 AActor* UBehaviorComponent::FindAttackTarget(float &DistToTarget)
 {
-	ABaseCharacter* EnemyCharacter = nullptr;
-
 	// 找到仇恨值最高的最近目标, 并记录到攻击目标的距离
 	AttackTarget = GetHatestNearTarget(DistToTarget);
 	// 更新黑板TargetActor信息
@@ -594,36 +592,46 @@ void UBehaviorComponent::UpdateBehavior()
 	if (AttackTarget)
 	{
 		UE_LOG(LogTemp, Log, TEXT("AttackTarget: %s"), *(AttackTarget->GetName()));
-		// 判断是否支持远程攻击(近战攻击必须支持)
-		if (CanRangeAttack)
+		// 获取攻击目标的当前行为类型
+		ABaseCharacter* TargetCharacter = Cast<ABaseCharacter>(AttackTarget);
+		EBehaviorType TargetCurrentBehavior = EBehaviorType::Idle;
+		if (TargetCharacter)
 		{
-			if (DistToTarget < MeleeAttackDistance)
+			// 对于BaseCharacter, BehaviorComponent必须不为空
+			TargetCurrentBehavior = TargetCharacter->GetBehaviorComponent()->GetBehavior();
+		}
+		// 位于近战攻击距离内(近战攻击必须支持)
+		if (DistToTarget < MeleeAttackDistance)
+		{
+			if (TargetCurrentBehavior == EBehaviorType::MeleeAttack || TargetCurrentBehavior == EBehaviorType::RangeAttack)
 			{
-				// 准备开始近战攻击
-				SetTargetBehavior(EBehaviorType::MeleeAttack);
-			}
-			else if (DistToTarget < RangeAttackDistance)
-			{
-				// 准备开始远程攻击
-				SetTargetBehavior(EBehaviorType::RangeAttack);
+				// 根据性格类型采取攻击应对措施
+				SetTargetBehavior(DealWithAttack());
 			}
 			else
 			{
-				// 准备开始追踪
-				SetTargetBehavior(EBehaviorType::Follow);
+				// 准备开始近战攻击
+				SetTargetBehavior(EBehaviorType::MeleeAttack);
 			}
 		}
 		else
 		{
-			if (DistToTarget < MeleeAttackDistance)
+			// 支持远程攻击并且目标位于远程攻击距离内
+			if (CanRangeAttack && DistToTarget < RangeAttackDistance)
 			{
-				UE_LOG(LogTemp, Log, TEXT("MeleeAttack"));
-				// 准备开始近战攻击
-				SetTargetBehavior(EBehaviorType::MeleeAttack);
+				if (TargetCurrentBehavior == EBehaviorType::MeleeAttack || TargetCurrentBehavior == EBehaviorType::RangeAttack)
+				{
+					// 根据性格类型采取攻击应对措施
+					SetTargetBehavior(DealWithAttack());
+				}
+				else 
+				{
+					// 准备开始远程攻击
+					SetTargetBehavior(EBehaviorType::RangeAttack);
+				}
 			}
 			else
 			{
-				UE_LOG(LogTemp, Log, TEXT("Follow"));
 				// 准备开始追踪
 				SetTargetBehavior(EBehaviorType::Follow);
 			}
@@ -704,6 +712,27 @@ void UBehaviorComponent::SetTargetBehavior(EBehaviorType NewBehavior)
 			Blackboard->SetValueAsEnum(BBKey_TargetBehaviorType, (uint8)NewBehavior);
 		}
 	}
+}
+
+EBehaviorType UBehaviorComponent::DealWithAttack()
+{
+	bool IsEvade = false;
+
+	// 根据性格类型分别设定闪避和防御的概率
+	switch (Disposition)
+	{
+	case EDispositionType::Aggressive:
+		IsEvade = UKismetMathLibrary::RandomBoolWithWeight(0.68f);
+		break;
+	case EDispositionType::Defensive:
+		IsEvade = UKismetMathLibrary::RandomBoolWithWeight(0.32f);
+		break;
+	default:
+		IsEvade = UKismetMathLibrary::RandomBoolWithWeight(0.5f);
+		break;
+	}
+
+	return IsEvade ? EBehaviorType::Evade : EBehaviorType::Guard;
 }
 
 void UBehaviorComponent::BeginMeleeAttack()
