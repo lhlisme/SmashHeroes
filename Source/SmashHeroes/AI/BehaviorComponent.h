@@ -392,20 +392,29 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	AAIController* OwnerAIController;
 
+	/** 目标行为, AI专用 */
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	EBehaviorType TargetBehavior = EBehaviorType::Idle;		// 目标行为, AI专用
+	EBehaviorType TargetBehavior = EBehaviorType::Idle;
 
+	/** 上一次的行为 */
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	EBehaviorType CurrentBehavior = EBehaviorType::Idle;	// 初始行为
+	EBehaviorType LastBehavior = EBehaviorType::Idle;
 
+	/** 当前行为 */
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
-	bool bIsTransition = false;		// 当前行为是否由其他行为结束过渡所至
+	EBehaviorType CurrentBehavior = EBehaviorType::Idle;
 
+	/** 当前行为是否由其他行为结束过渡所至 */
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
+	bool bIsTransition = false;
+
+	/** 寻找目标(不同于AttackTarget, 需要通过外部指定) */
 	UPROPERTY(VisibleAnywhere, Category = "Seek Settings")
-	AActor* SeekTarget;		// 寻找目标(不同于AttackTarget, 需要通过外部指定)
+	AActor* SeekTarget;
 
+	/** 巡逻是否结束标记(仅在PatrolType=Single时有效) */
 	UPROPERTY(VisibleAnywhere, Category = "Patrol Settings")
-	bool bIsPatrolEnded = false;		// 巡逻是否结束标记(仅在PatrolType=Single时有效)
+	bool bIsPatrolEnded = false;
 
 	UPROPERTY(VisibleAnywhere, Category = "Attack Settings")
 	AActor* AttackTarget;

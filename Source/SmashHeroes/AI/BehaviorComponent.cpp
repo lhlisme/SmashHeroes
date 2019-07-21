@@ -436,7 +436,8 @@ EBehaviorType UBehaviorComponent::GetBehavior()
 
 bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 {
-	if (OwnerActor && OwnerActor->HasAuthority()) {
+	if (OwnerActor && OwnerActor->HasAuthority()) 
+	{
 		// 如果新的Behavior与当前Behavior相同,无需修改
 		if (NewBehavior == CurrentBehavior) {
 			return false;
@@ -488,6 +489,8 @@ bool UBehaviorComponent::ChangeBehavior(EBehaviorType NewBehavior)
 			break;
 		}
 
+		// 更新上一次行为信息
+		LastBehavior = CurrentBehavior;
 		// 更新当前行为信息
 		CurrentBehavior = NewBehavior;
 		if (OwnerAIController)
@@ -742,7 +745,10 @@ void UBehaviorComponent::BeginMeleeAttack()
 
 void UBehaviorComponent::EndMeleeAttack()
 {
-	ChangeBehavior(MeleeAttackTransition);
+	if (CurrentBehavior == EBehaviorType::MeleeAttack)
+	{
+		ChangeBehavior(MeleeAttackTransition);
+	}
 }
 
 void UBehaviorComponent::BeginRangeAttack()
@@ -752,7 +758,10 @@ void UBehaviorComponent::BeginRangeAttack()
 
 void UBehaviorComponent::EndRangeAttack()
 {
-	ChangeBehavior(RangeAttackTransition);
+	if (CurrentBehavior == EBehaviorType::RangeAttack)
+	{
+		ChangeBehavior(RangeAttackTransition);
+	}
 }
 
 void UBehaviorComponent::BeginEvade()
@@ -762,7 +771,10 @@ void UBehaviorComponent::BeginEvade()
 
 void UBehaviorComponent::EndEvade()
 {
-	ChangeBehavior(EvadeTransition);
+	if (CurrentBehavior == EBehaviorType::Evade)
+	{
+		ChangeBehavior(EvadeTransition);
+	}
 }
 
 void UBehaviorComponent::BeginGuard()
@@ -772,7 +784,10 @@ void UBehaviorComponent::BeginGuard()
 
 void UBehaviorComponent::EndGuard()
 {
-	ChangeBehavior(GuardTransition);
+	if (CurrentBehavior == EBehaviorType::Guard)
+	{
+		ChangeBehavior(GuardTransition);
+	}
 }
 
 void UBehaviorComponent::BeginHit()
@@ -782,7 +797,10 @@ void UBehaviorComponent::BeginHit()
 
 void UBehaviorComponent::EndHit()
 {
-	ChangeBehavior(HitTransition);
+	if (CurrentBehavior == EBehaviorType::Hit)
+	{
+		ChangeBehavior(HitTransition);
+	}
 }
 
 void UBehaviorComponent::BeginDead()
@@ -792,7 +810,10 @@ void UBehaviorComponent::BeginDead()
 
 void UBehaviorComponent::EndDead()
 {
-	ChangeBehavior(DeadTransition);
+	if (CurrentBehavior == EBehaviorType::Dead)
+	{
+		ChangeBehavior(DeadTransition);
+	}
 }
 
 void UBehaviorComponent::UpdateMoveSpeed()

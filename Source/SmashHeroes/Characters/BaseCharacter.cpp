@@ -43,6 +43,12 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 死亡状态判断
+	if (BehaviorComponent->GetBehavior() != EBehaviorType::Dead && !IsAlive())
+	{
+		BehaviorComponent->BeginDead();
+	}
+
 	// 如果不在近战攻击状态，正常更新武器插槽位置
 	if (BehaviorComponent->GetBehavior() != EBehaviorType::MeleeAttack) {
 		if (LeftWeapon) {
@@ -209,16 +215,35 @@ UAnimMontage* ABaseCharacter::GetRangeAttackMontageByIndex()
 	return nullptr;
 }
 
-void ABaseCharacter::PlayHitMontage(AActor* DamageCauser)
+void ABaseCharacter::HandleHit(float DamageAmount, AActor* DamageCauser, FLinearColor InLinearColor)
 {
-	// 根据受击方向确定要播放的Montage(调用前应判断是否存活)
+	// 计算受击方向, 根据受击方向确定要播放的Montage(调用前应判断是否存活)
 	ERelativeOrientation RelativeOrientation = CalculateRelativeOrientation(DamageCauser);
-	UAnimMontage** HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
+	UAnimMontage** HitMontagePtr = nullptr;
+
+	// 防御状态下播放格挡受击动画
+	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard && GuardHitMontageMap.Num() > 0)
+	{
+		HitMontagePtr = GuardHitMontageMap.Find(RelativeOrientation);
+	}
+	else
+	{
+		HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
+	}
+
+	// 在播放动画前, 处理行为变换
+	BehaviorComponent->BeginHit();
 
 	if (HitMontagePtr)
 	{
 		PlayAnimMontage(*HitMontagePtr);
 	}
+
+	// 更新仇恨值
+	UpdateHateValue(DamageAmount, DamageCauser);
+
+	// 播放受击特效
+	PlayHitEffect(InLinearColor);
 }
 
 void ABaseCharacter::UpdateHateValue(float DamageAmount, AActor* DamageCauser)

@@ -61,13 +61,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	Speed = FMath::Sqrt(FMath::Square(ForwardInput) + FMath::Square(RightInput));
-	if (Speed > 0.0f) {
-		IsRunning = true;
-	}
-	else {
-		IsRunning = false;
-	}
+	MoveInput = FMath::Sqrt(FMath::Square(ForwardInput) + FMath::Square(RightInput));
 }
 
 // Called to bind functionality to input

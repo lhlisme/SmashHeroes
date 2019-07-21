@@ -44,7 +44,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float ViewAngle = -45.0f;
 
-	/** 攻击相关属性 */
+	// 移动相关属性
+	/** 移动向量大小 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseControl")
+	float MoveInput = 0.0f;
+
+	// 攻击相关属性
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
 	int32 ComboSetIndex = 0;	// 当前连击动画所属集合索引
 

@@ -70,13 +70,6 @@ protected:
 	UBehaviorComponent* BehaviorComponent;
 
 public:
-	/** 移动相关属性 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseControl")
-	bool IsRunning = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseControl")
-	float Speed = 0.0f;
-
 	// 攻击相关属性
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, UAnimMontage*> MeleeAttackMontageMap;		// 记录近战攻击动画索引和Montage的对应关系 
@@ -84,8 +77,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, UAnimMontage*> RangeAttackMontageMap;		// 记录远程攻击动画索引和Montage的对应关系
 
+	/** 普通状态下的受击动画 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<ERelativeOrientation, UAnimMontage*> HitMontageMap;
+
+	/** 防御状态下的受击动画 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	TMap<ERelativeOrientation, UAnimMontage*> GuardHitMontageMap;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attack")
 	int32 AttackIndex = 0;		// 当前攻击动画索引
@@ -184,10 +182,6 @@ public:
 	/** 根据AttackIndex获取当前的远程攻击动画 */
 	UFUNCTION(BlueprintCallable)
 	virtual UAnimMontage* GetRangeAttackMontageByIndex();
-
-	/** 计算受击方向, 播放对应受击动画 */
-	UFUNCTION(BlueprintCallable)
-	void PlayHitMontage(AActor* DamageCauser);
 
 	/** 更新目标仇恨值 */
 	UFUNCTION(BlueprintCallable)
@@ -332,6 +326,10 @@ public:
 
 	/** 移除所有初始能力和效果 */
 	void RemoveStartupGameplayAbilities();
+
+	/** 受击处理 */
+	UFUNCTION(BlueprintCallable)
+	virtual void HandleHit(float DamageAmount, AActor* DamageCauser, FLinearColor InLinearColor);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void HandleDead();
