@@ -189,6 +189,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 
 			if (TargetCharacter)
 			{
+				// TODO 格挡能量消耗检查
 				// This is proper damage
 				TargetCharacter->HandleDamage(LocalDamageDone, HitResult, SourceTags, SourceCharacter, SourceActor);
 

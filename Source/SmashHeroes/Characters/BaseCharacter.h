@@ -77,16 +77,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, UAnimMontage*> RangeAttackMontageMap;		// 记录远程攻击动画索引和Montage的对应关系
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attack")
+	int32 AttackIndex = 0;		// 当前攻击动画索引
+
+	// 受击相关属性
 	/** 普通状态下的受击动画 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit")
 	TMap<ERelativeOrientation, UAnimMontage*> HitMontageMap;
 
 	/** 防御状态下的受击动画 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	TMap<ERelativeOrientation, UAnimMontage*> GuardHitMontageMap;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit")
+	UAnimMontage* GuardHitMontage;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attack")
-	int32 AttackIndex = 0;		// 当前攻击动画索引
+	/** 防御状态下的破防动画 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit")
+	UAnimMontage* GuardBreakMontage;
 
 	// 闪避相关属性
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Evade")

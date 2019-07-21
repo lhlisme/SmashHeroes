@@ -221,18 +221,28 @@ void ABaseCharacter::HandleHit(float DamageAmount, AActor* DamageCauser, FLinear
 	ERelativeOrientation RelativeOrientation = CalculateRelativeOrientation(DamageCauser);
 	UAnimMontage** HitMontagePtr = nullptr;
 
-	// 防御状态下播放格挡受击动画
-	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard && GuardHitMontageMap.Num() > 0)
+	// 防御状态且是正面受击情况下播放格挡受击动画
+	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard && RelativeOrientation == ERelativeOrientation::Forward)
 	{
-		HitMontagePtr = GuardHitMontageMap.Find(RelativeOrientation);
+		// 注意, 在防御状态下受击, 当能量不小于0时(此次格挡能量消耗在调用此函数之前已计算完毕), 仍处于防御状态, 否则防御被击破, 进入Hit状态
+		if (GetEnergy() < 0.0f)
+		{
+			// 在防御状态下受击, 能量因格挡耗尽时, 进入Hit状态
+			HitMontagePtr = &GuardBreakMontage;
+			BehaviorComponent->BeginHit();
+		}
+		else
+		{
+			// 在防御状态下受击, 当能量不小于0时, 仍处于防御状态
+			HitMontagePtr = &GuardHitMontage;
+		}
 	}
 	else
 	{
 		HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
+		// 未在防御状态下受击, 进入Hit状态
+		BehaviorComponent->BeginHit();
 	}
-
-	// 在播放动画前, 处理行为变换
-	BehaviorComponent->BeginHit();
 
 	if (HitMontagePtr)
 	{
