@@ -240,7 +240,7 @@ void ABaseCharacter::HandleHit(float DamageAmount, AActor* DamageCauser, FLinear
 	else
 	{
 		HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
-		// 未在防御状态下受击, 进入Hit状态
+		// 未在防御状态或未正向防御下受击, 进入Hit状态
 		BehaviorComponent->BeginHit();
 	}
 

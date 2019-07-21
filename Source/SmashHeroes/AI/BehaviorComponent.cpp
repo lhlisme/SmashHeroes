@@ -738,6 +738,29 @@ EBehaviorType UBehaviorComponent::DealWithAttack()
 	return IsEvade ? EBehaviorType::Evade : EBehaviorType::Guard;
 }
 
+bool UBehaviorComponent::ShouldHoldGuarding()
+{
+	bool ShouldHold = false;
+
+	if (OwnerActor && AttackTarget)
+	{
+		ABaseCharacter* TargetCharacter = Cast<ABaseCharacter>(AttackTarget);
+		ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
+		if (OwnerCharacter && TargetCharacter && TargetCharacter->IsAlive())
+		{
+			EBehaviorType TargetCurrentBehavior = TargetCharacter->GetBehaviorComponent()->GetBehavior();
+			if ((TargetCurrentBehavior == EBehaviorType::MeleeAttack || TargetCurrentBehavior == EBehaviorType::RangeAttack) 
+				&& OwnerCharacter->GetEnergy() > 0.0f)
+			{
+				// 当前攻击对象存活, 且正在攻击并且自身能量值大于0时, 保持防御状态
+				ShouldHold = true;
+			}
+		}
+	}
+
+	return ShouldHold;
+}
+
 void UBehaviorComponent::BeginMeleeAttack()
 {
 	ChangeBehavior(EBehaviorType::MeleeAttack);
