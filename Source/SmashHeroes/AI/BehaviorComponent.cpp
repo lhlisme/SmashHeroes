@@ -603,11 +603,17 @@ void UBehaviorComponent::UpdateBehavior()
 			// 对于BaseCharacter, BehaviorComponent必须不为空
 			TargetCurrentBehavior = TargetCharacter->GetBehaviorComponent()->GetBehavior();
 		}
+
 		// 位于近战攻击距离内(近战攻击必须支持)
 		if (DistToTarget < MeleeAttackDistance)
 		{
 			if (TargetCurrentBehavior == EBehaviorType::MeleeAttack || TargetCurrentBehavior == EBehaviorType::RangeAttack)
 			{
+				// 在敌人正在攻击时, 若当前处于防御状态且能量充足, 则继续保持防御
+				if (CurrentBehavior == EBehaviorType::Guard && OwnerCharacter->GetEnergy() > 0.0f)
+				{
+					return;
+				}
 				// 根据性格类型采取攻击应对措施
 				SetTargetBehavior(DealWithAttack());
 			}
@@ -624,6 +630,11 @@ void UBehaviorComponent::UpdateBehavior()
 			{
 				if (TargetCurrentBehavior == EBehaviorType::MeleeAttack || TargetCurrentBehavior == EBehaviorType::RangeAttack)
 				{
+					// 在敌人正在攻击时, 若当前处于防御状态且能量充足, 则继续保持防御
+					if (CurrentBehavior == EBehaviorType::Guard && OwnerCharacter->GetEnergy() > 0.0f)
+					{
+						return;
+					}
 					// 根据性格类型采取攻击应对措施
 					SetTargetBehavior(DealWithAttack());
 				}
@@ -736,29 +747,6 @@ EBehaviorType UBehaviorComponent::DealWithAttack()
 	}
 
 	return IsEvade ? EBehaviorType::Evade : EBehaviorType::Guard;
-}
-
-bool UBehaviorComponent::ShouldHoldGuarding()
-{
-	bool ShouldHold = false;
-
-	if (OwnerActor && AttackTarget)
-	{
-		ABaseCharacter* TargetCharacter = Cast<ABaseCharacter>(AttackTarget);
-		ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(OwnerActor);
-		if (OwnerCharacter && TargetCharacter && TargetCharacter->IsAlive())
-		{
-			EBehaviorType TargetCurrentBehavior = TargetCharacter->GetBehaviorComponent()->GetBehavior();
-			if ((TargetCurrentBehavior == EBehaviorType::MeleeAttack || TargetCurrentBehavior == EBehaviorType::RangeAttack) 
-				&& OwnerCharacter->GetEnergy() > 0.0f)
-			{
-				// 当前攻击对象存活, 且正在攻击并且自身能量值大于0时, 保持防御状态
-				ShouldHold = true;
-			}
-		}
-	}
-
-	return ShouldHold;
 }
 
 void UBehaviorComponent::BeginMeleeAttack()

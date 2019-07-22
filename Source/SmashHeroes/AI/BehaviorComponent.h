@@ -541,10 +541,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EBehaviorType DealWithAttack();
 
-	/** 是否应该保持防御状态 */
-	UFUNCTION(BlueprintPure)
-	bool ShouldHoldGuarding();
-
 	/** 更新当前移动速度 */
 	UFUNCTION(BlueprintCallable)
 	void UpdateMoveSpeed();
