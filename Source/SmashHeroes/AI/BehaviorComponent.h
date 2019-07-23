@@ -537,6 +537,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetTargetBehavior(EBehaviorType NewBehavior);
 
+	/** 获取目标行为 */
+	UFUNCTION(BlueprintPure)
+	EBehaviorType GetTargetBehavior();
+
 	/** 根据性格类型采取攻击应对措施(闪避、防御) */
 	UFUNCTION(BlueprintCallable)
 	EBehaviorType DealWithAttack();

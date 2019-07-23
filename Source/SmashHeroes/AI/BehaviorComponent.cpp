@@ -728,6 +728,11 @@ void UBehaviorComponent::SetTargetBehavior(EBehaviorType NewBehavior)
 	}
 }
 
+EBehaviorType UBehaviorComponent::GetTargetBehavior()
+{
+	return TargetBehavior;
+}
+
 EBehaviorType UBehaviorComponent::DealWithAttack()
 {
 	bool IsEvade = false;
