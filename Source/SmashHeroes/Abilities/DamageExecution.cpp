@@ -3,6 +3,7 @@
 
 #include "Abilities/DamageExecution.h"
 #include "AbilitySystemComponent.h"
+#include "Characters/BaseCharacter.h"
 
 
 static const BaseDamageStatics& DamageStatics()
@@ -59,7 +60,8 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	float Damage = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageDef, EvaluationParameters, Damage);
 
-	float DamageDone = Damage * AttackMultiplier * BaseAttackPower * DefenseMultiplier / BaseDefensePower;
+	float DamageDone = Damage * AttackMultiplier * BaseAttackPower * (1.0f - DefenseMultiplier) / BaseDefensePower;
+
 	if (DamageDone > 0.0f)
 	{
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().DamageProperty, EGameplayModOp::Additive, DamageDone));

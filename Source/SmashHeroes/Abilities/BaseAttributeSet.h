@@ -50,7 +50,7 @@ public:
 
 	// Incoming damage-multiplier.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_DefenseMultiplier)
-	FGameplayAttributeData DefenseMultiplier;	// 防御系数(1.0表示免伤)
+	FGameplayAttributeData DefenseMultiplier;	// 防御系数(1.0表示免伤, 角色防御时生效)
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, DefenseMultiplier)
 
 	// Base damage of an outgoing attack.
