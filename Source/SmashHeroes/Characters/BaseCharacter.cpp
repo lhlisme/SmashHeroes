@@ -307,7 +307,7 @@ UAnimMontage* ABaseCharacter::GetGuardMontage()
 	return GuardMontage;
 }
 
-bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits)
+bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
 {
 	bool Hitted = false;	// 是否命中目标
 	// 近战攻击检测
@@ -323,6 +323,8 @@ bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>
 				for (int32 j = 0; j < OutHits.Num(); ++j) {
 					if (AddLeftDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
+						FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
+						HitTargetsData.Add(NewData);
 						Hitted = true;
 					}
 				}
@@ -343,6 +345,8 @@ bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>
 				for (int32 j = 0; j < OutHits.Num(); ++j) {
 					if (AddRightDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
+						FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
+						HitTargetsData.Add(NewData);
 						Hitted = true;
 					}
 				}
