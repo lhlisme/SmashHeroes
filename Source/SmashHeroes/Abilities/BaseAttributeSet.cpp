@@ -14,6 +14,8 @@ UBaseAttributeSet::UBaseAttributeSet()
 	, MaxHealth(1.0f)
 	, Energy(0.0f)
 	, MaxEnergy(0.0f)
+	, MoveSpeed(1.0f)
+	, Absorption(0.0f)
 	, AttackMultiplier(1.0f)
 	, DefenseMultiplier(0.0f)
 	, BaseAttackPower(1.0f)
@@ -30,6 +32,8 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(UBaseAttributeSet, MaxHealth);
 	DOREPLIFETIME(UBaseAttributeSet, Energy);
 	DOREPLIFETIME(UBaseAttributeSet, MaxEnergy);
+	DOREPLIFETIME(UBaseAttributeSet, MoveSpeed);
+	DOREPLIFETIME(UBaseAttributeSet, Absorption);
 	DOREPLIFETIME(UBaseAttributeSet, AttackMultiplier);
 	DOREPLIFETIME(UBaseAttributeSet, DefenseMultiplier);
 	DOREPLIFETIME(UBaseAttributeSet, BaseAttackPower);
@@ -59,6 +63,11 @@ void UBaseAttributeSet::OnRep_MaxEnergy()
 void UBaseAttributeSet::OnRep_MoveSpeed()
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, MoveSpeed);
+}
+
+void UBaseAttributeSet::OnRep_Absorption()
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, Absorption);
 }
 
 void UBaseAttributeSet::OnRep_AttackMultiplier()

@@ -14,6 +14,7 @@ static const BaseDamageStatics& DamageStatics()
 
 UDamageExecution::UDamageExecution()
 {
+	RelevantAttributesToCapture.Add(DamageStatics().AbsorptionDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DefenseMultiplierDef);
 	RelevantAttributesToCapture.Add(DamageStatics().BaseDefensePowerDef);
 	RelevantAttributesToCapture.Add(DamageStatics().AttackMultiplierDef);
@@ -49,6 +50,9 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	//	BaseDefensePower greater equal than 1.0
 	// --------------------------------------
 
+	float Absorption = 0.0f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().AbsorptionDef, EvaluationParameters, Absorption);
+
 	float BaseDefensePower = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BaseDefensePowerDef, EvaluationParameters, BaseDefensePower);
 	BaseDefensePower = FMath::Max(BaseDefensePower, 1.0f);	// BaseDefensePower在计算时不能低于1.0
@@ -65,7 +69,7 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	float Damage = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageDef, EvaluationParameters, Damage);
 
-	float DamageDone = Damage * AttackMultiplier * BaseAttackPower * (1.0f - DefenseMultiplier) / BaseDefensePower;
+	float DamageDone = Damage * AttackMultiplier * BaseAttackPower * (1.0f - Absorption) / BaseDefensePower;
 
 	if (DamageDone > 0.0f)
 	{

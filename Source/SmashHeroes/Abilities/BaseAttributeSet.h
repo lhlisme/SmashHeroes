@@ -22,44 +22,54 @@ class SMASHHEROES_API UBaseAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 	
 public:
-	// Hitpoints. Self-explanatory.
+	/** 当前生命值 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_Health)
-	FGameplayAttributeData Health;	// 当前生命值
+	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Health)
 
+	/** 最大生命值 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_MaxHealth)
-	FGameplayAttributeData MaxHealth;	// 最大生命值
+	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MaxHealth)
 
+	/** 当前能量值 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_Energy)
-	FGameplayAttributeData Energy;	// 当前能量值
+	FGameplayAttributeData Energy;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Energy)
 
+	/** 最大能量值 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_MaxEnergy)
-	FGameplayAttributeData MaxEnergy;	// 最大能量值
+	FGameplayAttributeData MaxEnergy;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MaxEnergy)
 
+	/** 移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_MoveSpeed)
-	FGameplayAttributeData MoveSpeed;	// 移动速度
+	FGameplayAttributeData MoveSpeed;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MoveSpeed)
 
-	// Outgoing damage-multiplier.
+	/** 减伤率(1.0表示免伤) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_Absorption)
+	FGameplayAttributeData Absorption;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Absorption)
+
+	/** 攻击系数 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_AttackMultiplier)
-	FGameplayAttributeData AttackMultiplier;	// 攻击系数
+	FGameplayAttributeData AttackMultiplier;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, AttackMultiplier)
 
-	// Incoming damage-multiplier.
+	/** 防御系数(1.0表示免伤, 角色防御时生效) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_DefenseMultiplier)
-	FGameplayAttributeData DefenseMultiplier;	// 防御系数(1.0表示免伤, 角色防御时生效)
+	FGameplayAttributeData DefenseMultiplier;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, DefenseMultiplier)
 
-	// Base damage of an outgoing attack.
+	/** 基础攻击力 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_BaseAttackPower)
-	FGameplayAttributeData BaseAttackPower;		// 基础攻击力
+	FGameplayAttributeData BaseAttackPower;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, BaseAttackPower)
 
+	/** 基础防御力 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_BaseDefensePower)
-	FGameplayAttributeData BaseDefensePower;	// 基础防御力
+	FGameplayAttributeData BaseDefensePower;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, BaseDefensePower)
 
 	/** Damage is a 'temporary' attribute used by the DamageExecution to calculate final damage, which then turns into -Health */
@@ -95,6 +105,9 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_MoveSpeed();
+
+	UFUNCTION()
+	virtual void OnRep_Absorption();
 
 	UFUNCTION()
 	virtual void OnRep_AttackMultiplier();

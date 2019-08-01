@@ -10,6 +10,7 @@
 
 struct BaseDamageStatics
 {
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Absorption);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DefenseMultiplier);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(BaseDefensePower);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(AttackMultiplier);
@@ -19,6 +20,7 @@ struct BaseDamageStatics
 	BaseDamageStatics()
 	{
 		// Capture the Target's BaseDefensePower attribute. Do not snapshot it, because we want to use the health value at the moment we apply the execution.
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UBaseAttributeSet, Absorption, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UBaseAttributeSet, DefenseMultiplier, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UBaseAttributeSet, BaseDefensePower, Target, false);
 
