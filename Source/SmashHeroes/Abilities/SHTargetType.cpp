@@ -18,6 +18,7 @@ void USHTargetType_UseOwner::GetTargets_Implementation(ABaseCharacter* Targeting
 void USHTargetType_UseEventData::GetTargets_Implementation(ABaseCharacter* TargetingCharacter, AActor* TargetingActor, FGameplayEventData EventData, TArray<FHitResult>& OutHitResults, TArray<AActor*>& OutActors) const
 {
 	const FHitResult* FoundHitResult = EventData.ContextHandle.GetHitResult();
+
 	if (FoundHitResult)
 	{
 		OutHitResults.Add(*FoundHitResult);

@@ -29,7 +29,12 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	AActor* SourceActor = SourceAbilitySystemComponent ? SourceAbilitySystemComponent->AvatarActor : nullptr;
 	AActor* TargetActor = TargetAbilitySystemComponent ? TargetAbilitySystemComponent->AvatarActor : nullptr;
 
+	ABaseCharacter* SourceCharacter = SourceActor ? Cast<ABaseCharacter>(SourceActor) : nullptr;
+	ABaseCharacter* TargetCharacter = TargetActor ? Cast<ABaseCharacter>(TargetActor) : nullptr;
+
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	// 获取受击位置信息
+	const FHitResult* HitInfo = Spec.GetEffectContext().GetHitResult();
 
 	// Gather the tags from the source and target as that can affect which buffs should be used
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();

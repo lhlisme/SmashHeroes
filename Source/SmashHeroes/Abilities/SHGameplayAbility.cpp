@@ -17,9 +17,13 @@ FSHGameplayEffectContainerSpec USHGameplayAbility::MakeEffectContainerSpecFromCo
 	USHAbilitySystemComponent* OwningASC = USHAbilitySystemComponent::GetAbilitySystemComponentFromActor(OwningActor);
 
 	if (OwningASC)
-	{
-		// If we have a target type, run the targeting logic. This is optional, targets can be added later
-		if (Container.TargetType.Get())
+	{	
+		// 如果EventData中已包含TargetData, 则直接使用
+		if (EventData.TargetData.Num() > 0)
+		{
+			ReturnSpec.TargetData = EventData.TargetData;
+		}
+		else if (Container.TargetType.Get())	// If we have a target type, run the targeting logic. This is optional, targets can be added later
 		{
 			TArray<FHitResult> HitResults;
 			TArray<AActor*> TargetActors;
