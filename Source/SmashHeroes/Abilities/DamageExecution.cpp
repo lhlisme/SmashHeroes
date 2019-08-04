@@ -14,11 +14,13 @@ static const BaseDamageStatics& DamageStatics()
 
 UDamageExecution::UDamageExecution()
 {
+	RelevantAttributesToCapture.Add(DamageStatics().EnergyDef);
 	RelevantAttributesToCapture.Add(DamageStatics().AbsorptionDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DefenseMultiplierDef);
 	RelevantAttributesToCapture.Add(DamageStatics().BaseDefensePowerDef);
 	RelevantAttributesToCapture.Add(DamageStatics().AttackMultiplierDef);
 	RelevantAttributesToCapture.Add(DamageStatics().BaseAttackPowerDef);
+	RelevantAttributesToCapture.Add(DamageStatics().DefenseRangeDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DamageDef);
 }
 
@@ -89,5 +91,9 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	if (DamageDone > 0.0f)
 	{
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().DamageProperty, EGameplayModOp::Additive, DamageDone));
+	}
+	if (EnergyCost > 0.0f)
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().EnergyProperty, EGameplayModOp::Additive, -EnergyCost));
 	}
 }
