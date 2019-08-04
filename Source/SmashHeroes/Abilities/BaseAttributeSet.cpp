@@ -20,6 +20,7 @@ UBaseAttributeSet::UBaseAttributeSet()
 	, DefenseMultiplier(0.0f)
 	, BaseAttackPower(1.0f)
 	, BaseDefensePower(1.0f)
+	, DefenseRange(90.0f)
 	, Damage(0.0f)
 {
 }
@@ -38,6 +39,7 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(UBaseAttributeSet, DefenseMultiplier);
 	DOREPLIFETIME(UBaseAttributeSet, BaseAttackPower);
 	DOREPLIFETIME(UBaseAttributeSet, BaseDefensePower);
+	DOREPLIFETIME(UBaseAttributeSet, DefenseRange);
 }
 
 void UBaseAttributeSet::OnRep_Health()
@@ -88,6 +90,11 @@ void UBaseAttributeSet::OnRep_BaseAttackPower()
 void UBaseAttributeSet::OnRep_BaseDefensePower()
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, BaseDefensePower);
+}
+
+void UBaseAttributeSet::OnRep_DefenseRange()
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, DefenseRange);
 }
 
 void UBaseAttributeSet::AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty)

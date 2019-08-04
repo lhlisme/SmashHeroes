@@ -217,43 +217,31 @@ UAnimMontage* ABaseCharacter::GetRangeAttackMontageByIndex()
 
 void ABaseCharacter::HandleHit(float DamageAmount, AActor* DamageCauser, FLinearColor InLinearColor)
 {
-	// 计算受击方向, 根据受击方向确定要播放的Montage(调用前应判断是否存活)
-	ERelativeOrientation RelativeOrientation = CalculateRelativeOrientation(DamageCauser);
-	UAnimMontage** HitMontagePtr = nullptr;
-
-	// 防御状态且是正面受击情况下播放格挡受击动画
-	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard && RelativeOrientation == ERelativeOrientation::Forward)
+	if (HitReactions.Num() > 0)
 	{
-		// 注意, 在防御状态下受击, 当能量不小于0时(此次格挡能量消耗在调用此函数之前已计算完毕), 仍处于防御状态, 否则防御被击破, 进入Hit状态
-		if (GetEnergy() < 0.0f)
+		// 当前对应的受击反馈类型
+		EHitReaction FirstHitReaction = PopHitReaction();
+		// 当前对应的受击动画
+		UAnimMontage** HitMontagePtr = HitMontageMap.Find(FirstHitReaction);
+
+		// 若攻击被格挡, 仍处于防御状态, 否则进入受击状态
+		if (FirstHitReaction != EHitReaction::BlockHit)
 		{
-			// 在防御状态下受击, 能量因格挡耗尽时, 进入Hit状态
-			HitMontagePtr = &GuardBreakMontage;
+			// 进入受击状态
 			BehaviorComponent->BeginHit();
 		}
-		else
+
+		if (HitMontagePtr)
 		{
-			// 在防御状态下受击, 当能量不小于0时, 仍处于防御状态
-			HitMontagePtr = &GuardHitMontage;
+			PlayAnimMontage(*HitMontagePtr);
 		}
-	}
-	else
-	{
-		HitMontagePtr = HitMontageMap.Find(RelativeOrientation);
-		// 未在防御状态或未正向防御下受击, 进入Hit状态
-		BehaviorComponent->BeginHit();
-	}
 
-	if (HitMontagePtr)
-	{
-		PlayAnimMontage(*HitMontagePtr);
+		// 更新仇恨值
+		UpdateHateValue(DamageAmount, DamageCauser);
+
+		// 播放受击特效
+		PlayHitEffect(InLinearColor);
 	}
-
-	// 更新仇恨值
-	UpdateHateValue(DamageAmount, DamageCauser);
-
-	// 播放受击特效
-	PlayHitEffect(InLinearColor);
 }
 
 void ABaseCharacter::UpdateHateValue(float DamageAmount, AActor* DamageCauser)
@@ -282,6 +270,144 @@ bool ABaseCharacter::IsTargetHostile(AActor* TargetActor)
 	}
 
 	return false;
+}
+
+void ABaseCharacter::PushHitReaction(EHitReaction NewHitReaction)
+{
+	HitReactions.Push(NewHitReaction);
+}
+
+EHitReaction ABaseCharacter::PopHitReaction()
+{
+	// 弹出队首的HitReaction并返回
+	EHitReaction FirstHitReaction = EHitReaction::HitFront;
+
+	if (HitReactions.Num() > 0)
+	{
+		FirstHitReaction = HitReactions[0];
+		HitReactions.RemoveAt(0);
+	}
+
+	return FirstHitReaction;
+}
+
+ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(FVector TargetLocation)
+{
+	// 默认在前方
+	ERelativeOrientation RelativeOrientation = ERelativeOrientation::Forward;
+
+	FRotator DeltaRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation) - GetActorRotation();
+
+	UE_LOG(LogTemp, Log, TEXT("DeltaRotator: %f"), DeltaRotator.Yaw);
+	if (DeltaRotator.Yaw <= 45.0f)
+	{
+		if (DeltaRotator.Yaw > -45.0f)
+		{
+			RelativeOrientation = ERelativeOrientation::Forward;
+		}
+		else if (DeltaRotator.Yaw > -135.0f)
+		{
+			RelativeOrientation = ERelativeOrientation::Left;
+		}
+		else
+		{
+			RelativeOrientation = ERelativeOrientation::Backward;
+		}
+	}
+	else
+	{
+		if (DeltaRotator.Yaw <= 135.0f)
+		{
+			RelativeOrientation = ERelativeOrientation::Right;
+		}
+		else
+		{
+			RelativeOrientation = ERelativeOrientation::Backward;
+		}
+	}
+
+	return RelativeOrientation;
+}
+
+bool ABaseCharacter::CanBlockHit(float RawDamage, float& EnergyCost)
+{
+	// 根据伤害计算消耗的Energy
+	EnergyCost = RawDamage / GetMaxHealth() * 0.5f * GetMaxEnergy();
+
+	if (EnergyCost > GetEnergy())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool ABaseCharacter::IsHitInDefenseRange(FVector HitLocation, EHitReaction& HitReaction)
+{
+	bool bHitInDefenseRange = false;
+	// 受击点相对当前人物的旋转
+	FRotator DeltaRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitLocation) - GetActorRotation();
+
+	// 如果受击点处于防御范围内
+	if (DeltaRotator.Yaw > -0.5f * GetDefenseRange() && DeltaRotator.Yaw <= 0.5f * GetDefenseRange())
+	{
+		bHitInDefenseRange = true;
+		HitReaction = EHitReaction::BlockHit;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("DeltaRotator: %f"), DeltaRotator.Yaw);
+	// 如果受击点不在防御范围内, 则未成功格挡攻击
+	if (!bHitInDefenseRange)
+	{
+		if (DeltaRotator.Yaw <= 45.0f)
+		{
+			if (DeltaRotator.Yaw > -45.0f)
+			{
+				HitReaction = EHitReaction::HitFront;
+			}
+			else if (DeltaRotator.Yaw > -135.0f)
+			{
+				HitReaction = EHitReaction::HitLeft;
+			}
+			else
+			{
+				HitReaction = EHitReaction::HitBack;
+			}
+		}
+		else
+		{
+			if (DeltaRotator.Yaw <= 135.0f)
+			{
+				HitReaction = EHitReaction::HitRight;
+			}
+			else
+			{
+				HitReaction = EHitReaction::HitBack;
+			}
+		}
+	}
+
+	return bHitInDefenseRange;
+}
+
+void ABaseCharacter::CheckHitResult(FVector HitLocation, float RawDamage, bool& bIsBlocked, float& EnergyCost, EHitReaction& HitReaction)
+{
+	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard)
+	{
+		// 剩余能量足够格挡本次攻击
+		if (CanBlockHit(RawDamage, EnergyCost))
+		{
+			bIsBlocked = IsHitInDefenseRange(HitLocation, HitReaction);
+		}
+		else
+		{
+			// 防御击破
+			bIsBlocked = false;
+			HitReaction = EHitReaction::GuardBreak;
+		}
+	}
+
+	PushHitReaction(HitReaction);
 }
 
 bool ABaseCharacter::Evade()
@@ -393,6 +519,11 @@ float ABaseCharacter::GetEnergyPercentage() const
 float ABaseCharacter::GetMoveSpeed() const
 {
 	return CharacterAttributeSet->GetMoveSpeed();
+}
+
+float ABaseCharacter::GetDefenseRange() const
+{
+	return CharacterAttributeSet->GetDefenseRange();
 }
 
 int32 ABaseCharacter::GetCharacterLevel() const
@@ -585,39 +716,6 @@ void ABaseCharacter::HandleMoveSpeedChanged(float DeltaValue, const struct FGame
 	{
 		OnMoveSpeedChanged(DeltaValue, EventTags);
 	}
-}
-
-ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(AActor* TargetActor)
-{
-	// 默认在前方
-	ERelativeOrientation RelativeOrientation = ERelativeOrientation::Forward;
-	
-	if (TargetActor) {
-		FRotator DeltaRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetActor->GetActorLocation()) - GetActorRotation();
-		
-		UE_LOG(LogTemp, Log, TEXT("DeltaRotator: %f"), DeltaRotator.Yaw);
-		if (DeltaRotator.Yaw <= 45.0f) {
-			if (DeltaRotator.Yaw > -45.0f) {
-				RelativeOrientation = ERelativeOrientation::Forward;
-			}
-			else if (DeltaRotator.Yaw > -135.0f) {
-				RelativeOrientation = ERelativeOrientation::Left;
-			}
-			else {
-				RelativeOrientation = ERelativeOrientation::Backward;
-			}
-		}
-		else {
-			if (DeltaRotator.Yaw <= 135.0f) {
-				RelativeOrientation = ERelativeOrientation::Right;
-			}
-			else {
-				RelativeOrientation = ERelativeOrientation::Backward;
-			}
-		}
-	}
-
-	return RelativeOrientation;
 }
 
 UBehaviorComponent* ABaseCharacter::GetBehaviorComponent()

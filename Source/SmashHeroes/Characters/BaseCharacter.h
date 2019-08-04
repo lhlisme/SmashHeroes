@@ -42,6 +42,20 @@ enum class ERelativeOrientation : uint8
 	Right				UMETA(DisplayName = "Right")
 };
 
+/** 受击反馈 */
+UENUM()
+enum class EHitReaction : uint8
+{
+	BlockHit			UMETA(DisplayName = "BlockHit"),		// 格挡攻击
+	HitFront			UMETA(DisplayName = "HitFront"),		// 击中前方
+	HitBack				UMETA(DisplayName = "HitBack"),			// 击中后方
+	HitLeft				UMETA(DisplayName = "HitLeft"),			// 击中左方
+	HitRight			UMETA(DisplayName = "HitRight"),		// 击中右方
+	GuardBreak			UMETA(DisplayName = "GuardBreak"),		// 防御击破
+	KnockBack			UMETA(DisplayName = "KnockBack"),		// 击退
+	KnockUp				UMETA(DisplayName = "KnockUp"),			// 击飞
+};
+
 UCLASS()
 class SMASHHEROES_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface
 {
@@ -60,6 +74,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck", meta = (AllowPrivateAccess = "true"))
 	TMap<AActor*, int32> RightDamagedActors; // 当前攻击右手武器所命中的对象。Key: 被击中的对象; Value: 对象被击中的次数
+
+	/** 每次受到攻击时角色的受击反馈队列 */
+	TArray<EHitReaction> HitReactions;
 
 	/** If true we have initialized our abilities */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
@@ -83,15 +100,7 @@ public:
 	// 受击相关属性
 	/** 普通状态下的受击动画 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit")
-	TMap<ERelativeOrientation, UAnimMontage*> HitMontageMap;
-
-	/** 防御状态下的受击动画 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit")
-	UAnimMontage* GuardHitMontage;
-
-	/** 防御状态下的破防动画 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit")
-	UAnimMontage* GuardBreakMontage;
+	TMap<EHitReaction, UAnimMontage*> HitMontageMap;
 
 	// 闪避相关属性
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Evade")
@@ -138,8 +147,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	// 计算目标相对朝向
-	virtual ERelativeOrientation CalculateRelativeOrientation(AActor* TargetActor);
 
 public:	
 	// Sets default values for this character's properties
@@ -196,6 +203,28 @@ public:
 	UFUNCTION(BlueprintPure)
 	virtual bool IsTargetHostile(AActor* TargetActor);
 
+	// 受击相关
+	/** 添加新的受击反馈(从尾部添加) */
+	UFUNCTION(BlueprintCallable)
+	void PushHitReaction(EHitReaction NewHitReaction);
+	
+	/** 移除新的受击反馈(从头部删除) */
+	UFUNCTION(BlueprintCallable)
+	EHitReaction PopHitReaction();
+
+	/** 计算目标位置相对朝向 */
+	ERelativeOrientation CalculateRelativeOrientation(FVector TargetLocation);
+
+	/** 检测剩余的能量值是否可以抵挡当前攻击 */
+	bool CanBlockHit(float RawDamage, float& EnergyCost);
+
+	/** 检测受击点是否处于防御范围内, 并判断受击点的相对方位 */
+	bool IsHitInDefenseRange(FVector HitLocation, EHitReaction& HitReaction);
+
+	/** 计算攻击是否被格挡掉和对应的受击反馈 */
+	UFUNCTION(BlueprintCallable)
+	void CheckHitResult(FVector HitLocation, float RawDamage, bool& bIsBlocked, float& EnergyCost, EHitReaction& HitReaction);
+
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
 	virtual bool Evade();
@@ -218,32 +247,36 @@ public:
 	bool MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
 	
 	/** Returns current health, will be 0 if dead */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	virtual float GetHealth() const;
 
 	/** Returns maximum health, health will never be greater than this */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	virtual float GetMaxHealth() const;
 
 	/** 获取血量百分比 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	virtual float GetHealthPercentage() const;
 
 	/** Returns current mana */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	virtual float GetEnergy() const;
 
 	/** Returns maximum mana, mana will never be greater than this */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	virtual float GetMaxEnergy() const;
 
 	/** 获取能量百分比 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	virtual float GetEnergyPercentage() const;
 
-	/** Returns current movement speed */
-	UFUNCTION(BlueprintCallable)
+	/** 获取当前移动速度 */
+	UFUNCTION(BlueprintPure)
 	virtual float GetMoveSpeed() const;
+
+	/** 获取当前防御范围(角度) */
+	UFUNCTION(BlueprintPure)
+	virtual float GetDefenseRange() const;
 
 	/** 获取玩家等级信息 */
 	UFUNCTION(BlueprintCallable)

@@ -15,6 +15,7 @@ struct BaseDamageStatics
 	DECLARE_ATTRIBUTE_CAPTUREDEF(BaseDefensePower);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(AttackMultiplier);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(BaseAttackPower);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(DefenseRange);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Damage);
 
 	BaseDamageStatics()
@@ -23,6 +24,7 @@ struct BaseDamageStatics
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UBaseAttributeSet, Absorption, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UBaseAttributeSet, DefenseMultiplier, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UBaseAttributeSet, BaseDefensePower, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UBaseAttributeSet, DefenseRange, Target, false);
 
 		// Capture the Source's BaseAttackPower. We do want to snapshot this at the moment we create the GameplayEffectSpec that will execute the damage.
 		// (imagine we fire a projectile: we create the GE Spec when the projectile is fired. When it hits the target, we want to use the AttackPower at the moment

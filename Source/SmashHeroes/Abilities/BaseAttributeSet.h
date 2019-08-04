@@ -72,6 +72,11 @@ public:
 	FGameplayAttributeData BaseDefensePower;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, BaseDefensePower)
 
+	/** 防御范围(水平角度) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_DefenseRange)
+	FGameplayAttributeData DefenseRange;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, DefenseRange)
+
 	/** Damage is a 'temporary' attribute used by the DamageExecution to calculate final damage, which then turns into -Health */
 	UPROPERTY(BlueprintReadOnly, Category = "Base Attributes", meta = (HideFromLevelInfos))
 	FGameplayAttributeData Damage;
@@ -120,4 +125,7 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_BaseDefensePower();
+
+	UFUNCTION()
+	virtual void OnRep_DefenseRange();
 };
