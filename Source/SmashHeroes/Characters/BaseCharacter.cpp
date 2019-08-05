@@ -329,19 +329,6 @@ ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(FVector Target
 	return RelativeOrientation;
 }
 
-bool ABaseCharacter::CanBlockHit(float RawDamage, float& EnergyCost)
-{
-	// 根据伤害计算消耗的Energy
-	EnergyCost = RawDamage / GetMaxHealth() * 0.5f * GetMaxEnergy();
-
-	if (EnergyCost > GetEnergy())
-	{
-		return true;
-	}
-
-	return false;
-}
-
 bool ABaseCharacter::IsHitInDefenseRange(FVector HitLocation, EHitReaction& HitReaction)
 {
 	bool bHitInDefenseRange = false;
@@ -390,20 +377,38 @@ bool ABaseCharacter::IsHitInDefenseRange(FVector HitLocation, EHitReaction& HitR
 	return bHitInDefenseRange;
 }
 
-void ABaseCharacter::CheckHitResult(FVector HitLocation, float RawDamage, bool& bIsBlocked, float& EnergyCost, EHitReaction& HitReaction)
+void ABaseCharacter::CheckHitResult(FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost)
 {
+	EHitReaction HitReaction = EHitReaction::HitFront;
+	bool bIsBlocked = false;	// 本次攻击是否被成功格挡
+
 	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard)
 	{
-		// 剩余能量足够格挡本次攻击
-		if (CanBlockHit(RawDamage, EnergyCost))
+		float ScaleFactor = 0.5f;
+		float RestEnergy = GetEnergy();		// 剩余能量值
+		float MaxHealth = GetMaxHealth();
+		float MaxEnergy = GetMaxEnergy();
+
+		// 受击点在防御范围内
+		if (IsHitInDefenseRange(HitLocation, HitReaction))
 		{
-			bIsBlocked = IsHitInDefenseRange(HitLocation, HitReaction);
-		}
-		else
-		{
-			// 防御击破
-			bIsBlocked = false;
-			HitReaction = EHitReaction::GuardBreak;
+			// 根据伤害计算消耗的Energy
+			EnergyCost = DamageDone * ScaleFactor * MaxEnergy / MaxHealth;
+
+			// 用于格挡伤害的剩余能量值不足
+			if (EnergyCost > RestEnergy)
+			{
+				// 剩余能量值可影响的伤害
+				float DamageBlocked = RestEnergy * MaxHealth / (ScaleFactor *  MaxEnergy);
+				DamageDone = (DamageDone - DamageBlocked) + DamageBlocked * (1.0f - DefenseFactor);
+				// 防御击破
+				HitReaction = EHitReaction::GuardBreak;
+			}
+			else
+			{
+				// 防御成功格挡大部分伤害
+				DamageDone *= (1.0f - DefenseFactor);
+			}
 		}
 	}
 

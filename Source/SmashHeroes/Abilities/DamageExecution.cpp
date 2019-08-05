@@ -72,20 +72,12 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageDef, EvaluationParameters, Damage);
 
 	float DamageDone = Damage * AttackMultiplier * BaseAttackPower * (1.0f - Absorption) / BaseDefensePower;
-	bool bIsBlocked = false;	// 攻击是否被格挡掉
 	float EnergyCost = 0.0f;	// 格挡伤害消耗的能量
-	EHitReaction HitReaction = EHitReaction::HitFront;
 
 	if (TargetCharacter && HitInfo)
 	{
-		// 检测攻击是否被格挡, 以及对应受击反应
-		TargetCharacter->CheckHitResult(HitInfo->Location, DamageDone, bIsBlocked, EnergyCost, HitReaction);
-	}
-
-	if (bIsBlocked)
-	{
-		// 防御成功, 最终受到的伤害受到防御系数影响
-		DamageDone *= (1.0f - DefenseMultiplier);
+		// 检测攻击是否受防御格挡, 若被格挡, 计算格挡后的最终伤害以及对应的受击反应
+		TargetCharacter->CheckHitResult(HitInfo->Location, DefenseMultiplier, DamageDone, EnergyCost);
 	}
 
 	if (DamageDone > 0.0f)

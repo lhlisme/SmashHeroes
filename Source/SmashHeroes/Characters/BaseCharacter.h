@@ -215,15 +215,12 @@ public:
 	/** 计算目标位置相对朝向 */
 	ERelativeOrientation CalculateRelativeOrientation(FVector TargetLocation);
 
-	/** 检测剩余的能量值是否可以抵挡当前攻击 */
-	bool CanBlockHit(float RawDamage, float& EnergyCost);
-
 	/** 检测受击点是否处于防御范围内, 并判断受击点的相对方位 */
 	bool IsHitInDefenseRange(FVector HitLocation, EHitReaction& HitReaction);
 
-	/** 计算攻击是否被格挡掉和对应的受击反馈 */
+	/** 计算攻击是否被格挡掉、格挡后的最终伤害和对应的受击反馈 */
 	UFUNCTION(BlueprintCallable)
-	void CheckHitResult(FVector HitLocation, float RawDamage, bool& bIsBlocked, float& EnergyCost, EHitReaction& HitReaction);
+	void CheckHitResult(FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost);
 
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
