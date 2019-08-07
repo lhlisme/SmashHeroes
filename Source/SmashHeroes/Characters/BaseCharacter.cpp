@@ -554,14 +554,26 @@ bool ABaseCharacter::IsAlive()
 	return GetHealth() > 0.0f;
 }
 
-void ABaseCharacter::PlayHitEffect(FLinearColor InLinearColor)
+void ABaseCharacter::PlayHitEffect(FLinearColor HitEffectColor)
 {
 	USkeletalMeshComponent* CharacterMesh = GetMesh();
 
 	if (CharacterMesh)
 	{
-		CharacterMesh->SetVectorParameterValueOnMaterials(FName(TEXT("EffectColor")), FVector(InLinearColor));
-		CharacterMesh->SetScalarParameterValueOnMaterials(FName(TEXT("StartTime")), UGameplayStatics::GetTimeSeconds(GetWorld()));
+		CharacterMesh->SetVectorParameterValueOnMaterials(FName(TEXT("HitEffectColor")), FVector(HitEffectColor));
+		CharacterMesh->SetScalarParameterValueOnMaterials(FName(TEXT("HitEffectStartTime")), UGameplayStatics::GetTimeSeconds(GetWorld()));
+	}
+}
+
+void ABaseCharacter::PlayDeathEffect(float DissolveLength, FLinearColor DissolveColor)
+{
+	USkeletalMeshComponent* CharacterMesh = GetMesh();
+
+	if (CharacterMesh)
+	{
+		CharacterMesh->SetVectorParameterValueOnMaterials(FName(TEXT("DissolveLength")), FVector(DissolveLength));
+		CharacterMesh->SetVectorParameterValueOnMaterials(FName(TEXT("DissolveColor")), FVector(DissolveColor));
+		CharacterMesh->SetScalarParameterValueOnMaterials(FName(TEXT("DissolveStartTime")), UGameplayStatics::GetTimeSeconds(GetWorld()));
 	}
 }
 
