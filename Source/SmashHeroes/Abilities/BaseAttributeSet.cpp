@@ -20,7 +20,7 @@ UBaseAttributeSet::UBaseAttributeSet()
 	, DefenseMultiplier(0.0f)
 	, BaseAttackPower(1.0f)
 	, BaseDefensePower(1.0f)
-	, DefenseRange(90.0f)
+	, DefenseRange(220.0f)
 	, Damage(0.0f)
 {
 }
