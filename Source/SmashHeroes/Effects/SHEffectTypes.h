@@ -26,18 +26,17 @@ struct FSHParticleInfo
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "绑定Socket名称", EditCondition = "bParticleAttached"), Category = "Particle")
 	FName ParticleSocketName;
 
-	/** bParticleAttached为true时是相对位移, 否则为世界空间位置 */
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "特效位置"), Category = "Particle")
-	FVector ParticleLocation;
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "特效相对位置", EditCondition = "bParticleAttached"), Category = "Particle")
+	FVector RelativeLocation;
 
-	/** bParticleAttached为true时是相对旋转, 否则为世界空间旋转 */
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "特效旋转"), Category = "Particle")
-	FRotator ParticleRotation;
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "特效相对旋转", EditCondition = "bParticleAttached"), Category = "Particle")
+	FRotator RelativeRotation;
 
-	/** bParticleAttached为true时是相对缩放, 否则为世界空间缩放 */
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "特效缩放"), Category = "Particle")
-	FVector ParticleScale;
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "特效相对缩放", EditCondition = "bParticleAttached"), Category = "Particle")
+	FVector RelativeScale;
 
+	/** 生成粒子特效(TargetLocation等为世界空间) */
+	UParticleSystemComponent* SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator, FVector TargetScale = FVector::OneVector) const;
 };
 
 /** 音效定义 */
@@ -61,4 +60,12 @@ struct FSHSoundInfo
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "绑定Socket名称", EditCondition = "bSoundAttached"), Category = "Sound")
 	FName SoundSocketName;
 
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "声源相对位置", EditCondition = "bSoundAttached"), Category = "Sound")
+	FVector RelativeLocation;
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "声源相对旋转", EditCondition = "bSoundAttached"), Category = "Sound")
+	FRotator RelativeRotation;
+
+	/** 生成音效 */
+	UAudioComponent* SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator) const;
 };
