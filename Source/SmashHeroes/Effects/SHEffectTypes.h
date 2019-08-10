@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -8,64 +8,64 @@
 #include "SHEffectTypes.generated.h"
 
 /**
- * ÌØĞ§Ïà¹ØµÄ½á¹¹¶¨Òå
+ * ç‰¹æ•ˆç›¸å…³çš„ç»“æ„å®šä¹‰
  */
 
-/** Á£×ÓÌØĞ§¶¨Òå */
+/** ç²’å­ç‰¹æ•ˆå®šä¹‰ */
 USTRUCT(BlueprintType)
 struct FSHParticleInfo
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "Á£×ÓÌØĞ§"), Category = "Particle")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "ç²’å­ç‰¹æ•ˆ"), Category = "Particle")
 	UParticleSystem* Particle;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÌØĞ§ÊÇ·ñ¸úËæ"), Category = "Particle")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "ç‰¹æ•ˆæ˜¯å¦è·Ÿéš"), Category = "Particle")
 	bool bParticleAttached;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "°ó¶¨SocketÃû³Æ", EditCondition = "bParticleAttached"), Category = "Particle")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "ç»‘å®šSocketåç§°", EditCondition = "bParticleAttached"), Category = "Particle")
 	FName ParticleSocketName;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÌØĞ§Ïà¶ÔÎ»ÖÃ", EditCondition = "bParticleAttached"), Category = "Particle")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "ç‰¹æ•ˆç›¸å¯¹ä½ç½®", EditCondition = "bParticleAttached"), Category = "Particle")
 	FVector RelativeLocation;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÌØĞ§Ïà¶ÔĞı×ª", EditCondition = "bParticleAttached"), Category = "Particle")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "ç‰¹æ•ˆç›¸å¯¹æ—‹è½¬", EditCondition = "bParticleAttached"), Category = "Particle")
 	FRotator RelativeRotation;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÌØĞ§Ïà¶ÔËõ·Å", EditCondition = "bParticleAttached"), Category = "Particle")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "ç‰¹æ•ˆç›¸å¯¹ç¼©æ”¾", EditCondition = "bParticleAttached"), Category = "Particle")
 	FVector RelativeScale;
 
-	/** Éú³ÉÁ£×ÓÌØĞ§(TargetLocationµÈÎªÊÀ½ç¿Õ¼ä) */
+	/** ç”Ÿæˆç²’å­ç‰¹æ•ˆ(TargetLocationç­‰ä¸ºä¸–ç•Œç©ºé—´) */
 	UParticleSystemComponent* SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator, FVector TargetScale = FVector::OneVector) const;
 };
 
-/** ÒôĞ§¶¨Òå */
+/** éŸ³æ•ˆå®šä¹‰ */
 USTRUCT(BlueprintType)
 struct FSHSoundInfo
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÉùÒô"), Category = "Sound")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "å£°éŸ³"), Category = "Sound")
 	USoundBase* Sound;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÉùÒô´óĞ¡ÏµÊı"), Category = "Sound")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "å£°éŸ³å¤§å°ç³»æ•°"), Category = "Sound")
 	float VolumeMultiplier;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÉùÒô·¶Î§ÏµÊı"), Category = "Sound")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "å£°éŸ³èŒƒå›´ç³»æ•°"), Category = "Sound")
 	float PitchMultiplier;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÉùÒôÊÇ·ñ¸úËæ"), Category = "Sound")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "å£°éŸ³æ˜¯å¦è·Ÿéš"), Category = "Sound")
 	bool bSoundAttached;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "°ó¶¨SocketÃû³Æ", EditCondition = "bSoundAttached"), Category = "Sound")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "ç»‘å®šSocketåç§°", EditCondition = "bSoundAttached"), Category = "Sound")
 	FName SoundSocketName;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÉùÔ´Ïà¶ÔÎ»ÖÃ", EditCondition = "bSoundAttached"), Category = "Sound")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "å£°æºç›¸å¯¹ä½ç½®", EditCondition = "bSoundAttached"), Category = "Sound")
 	FVector RelativeLocation;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "ÉùÔ´Ïà¶ÔĞı×ª", EditCondition = "bSoundAttached"), Category = "Sound")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "å£°æºç›¸å¯¹æ—‹è½¬", EditCondition = "bSoundAttached"), Category = "Sound")
 	FRotator RelativeRotation;
 
-	/** Éú³ÉÒôĞ§ */
+	/** ç”ŸæˆéŸ³æ•ˆ */
 	UAudioComponent* SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator) const;
 };

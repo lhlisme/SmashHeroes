@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -10,12 +10,12 @@
 UENUM(BlueprintType)
 enum class EFootType : uint8
 {
-	LeftFoot			UMETA(DisplayName = "MeleeAttack"),
-	RightFoot			UMETA(DisplayName = "RangeAttack")
+	LeftFoot			UMETA(DisplayName = "LeftFoot"),
+	RightFoot			UMETA(DisplayName = "RightFoot")
 };
 
 /**
- * ½Å²½ÒôĞ§¡¢ÌØĞ§Í¨Öª
+ * è„šæ­¥éŸ³æ•ˆã€ç‰¹æ•ˆé€šçŸ¥
  */
 UCLASS(meta = (DisplayName = "FootEffect"))
 class SMASHHEROES_API USHAnimNotify_FootEffect : public UAnimNotify
@@ -28,15 +28,15 @@ public:
 	virtual void Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation) override;
 
 public:
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "FootÀàĞÍ"))
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "Footç±»å‹"))
 	EFootType FootType;
 
-	UPROPERTY(EditDefaultsOnly, meta = (DisplayName = "Foot¹Ç÷À"))
+	UPROPERTY(EditDefaultsOnly, meta = (DisplayName = "Footéª¨éª¼"))
 	TMap<EFootType, FName> SocketNames;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "FootÁ£×ÓÌØĞ§"))
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "Footç²’å­ç‰¹æ•ˆ"))
 	TMap<TEnumAsByte<EPhysicalSurface>, FSHParticleInfo> Particles;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "FootÒôĞ§"))
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "FootéŸ³æ•ˆ"))
 	TMap<TEnumAsByte<EPhysicalSurface>, FSHSoundInfo> Sounds;
 };

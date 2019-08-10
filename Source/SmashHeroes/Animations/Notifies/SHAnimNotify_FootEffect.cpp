@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SHAnimNotify_FootEffect.h"
@@ -11,7 +11,7 @@ USHAnimNotify_FootEffect::USHAnimNotify_FootEffect()
 
 void USHAnimNotify_FootEffect::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	// ´Ó½Åµ×·¢³öÉäÏß×·×Ù, ÅÐ¶ÏµØÃæÎïÀí²ÄÖÊ
+	// ä»Žè„šåº•å‘å‡ºå°„çº¿è¿½è¸ª, åˆ¤æ–­åœ°é¢ç‰©ç†æè´¨
 	FVector TraceStart;
 	if (FName* SocketName = SocketNames.Find(FootType))
 	{
@@ -30,7 +30,7 @@ void USHAnimNotify_FootEffect::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	{
 		if (const FSHParticleInfo* ParticleInfo = Particles.Find(HitResult.PhysMaterial->SurfaceType))
 		{
-			// TODO Á£×ÓÌØÐ§¿ÉÄÜÓ¦¸ÃÓëÈËÎïForwardÏà·´
+			// TODO ç²’å­ç‰¹æ•ˆå¯èƒ½åº”è¯¥ä¸Žäººç‰©Forwardç›¸å
 			ParticleInfo->SpawnSelf(MeshComp, HitResult.Location, MeshComp->GetComponentRotation());
 		}
 
