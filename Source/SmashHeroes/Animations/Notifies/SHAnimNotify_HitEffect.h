@@ -4,6 +4,7 @@
 
 #include "SmashHeroes.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "Effects/SHEffectTypes.h"
 #include "SHAnimNotify_HitEffect.generated.h"
 
 /**
@@ -19,6 +20,7 @@ public:
 
 	virtual void Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation) override;
 
-//public:
-
+public:
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "Hit粒子特效"))
+	TMap<TEnumAsByte<EPhysicalSurface>, FSHParticleInfo> Particles;
 };
