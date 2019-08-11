@@ -34,9 +34,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta = (DisplayName = "Foot骨骼"))
 	TMap<EFootType, FName> SocketNames;
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "Foot粒子特效"))
-	TMap<TEnumAsByte<EPhysicalSurface>, FSHParticleInfo> Particles;
-
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "Foot音效"))
-	TMap<TEnumAsByte<EPhysicalSurface>, FSHSoundInfo> Sounds;
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "Foot特效"))
+	TMap<TEnumAsByte<EPhysicalSurface>, FSHEffectInfo> FootEffects;
 };

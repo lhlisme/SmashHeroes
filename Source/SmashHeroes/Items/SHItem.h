@@ -5,7 +5,7 @@
 #include "SmashHeroes.h"
 #include "Engine/DataAsset.h"
 #include "Styling/SlateBrush.h"
-#include "SHAssetManager.h"
+#include "Managers/SHAssetManager.h"
 #include "SHItem.generated.h"
 
 class USHGameplayAbility;

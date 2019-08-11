@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Base/SHBaseTypes.h"
 #include "Sound/SoundBase.h"
 #include "Particles/ParticleSystem.h"
 #include "SHEffectTypes.generated.h"
@@ -68,4 +69,25 @@ struct FSHSoundInfo
 
 	/** 生成音效 */
 	UAudioComponent* SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator) const;
+};
+
+USTRUCT(BlueprintType)
+struct FSHEffectInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "声音"), Category = "Effect")
+	FSHSoundInfo SoundInfo;
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "粒子特效"), Category = "Effect")
+	FSHParticleInfo ParticleInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FSHHitEffectInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "命中特效"), Category = "HitEffect")
+	TMap<EAttackStrength, FSHEffectInfo> HitEffectMap;
 };

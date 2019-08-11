@@ -6,7 +6,7 @@
 #include "AIController.h"
 #include "Components/ActorComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "PatrolRoute.h"
+#include "AI/PatrolRoute.h"
 #include "BehaviorComponent.generated.h"
 
 

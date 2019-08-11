@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Effects/SHEffectTypes.h"
 #include "Weapon.generated.h"
 
 
@@ -41,6 +42,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck")
 	TArray<FVector> SocketLocations;	// 武器上所有Socket的位置(在每帧结束时更新)
+
+	/** 武器击中材质特效 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitEffect")
+	TMap<TEnumAsByte<EPhysicalSurface>, FSHHitEffectInfo> HitEffects;
 
 public:
 	virtual void InitialWeapon();

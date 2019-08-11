@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SHGameInstanceBase.h"
-#include "SHAssetManager.h"
+#include "Managers/SHAssetManager.h"
 #include "SHSaveGame.h"
 #include "Items/SHItem.h"
 #include "Kismet/GameplayStatics.h"

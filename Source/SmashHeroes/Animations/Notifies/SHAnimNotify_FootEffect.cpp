@@ -28,15 +28,11 @@ void USHAnimNotify_FootEffect::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	bool bSuccess = UKismetSystemLibrary::LineTraceSingle(MeshComp, TraceStart, TraceEnd, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, TArray<AActor*>(), EDrawDebugTrace::None, HitResult, true);
 	if (bSuccess && HitResult.PhysMaterial.IsValid())
 	{
-		if (const FSHParticleInfo* ParticleInfo = Particles.Find(HitResult.PhysMaterial->SurfaceType))
+		if (const FSHEffectInfo* EffectInfo = FootEffects.Find(HitResult.PhysMaterial->SurfaceType))
 		{
 			// TODO 粒子特效可能应该与人物Forward相反
-			ParticleInfo->SpawnSelf(MeshComp, HitResult.Location, MeshComp->GetComponentRotation());
-		}
-
-		if (const FSHSoundInfo* SoundInfo = Sounds.Find(HitResult.PhysMaterial->SurfaceType))
-		{
-			SoundInfo->SpawnSelf(MeshComp, HitResult.Location, MeshComp->GetComponentRotation());
+			EffectInfo->ParticleInfo.SpawnSelf(MeshComp, HitResult.Location, MeshComp->GetComponentRotation());
+			EffectInfo->SoundInfo.SpawnSelf(MeshComp, HitResult.Location, MeshComp->GetComponentRotation());
 		}
 	}
 }
