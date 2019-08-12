@@ -89,14 +89,17 @@ protected:
 
 public:
 	// 攻击相关属性
+	/** 近战攻击动画索引到Montage间的映射 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	TMap<int32, UAnimMontage*> MeleeAttackMontageMap;		// 记录近战攻击动画索引和Montage的对应关系 
+	TMap<int32, UAnimMontage*> MeleeAttackMontageMap;
 
+	/** 远程攻击动画索引到Montage间的映射 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	TMap<int32, UAnimMontage*> RangeAttackMontageMap;		// 记录远程攻击动画索引和Montage的对应关系
+	TMap<int32, UAnimMontage*> RangeAttackMontageMap;
 
+	/** 当前攻击动画索引 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attack")
-	int32 AttackIndex = 0;		// 当前攻击动画索引
+	int32 AttackIndex = 0;
 
 	// 受击相关属性
 	/** 普通状态下的受击动画 */
@@ -115,18 +118,39 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TSubclassOf<AWeapon> WeaponClass;
 
+	/** 左手武器 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	AWeapon* LeftWeapon;		// 左手武器网格
+	AWeapon* LeftWeapon;
 
+	/** 左手武器插槽 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FName LeftWeaponSocket;	// 左手武器插槽
 
+	/** 左手武器相对位置 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	AWeapon* RightWeapon;	// 右手武器网格
+	FVector LeftRelativeLocation;
 
+	/** 左手武器相对旋转 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FName RightWeaponSocket;	// 右手武器插槽
+	FRotator LeftRelativeRotation;
 
+	/** 右手武器 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	AWeapon* RightWeapon;
+
+	/** 右手武器插槽 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FName RightWeaponSocket;
+
+	/** 右手武器相对位置 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FVector RightRelativeLocation;
+
+	/** 右手武器相对旋转 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FRotator RightRelativeRotation;
+
+	/** 所持武器类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	EArmedState ArmedState = EArmedState::Unarmed;
 

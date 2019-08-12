@@ -6,6 +6,7 @@
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/SHGameplayAbility.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -110,8 +111,12 @@ void ABaseCharacter::GenerateWeapon()
 		LeftWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
 		RightWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
 		if (LeftWeapon && RightWeapon) {
-			LeftWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, LeftWeaponSocket);
-			RightWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, RightWeaponSocket);
+			LeftWeapon->SetActorRelativeLocation(LeftRelativeLocation);
+			LeftWeapon->SetActorRelativeRotation(LeftRelativeRotation);
+			RightWeapon->SetActorRelativeLocation(RightRelativeLocation);
+			RightWeapon->SetActorRelativeRotation(RightRelativeRotation);
+			LeftWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, LeftWeaponSocket);
+			RightWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, RightWeaponSocket);
 			LeftWeapon->InitialWeapon();
 			RightWeapon->InitialWeapon();
 		}
@@ -120,7 +125,9 @@ void ABaseCharacter::GenerateWeapon()
 	case EArmedState::LeftHold: {
 		LeftWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
 		if (LeftWeapon) {
-			LeftWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, LeftWeaponSocket);
+			LeftWeapon->SetActorRelativeLocation(LeftRelativeLocation);
+			LeftWeapon->SetActorRelativeRotation(LeftRelativeRotation);
+			LeftWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, LeftWeaponSocket);
 			LeftWeapon->InitialWeapon();
 		}
 		break;
@@ -128,7 +135,9 @@ void ABaseCharacter::GenerateWeapon()
 	case EArmedState::RightHold: {
 		RightWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
 		if (RightWeapon) {
-			RightWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, RightWeaponSocket);
+			RightWeapon->SetActorRelativeLocation(RightRelativeLocation);
+			RightWeapon->SetActorRelativeRotation(RightRelativeRotation);
+			RightWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, RightWeaponSocket);
 			RightWeapon->InitialWeapon();
 		}
 		break;
@@ -456,7 +465,8 @@ bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, cons
 				
 				for (int32 j = 0; j < OutHits.Num(); ++j) 
 				{
-					if (AddLeftDamagedActor(OutHits[j].GetActor())) 
+					// 判断是否为敌对目标, 且是否为本次攻击中第一次命中该目标
+					if (IsTargetHostile(OutHits[j].GetActor()) && AddLeftDamagedActor(OutHits[j].GetActor()))
 					{	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
 						FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
@@ -484,7 +494,8 @@ bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, cons
 
 				for (int32 j = 0; j < OutHits.Num(); ++j) 
 				{
-					if (AddRightDamagedActor(OutHits[j].GetActor())) 
+					// 判断是否为敌对目标, 且是否为本次攻击中第一次命中该目标
+					if (IsTargetHostile(OutHits[j].GetActor()) && AddRightDamagedActor(OutHits[j].GetActor()))
 					{	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
 						FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
