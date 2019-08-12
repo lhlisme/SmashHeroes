@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 
 
-UParticleSystemComponent* FSHParticleInfo::SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation, FRotator TargetRotation, FVector TargetScale) const
+UParticleSystemComponent* FSHParticleInfo::SpawnSelf(UMeshComponent* OwnerMeshComp, FVector TargetLocation, FRotator TargetRotation, FVector TargetScale) const
 {
 	if (!OwnerMeshComp || !Particle)
 	{
@@ -27,7 +27,7 @@ UParticleSystemComponent* FSHParticleInfo::SpawnSelf(USkeletalMeshComponent* Own
 	return PSC;
 }
 
-UAudioComponent* FSHSoundInfo::SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation, FRotator TargetRotation) const
+UAudioComponent* FSHSoundInfo::SpawnSelf(UMeshComponent* OwnerMeshComp, FVector TargetLocation, FRotator TargetRotation) const
 {
 	if (!OwnerMeshComp || !Sound)
 	{

@@ -13,6 +13,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapons/Weapon.h"
 #include "AI/BehaviorComponent.h"
+#include "Base/SHBaseTypes.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -241,7 +242,7 @@ public:
 
 	// 近战攻击检测
 	UFUNCTION(BlueprintCallable)
-	bool MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
+	bool MeleeAttackCheck(const EAttackStrength AttackStrength, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
 	
 	/** Returns current health, will be 0 if dead */
 	UFUNCTION(BlueprintPure)

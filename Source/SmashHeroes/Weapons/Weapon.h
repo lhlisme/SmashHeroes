@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "SmashHeroes.h"
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -45,7 +45,7 @@ public:
 
 	/** 武器击中材质特效 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitEffect")
-	TMap<TEnumAsByte<EPhysicalSurface>, FSHHitEffectInfo> HitEffects;
+	TMap<TEnumAsByte<EPhysicalSurface>, FSHHitEffect> HitEffects;
 
 public:
 	virtual void InitialWeapon();
@@ -64,7 +64,11 @@ public:
 
 	void UpdateSocketLocation(int32 SocketIndex, FVector CurLocation);
 
-	FVector GetCurrentSocketLocation(int32 SocketIndex);	// 获取骨骼的当前位置信息
+	/** 获取骨骼的当前位置信息 */
+	FVector GetCurrentSocketLocation(int32 SocketIndex);
+
+	/** 播放命中特效 */
+	void PlayHitEffect(FHitResult& HitResult, EAttackStrength AttackStrength);
 };
 
 UCLASS()

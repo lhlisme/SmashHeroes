@@ -438,25 +438,32 @@ UAnimMontage* ABaseCharacter::GetGuardMontage()
 	return GuardMontage;
 }
 
-bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
+bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
 {
 	bool Hitted = false;	// 是否命中目标
 	// 近战攻击检测
-	if (AttackType == EAttackType::MeleeAttack) {
-		if (LeftWeapon) {
-			for (int32 i = 0; i < LeftWeapon->SocketLocations.Num(); ++i) {
+	if (AttackType == EAttackType::MeleeAttack) 
+	{
+		if (LeftWeapon) 
+		{
+			for (int32 i = 0; i < LeftWeapon->SocketLocations.Num(); ++i) 
+			{
 				FVector StartLocation = LeftWeapon->SocketLocations[i];
 				FVector EndLocation = LeftWeapon->GetCurrentSocketLocation(i);
 				TArray<FHitResult> OutHits;
 
 				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
 				
-				for (int32 j = 0; j < OutHits.Num(); ++j) {
-					if (AddLeftDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
+				for (int32 j = 0; j < OutHits.Num(); ++j) 
+				{
+					if (AddLeftDamagedActor(OutHits[j].GetActor())) 
+					{	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
 						FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
 						HitTargetsData.Add(NewData);
 						Hitted = true;
+						// 播放武器命中特效
+						LeftWeapon->PlayHitEffect(OutHits[j], AttackStrength);
 					}
 				}
 
@@ -465,20 +472,26 @@ bool ABaseCharacter::MeleeAttackCheck(const TArray<TEnumAsByte<EObjectTypeQuery>
 			}
 		}
 
-		if (RightWeapon) {
-			for (int32 i = 0; i < RightWeapon->SocketLocations.Num(); ++i) {
+		if (RightWeapon) 
+		{
+			for (int32 i = 0; i < RightWeapon->SocketLocations.Num(); ++i) 
+			{
 				FVector StartLocation = RightWeapon->SocketLocations[i];
 				FVector EndLocation = RightWeapon->GetCurrentSocketLocation(i);
 				TArray<FHitResult> OutHits;
 
 				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
 
-				for (int32 j = 0; j < OutHits.Num(); ++j) {
-					if (AddRightDamagedActor(OutHits[j].GetActor())) {	// 添加成功(不存在)时返回true
+				for (int32 j = 0; j < OutHits.Num(); ++j) 
+				{
+					if (AddRightDamagedActor(OutHits[j].GetActor())) 
+					{	// 添加成功(不存在)时返回true
 						FinalOutHits.Add(OutHits[j]);
 						FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
 						HitTargetsData.Add(NewData);
 						Hitted = true;
+						// 播放武器命中特效
+						RightWeapon->PlayHitEffect(OutHits[j], AttackStrength);
 					}
 				}
 

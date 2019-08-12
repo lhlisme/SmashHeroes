@@ -37,7 +37,7 @@ struct FSHParticleInfo
 	FVector RelativeScale;
 
 	/** 生成粒子特效(TargetLocation等为世界空间) */
-	UParticleSystemComponent* SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator, FVector TargetScale = FVector::OneVector) const;
+	UParticleSystemComponent* SpawnSelf(UMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator, FVector TargetScale = FVector::OneVector) const;
 };
 
 /** 音效定义 */
@@ -68,7 +68,7 @@ struct FSHSoundInfo
 	FRotator RelativeRotation;
 
 	/** 生成音效 */
-	UAudioComponent* SpawnSelf(USkeletalMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator) const;
+	UAudioComponent* SpawnSelf(UMeshComponent* OwnerMeshComp, FVector TargetLocation = FVector::ZeroVector, FRotator TargetRotation = FRotator::ZeroRotator) const;
 };
 
 USTRUCT(BlueprintType)
@@ -84,10 +84,10 @@ struct FSHEffectInfo
 };
 
 USTRUCT(BlueprintType)
-struct FSHHitEffectInfo
+struct FSHHitEffect
 {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "命中特效"), Category = "HitEffect")
-	TMap<EAttackStrength, FSHEffectInfo> HitEffectMap;
+	TMap<EAttackStrength, FSHEffectInfo> EffectInfoMap;
 };

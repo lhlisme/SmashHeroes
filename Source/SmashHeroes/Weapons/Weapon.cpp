@@ -2,6 +2,7 @@
 
 
 #include "Weapon.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 // Sets default values
 AWeapon::AWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -51,6 +52,21 @@ FVector AWeapon::GetCurrentSocketLocation(int32 SocketIndex)
 	}
 
 	return CurrentLocation;
+}
+
+void AWeapon::PlayHitEffect(FHitResult& HitResult, EAttackStrength AttackStrength)
+{
+	if (HitResult.PhysMaterial.IsValid())
+	{
+		if (const FSHHitEffect* HitEffect = HitEffects.Find(HitResult.PhysMaterial->SurfaceType))
+		{
+			if (const FSHEffectInfo* EffectInfo = HitEffect->EffectInfoMap.Find(AttackStrength))
+			{
+				EffectInfo->ParticleInfo.SpawnSelf(Mesh, HitResult.Location, Mesh->GetComponentRotation());
+				EffectInfo->SoundInfo.SpawnSelf(Mesh, HitResult.Location, Mesh->GetComponentRotation());
+			}
+		}
+	}
 }
 
 AStaticWeapon::AStaticWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
