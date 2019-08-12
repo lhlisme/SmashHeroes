@@ -98,7 +98,7 @@ public:
 	TMap<int32, UAnimMontage*> RangeAttackMontageMap;
 
 	/** 当前攻击动画索引 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attack")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
 	int32 AttackIndex = 0;
 
 	// 受击相关属性
@@ -119,7 +119,7 @@ public:
 	TSubclassOf<AWeapon> WeaponClass;
 
 	/** 左手武器 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* LeftWeapon;
 
 	/** 左手武器插槽 */
@@ -135,7 +135,7 @@ public:
 	FRotator LeftRelativeRotation;
 
 	/** 右手武器 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* RightWeapon;
 
 	/** 右手武器插槽 */
