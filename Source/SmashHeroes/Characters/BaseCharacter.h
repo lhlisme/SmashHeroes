@@ -22,8 +22,7 @@ enum class EArmedState : uint8
 {
 	DualWield			UMETA(DisplayName = "DualWield"),
 	LeftHold			UMETA(DisplayName = "LeftHold"),
-	RightHold			UMETA(DisplayName = "RightHold"),
-	Unarmed				UMETA(DisplayName = "Unarmed")
+	RightHold			UMETA(DisplayName = "RightHold")
 };
 
 UENUM(BlueprintType)
@@ -152,7 +151,7 @@ public:
 
 	/** 所持武器类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	EArmedState ArmedState = EArmedState::Unarmed;
+	EArmedState ArmedState = EArmedState::DualWield;
 
 	/** 技能相关属性 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
@@ -266,7 +265,7 @@ public:
 
 	// 近战攻击检测
 	UFUNCTION(BlueprintCallable)
-	bool MeleeAttackCheck(const EAttackStrength AttackStrength, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
+	bool MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
 	
 	/** Returns current health, will be 0 if dead */
 	UFUNCTION(BlueprintPure)

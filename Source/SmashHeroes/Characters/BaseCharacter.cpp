@@ -447,13 +447,13 @@ UAnimMontage* ABaseCharacter::GetGuardMontage()
 	return GuardMontage;
 }
 
-bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
+bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
 {
 	bool Hitted = false;	// 是否命中目标
 	// 近战攻击检测
 	if (AttackType == EAttackType::MeleeAttack) 
 	{
-		if (LeftWeapon) 
+		if (LeftWeapon && CheckLeft) 
 		{
 			for (int32 i = 0; i < LeftWeapon->SocketLocations.Num(); ++i) 
 			{
@@ -482,7 +482,7 @@ bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, cons
 			}
 		}
 
-		if (RightWeapon) 
+		if (RightWeapon && CheckRight) 
 		{
 			for (int32 i = 0; i < RightWeapon->SocketLocations.Num(); ++i) 
 			{
