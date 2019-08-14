@@ -106,7 +106,7 @@ void USHAnimNotifyState_WeaponTrail::StartWeaponTrail(USkeletalMeshComponent* Me
 	{
 		// Spawn a new component from PSTemplate, or recycle an old one.
 		UParticleSystemComponent* RecycleComponent = (RecycleCandidates[0] ? RecycleCandidates[0] : (RecycleCandidates[1] ? RecycleCandidates[1] : RecycleCandidates[2]));
-		UParticleSystemComponent* NewParticleComp = (RecycleComponent ? RecycleComponent : NewObject<UParticleSystemComponent>(MeshComp));
+		UParticleSystemComponent* NewParticleComp = (RecycleComponent ? RecycleComponent : NewObject<UParticleSystemComponent>(Weapon->GetWeaponMesh()));
 		NewParticleComp->bAutoDestroy = (RecycleComponent ? false : !bRecycleSpawnedSystems);
 		NewParticleComp->bAllowRecycling = true;
 		NewParticleComp->SecondsBeforeInactive = 0.0f;
