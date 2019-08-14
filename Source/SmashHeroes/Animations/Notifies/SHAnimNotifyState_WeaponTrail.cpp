@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SHAnimNotifyState_WeaponTrail.h"
@@ -114,7 +114,7 @@ void USHAnimNotifyState_WeaponTrail::StartWeaponTrail(USkeletalMeshComponent* Me
 		NewParticleComp->bOverrideLODMethod = false;
 		NewParticleComp->RelativeScale3D = FVector(1.f);
 		NewParticleComp->bAutoManageAttachment = true; // Let it detach when finished (only happens if not auto-destroying)
-		// ¸½¼Óµ½ÎäÆ÷ÉÏ
+		// é™„åŠ åˆ°æ­¦å™¨ä¸Š
 		NewParticleComp->SetAutoAttachParams(Weapon->GetWeaponMesh(), NAME_None);
 
 		// When recycling we can avoid setting the template if set already.
@@ -129,7 +129,7 @@ void USHAnimNotifyState_WeaponTrail::StartWeaponTrail(USkeletalMeshComponent* Me
 			NewParticleComp->RegisterComponentWithWorld(MeshComp->GetWorld());
 		}
 
-		// ¸½¼Óµ½ÎäÆ÷ÉÏ
+		// é™„åŠ åˆ°æ­¦å™¨ä¸Š
 		NewParticleComp->AttachToComponent(Weapon->GetWeaponMesh(), FAttachmentTransformRules::KeepRelativeTransform);
 		NewParticleComp->ActivateSystem(true);
 

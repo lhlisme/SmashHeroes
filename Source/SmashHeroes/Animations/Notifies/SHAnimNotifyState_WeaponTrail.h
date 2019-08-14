@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,7 +15,7 @@ class USkeletalMeshComponent;
 class UAnimSequenceBase;
 
 /**
- * ÎäÆ÷ÍÏÎ²Ğ§¹ûÍ¨Öª×´Ì¬
+ * æ­¦å™¨æ‹–å°¾æ•ˆæœé€šçŸ¥çŠ¶æ€
  */
 UCLASS(editinlinenew, Blueprintable, const, hidecategories = Object, collapsecategories, meta = (DisplayName = "WeaponTrail"))
 class SMASHHEROES_API USHAnimNotifyState_WeaponTrail : public UAnimNotifyState
@@ -23,19 +23,19 @@ class SMASHHEROES_API USHAnimNotifyState_WeaponTrail : public UAnimNotifyState
 	GENERATED_UCLASS_BODY()
 
 public:
-	/** ¿ªÆô×óÊÖÎäÆ÷ÍÏÎ² */
+	/** å¼€å¯å·¦æ‰‹æ­¦å™¨æ‹–å°¾ */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponTrail")
 	bool bEnableLeftTrail;
 
-	/** ¿ªÆôÓÒÊÖÎäÆ÷ÍÏÎ² */
+	/** å¼€å¯å³æ‰‹æ­¦å™¨æ‹–å°¾ */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponTrail")
 	bool bEnableRightTrail;
 
-	/** ×óÊÖÎäÆ÷ÍÏÎ² */
+	/** å·¦æ‰‹æ­¦å™¨æ‹–å°¾ */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponTrail")
 	UParticleSystem* LeftPSTemplate;
 
-	/** ÓÒÊÖÎäÆ÷ÍÏÎ² */
+	/** å³æ‰‹æ­¦å™¨æ‹–å°¾ */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponTrail")
 	UParticleSystem* RightPSTemplate;
 
