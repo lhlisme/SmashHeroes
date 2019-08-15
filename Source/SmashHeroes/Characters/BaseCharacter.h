@@ -313,11 +313,11 @@ public:
 	// 特效相关
 	/** 播放受击特效 */
 	UFUNCTION(BlueprintCallable)
-	void PlayHitEffect(FLinearColor HitEffectColor);
+	void PlayEmissiveEffect(FLinearColor EmissiveEffectColor);
 
 	/** 播放死亡溶解特效 */
 	UFUNCTION(BlueprintCallable)
-	void PlayDeathEffect(float DissolveLength, FLinearColor DissolveColor);
+	void PlayDissolveEffect(float DissolveLength, FLinearColor DissolveColor);
 
 	/**
 	 * 尝试激活指定Tag的所有能力, bAllowRemoteActivation为true时可以远程在服务器上激活能力, 否则只会在本地激活 */

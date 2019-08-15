@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -24,88 +24,88 @@ public:
 
 	virtual void BeginPlay() override;
 
-	/** Íæ¼Òµ±Ç°ÓµÓĞÎïÆ·µÄÓ³Éä */
+	/** ç©å®¶å½“å‰æ‹¥æœ‰ç‰©å“çš„æ˜ å°„ */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory)
 	TMap<USHItem*, FSHItemData> InventoryData;
 
-	/** Slotµ½ItemµÄÓ³Éä, ÔÚSHGameInstanceBaseµÄSlotsPerType·½·¨ÖĞ³õÊ¼»¯ */
+	/** Slotåˆ°Itemçš„æ˜ å°„, åœ¨SHGameInstanceBaseçš„SlotsPerTypeæ–¹æ³•ä¸­åˆå§‹åŒ– */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory)
 	TMap<FSHItemSlot, USHItem*> SlottedItems;
 
-	/** ±³°üÎïÆ··¢Éú¸Ä±äÊ±»Øµ÷ */
+	/** èƒŒåŒ…ç‰©å“å‘ç”Ÿæ”¹å˜æ—¶å›è°ƒ */
 	UPROPERTY(BlueprintAssignable, Category = Inventory)
 	FOnInventoryItemChanged OnInventoryItemChanged;
 
-	/** ÉÏÊöÎ¯ÍĞµÄNative°æ±¾, ÔÚBPÎ¯ÍĞÇ°µ÷ÓÃ */
+	/** ä¸Šè¿°å§”æ‰˜çš„Nativeç‰ˆæœ¬, åœ¨BPå§”æ‰˜å‰è°ƒç”¨ */
 	FOnInventoryItemChangedNative OnInventoryItemChangedNative;
 
-	/** ²å²ÛÎïÆ·¸Ä±äÊ±»Øµ÷ */
+	/** æ’æ§½ç‰©å“æ”¹å˜æ—¶å›è°ƒ */
 	UPROPERTY(BlueprintAssignable, Category = Inventory)
 	FOnSlottedItemChanged OnSlottedItemChanged;
 
-	/** ÉÏÊöÎ¯ÍĞµÄNative°æ±¾, ÔÚBPÎ¯ÍĞÇ°µ÷ÓÃ */
+	/** ä¸Šè¿°å§”æ‰˜çš„Nativeç‰ˆæœ¬, åœ¨BPå§”æ‰˜å‰è°ƒç”¨ */
 	FOnSlottedItemChangedNative OnSlottedItemChangedNative;
 
-	/** ±³°ü¼ÓÔØÍê±Ïºó»Øµ÷ */
+	/** èƒŒåŒ…åŠ è½½å®Œæ¯•åå›è°ƒ */
 	UPROPERTY(BlueprintAssignable, Category = Inventory)
 	FOnInventoryLoaded OnInventoryLoaded;
 
-	/** ÉÏÊöÎ¯ÍĞµÄNative°æ±¾, ÔÚBPÎ¯ÍĞÇ°µ÷ÓÃ */
+	/** ä¸Šè¿°å§”æ‰˜çš„Nativeç‰ˆæœ¬, åœ¨BPå§”æ‰˜å‰è°ƒç”¨ */
 	FOnInventoryLoadedNative OnInventoryLoadedNative;
 
-	/** ±³°üÎïÆ·¸Ä±ä */
+	/** èƒŒåŒ…ç‰©å“æ”¹å˜ */
 	UFUNCTION(BlueprintImplementableEvent, Category = Inventory)
 	void InventoryItemChanged(bool bAdded, USHItem* Item);
 
-	/** SlotÎïÆ·¸Ä±ä */
+	/** Slotç‰©å“æ”¹å˜ */
 	UFUNCTION(BlueprintImplementableEvent, Category = Inventory)
 	void SlottedItemChanged(FSHItemSlot ItemSlot, USHItem* Item);
 
-	/** Ìí¼ÓÒ»ÏîĞÂµÄÎïÆ·µ½±³°üÖĞ */
+	/** æ·»åŠ ä¸€é¡¹æ–°çš„ç‰©å“åˆ°èƒŒåŒ…ä¸­ */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool AddInventoryItem(USHItem* NewItem, int32 ItemCount = 1, int32 ItemLevel = 1, bool bAutoSlot = true);
 
-	/** ´Ó±³°üÖĞÒÆ³ıÒ»ÏîÎïÆ·, Í¬Ê±»á½«Æä´ÓSlotÖĞÒÆ³ı¡£RemoveCount <= 0Ê±±íÊ¾ÒÆ³ıËùÓĞ¸±±¾ */
+	/** ä»èƒŒåŒ…ä¸­ç§»é™¤ä¸€é¡¹ç‰©å“, åŒæ—¶ä¼šå°†å…¶ä»Slotä¸­ç§»é™¤ã€‚RemoveCount <= 0æ—¶è¡¨ç¤ºç§»é™¤æ‰€æœ‰å‰¯æœ¬ */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool RemoveInventoryItem(USHItem* RemovedItem, int32 RemoveCount = 1);
 
-	/** »ñÈ¡±³°üÖĞÖ¸¶¨ÀàĞÍµÄËùÓĞItem, ÈôÎ´Ö¸¶¨ÀàĞÍ, Ôò·µ»ØËùÓĞItem */
+	/** è·å–èƒŒåŒ…ä¸­æŒ‡å®šç±»å‹çš„æ‰€æœ‰Item, è‹¥æœªæŒ‡å®šç±»å‹, åˆ™è¿”å›æ‰€æœ‰Item */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	void GetInventoryItems(TArray<USHItem*>& Items, FPrimaryAssetType ItemType);
 
-	/** »ñÈ¡Ö¸¶¨ItemÔÚ±³°üÖĞµÄÊıÁ¿ */
+	/** è·å–æŒ‡å®šItemåœ¨èƒŒåŒ…ä¸­çš„æ•°é‡ */
 	UFUNCTION(BlueprintPure, Category = Inventory)
 	int32 GetInventoryItemCount(USHItem* Item) const;
 
-	/** »ñÈ¡Item¶ÔÓ¦µÄItemData, ÈôÎ´ÕÒµ½, ·µ»Øfalse */
+	/** è·å–Itemå¯¹åº”çš„ItemData, è‹¥æœªæ‰¾åˆ°, è¿”å›false */
 	UFUNCTION(BlueprintPure, Category = Inventory)
 	bool GetInventoryItemData(USHItem* Item, FSHItemData& ItemData) const;
 
-	/** ÉèÖÃSlot¶ÔÓ¦µÄItem, Èç¹ûItemÎª¿Õ, ÔòÇå¿ÕSlot */
+	/** è®¾ç½®Slotå¯¹åº”çš„Item, å¦‚æœItemä¸ºç©º, åˆ™æ¸…ç©ºSlot */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool SetSlottedItem(FSHItemSlot ItemSlot, USHItem* Item);
 
-	/** »ñÈ¡Slot¶ÔÓ¦µÄItem */
+	/** è·å–Slotå¯¹åº”çš„Item */
 	UFUNCTION(BlueprintPure, Category = Inventory)
 	USHItem* GetSlottedItem(FSHItemSlot ItemSlot) const;
 
-	/** »ñÈ¡SlotsÖĞÖ¸¶¨ÀàĞÍµÄËùÓĞItem, ÈôÎ´Ö¸¶¨ÀàĞÍ, Ôò·µ»ØËùÓĞItem */
+	/** è·å–Slotsä¸­æŒ‡å®šç±»å‹çš„æ‰€æœ‰Item, è‹¥æœªæŒ‡å®šç±»å‹, åˆ™è¿”å›æ‰€æœ‰Item */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	void GetSlottedItems(TArray<USHItem*>& Items, FPrimaryAssetType ItemType, bool bOutputEmptyIndexes);
 
-	/** Ê¹ÓÃ±³°üÖĞµÄItemÌî³ä¿ÕµÄSlot */
+	/** ä½¿ç”¨èƒŒåŒ…ä¸­çš„Itemå¡«å……ç©ºçš„Slot */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	void FillEmptySlots();
 
-	/** ±£´æ±³°üĞÅÏ¢ */
+	/** ä¿å­˜èƒŒåŒ…ä¿¡æ¯ */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool SaveInventory();
 
-	/** ¸ù¾İ´æµµ¼ÓÔØ±³°üĞÅÏ¢ */
+	/** æ ¹æ®å­˜æ¡£åŠ è½½èƒŒåŒ…ä¿¡æ¯ */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool LoadInventory();
 
-	// ÊµÏÖ½Ó¿ÚISHInventoryInterface
+	// å®ç°æ¥å£ISHInventoryInterface
 	virtual const TMap<USHItem*, FSHItemData>& GetInventoryDataMap() const override
 	{
 		return InventoryData;
@@ -128,10 +128,10 @@ public:
 	}
 
 protected:
-	/** ½«Ö¸¶¨Item×Ô¶¯ÌîÈëºÏÊÊµÄSlot, Èç¹ûÓĞÊı¾İ¸Ä±ä, ·µ»Øtrue */
+	/** å°†æŒ‡å®šItemè‡ªåŠ¨å¡«å…¥åˆé€‚çš„Slot, å¦‚æœæœ‰æ•°æ®æ”¹å˜, è¿”å›true */
 	bool FillEmptySlotWithItem(USHItem* NewItem);
 
-	/** µ÷ÓÃ±³°ü¸üĞÂ»Øµ÷ */
+	/** è°ƒç”¨èƒŒåŒ…æ›´æ–°å›è°ƒ */
 	void NotifyInventoryItemChanged(bool bAdded, USHItem* Item);
 	void NotifySlottedItemChanged(FSHItemSlot ItemSlot, USHItem* Item);
 	void NotifyInventoryLoaded();

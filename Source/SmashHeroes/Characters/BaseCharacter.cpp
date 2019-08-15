@@ -249,7 +249,7 @@ void ABaseCharacter::HandleHit(float DamageAmount, AActor* DamageCauser, FLinear
 		UpdateHateValue(DamageAmount, DamageCauser);
 
 		// 播放受击特效
-		PlayHitEffect(InLinearColor);
+		PlayEmissiveEffect(InLinearColor);
 	}
 }
 
@@ -578,18 +578,18 @@ bool ABaseCharacter::IsAlive()
 	return GetHealth() > 0.0f;
 }
 
-void ABaseCharacter::PlayHitEffect(FLinearColor HitEffectColor)
+void ABaseCharacter::PlayEmissiveEffect(FLinearColor EmissiveEffectColor)
 {
 	USkeletalMeshComponent* CharacterMesh = GetMesh();
 
 	if (CharacterMesh)
 	{
-		CharacterMesh->SetVectorParameterValueOnMaterials(FName(TEXT("HitEffectColor")), FVector(HitEffectColor));
-		CharacterMesh->SetScalarParameterValueOnMaterials(FName(TEXT("HitEffectStartTime")), UGameplayStatics::GetTimeSeconds(GetWorld()));
+		CharacterMesh->SetVectorParameterValueOnMaterials(FName(TEXT("EmissiveEffectColor")), FVector(EmissiveEffectColor));
+		CharacterMesh->SetScalarParameterValueOnMaterials(FName(TEXT("EmissiveEffectStartTime")), UGameplayStatics::GetTimeSeconds(GetWorld()));
 	}
 }
 
-void ABaseCharacter::PlayDeathEffect(float DissolveLength, FLinearColor DissolveColor)
+void ABaseCharacter::PlayDissolveEffect(float DissolveLength, FLinearColor DissolveColor)
 {
 	USkeletalMeshComponent* CharacterMesh = GetMesh();
 

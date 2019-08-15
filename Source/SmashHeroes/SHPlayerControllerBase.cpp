@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SHPlayerControllerBase.h"
@@ -22,17 +22,17 @@ bool ASHPlayerControllerBase::AddInventoryItem(USHItem* NewItem, int32 ItemCount
 		return false;
 	}
 
-	// »ñÈ¡µ±Ç°ItemData
+	// è·å–å½“å‰ItemData
 	FSHItemData OldData;
 	GetInventoryItemData(NewItem, OldData);
 
-	// »ñÈ¡ĞŞ¸ÄºóµÄItemData
+	// è·å–ä¿®æ”¹åçš„ItemData
 	FSHItemData NewData = OldData;
 	NewData.UpdateItemData(FSHItemData(ItemCount, ItemLevel), NewItem->MaxCount, NewItem->MaxLevel);
 
 	if (OldData != NewData)
 	{
-		// Èç¹ûÊı¾İÓĞĞŞ¸Ä, Ôò¸üĞÂ²¢´¥·¢»Øµ÷
+		// å¦‚æœæ•°æ®æœ‰ä¿®æ”¹, åˆ™æ›´æ–°å¹¶è§¦å‘å›è°ƒ
 		InventoryData.Add(NewItem, NewData);
 		NotifyInventoryItemChanged(true, NewItem);
 		bChanged = true;
@@ -40,13 +40,13 @@ bool ASHPlayerControllerBase::AddInventoryItem(USHItem* NewItem, int32 ItemCount
 
 	if (bAutoSlot)
 	{
-		// ½«Item×Ô¶¯¼ÓÈëSlot
+		// å°†Itemè‡ªåŠ¨åŠ å…¥Slot
 		bChanged |= FillEmptySlotWithItem(NewItem);
 	}
 
 	if (bChanged)
 	{
-		// Èç¹ûÓĞĞŞ¸Ä, Ôò¸üĞÂ±³°üĞÅÏ¢
+		// å¦‚æœæœ‰ä¿®æ”¹, åˆ™æ›´æ–°èƒŒåŒ…ä¿¡æ¯
 		SaveInventory();
 		return true;
 	}
@@ -61,7 +61,7 @@ bool ASHPlayerControllerBase::RemoveInventoryItem(USHItem* RemovedItem, int32 Re
 		return false;
 	}
 
-	// »ñÈ¡µ±Ç°ItemData
+	// è·å–å½“å‰ItemData
 	FSHItemData NewData;
 	GetInventoryItemData(RemovedItem, NewData);
 
@@ -70,7 +70,7 @@ bool ASHPlayerControllerBase::RemoveInventoryItem(USHItem* RemovedItem, int32 Re
 		return false;
 	}
 
-	// ÈôRemoveCount <= 0, É¾³ıËùÓĞItem
+	// è‹¥RemoveCount <= 0, åˆ é™¤æ‰€æœ‰Item
 	if (RemoveCount <= 0)
 	{
 		NewData.ItemCount = 0;
@@ -82,12 +82,12 @@ bool ASHPlayerControllerBase::RemoveInventoryItem(USHItem* RemovedItem, int32 Re
 
 	if (NewData.ItemCount > 0)
 	{
-		// ¸üĞÂÊıÁ¿
+		// æ›´æ–°æ•°é‡
 		InventoryData.Add(RemovedItem, NewData);
 	}
 	else
 	{
-		// ÍêÈ«É¾³ıItem, È·±£Æä²»ÔÚSlotÖĞ
+		// å®Œå…¨åˆ é™¤Item, ç¡®ä¿å…¶ä¸åœ¨Slotä¸­
 		InventoryData.Remove(RemovedItem);
 
 		for (TPair<FSHItemSlot, USHItem*>& Pair : SlottedItems)
@@ -114,7 +114,7 @@ void ASHPlayerControllerBase::GetInventoryItems(TArray<USHItem*>& Items, FPrimar
 		{
 			FPrimaryAssetId AssetId = Pair.Key->GetPrimaryAssetId();
 
-			// ¸ù¾İItem Type¹ıÂË
+			// æ ¹æ®Item Typeè¿‡æ»¤
 			if (AssetId.PrimaryAssetType == ItemType || !ItemType.IsValid())
 			{
 				Items.Add(Pair.Key);
@@ -130,14 +130,14 @@ bool ASHPlayerControllerBase::SetSlottedItem(FSHItemSlot ItemSlot, USHItem* Item
 	{
 		if (Pair.Key == ItemSlot)
 		{
-			// ½«ItemÌí¼ÓÖÁÖ¸¶¨Slot
+			// å°†Itemæ·»åŠ è‡³æŒ‡å®šSlot
 			bFound = true;
 			Pair.Value = Item;
 			NotifySlottedItemChanged(Pair.Key, Pair.Value);
 		}
 		else if (Item != nullptr && Pair.Value == Item)
 		{
-			// ½«Item´Ó¾ÉµÄSlotÖĞÒÆ³ı
+			// å°†Itemä»æ—§çš„Slotä¸­ç§»é™¤
 			Pair.Value = nullptr;
 			NotifySlottedItemChanged(Pair.Key, Pair.Value);
 		}
@@ -228,7 +228,7 @@ bool ASHPlayerControllerBase::SaveInventory()
 	USHSaveGame* CurrentSaveGame = GameInstance->GetCurrentSaveGame();
 	if (CurrentSaveGame)
 	{
-		// ÔÚĞ´ÈëÖ®Ç°, ÖØÖÃSave GameÖĞµÄ»º´æĞÅÏ¢
+		// åœ¨å†™å…¥ä¹‹å‰, é‡ç½®Save Gameä¸­çš„ç¼“å­˜ä¿¡æ¯
 		CurrentSaveGame->InventoryData.Reset();
 		CurrentSaveGame->SlottedItems.Reset();
 
@@ -254,7 +254,7 @@ bool ASHPlayerControllerBase::SaveInventory()
 			CurrentSaveGame->SlottedItems.Add(SlotPair.Key, AssetId);
 		}
 
-		// »º´æÊı¾İÒÑ¸üĞÂ, ½«ÆäĞ´ÈëÓ²ÅÌ
+		// ç¼“å­˜æ•°æ®å·²æ›´æ–°, å°†å…¶å†™å…¥ç¡¬ç›˜
 		GameInstance->WriteSaveGame();
 		
 		return true;
@@ -268,7 +268,7 @@ bool ASHPlayerControllerBase::LoadInventory()
 	InventoryData.Reset();
 	SlottedItems.Reset();
 
-	// Ìî³äGame InstanceÖĞµÄSlotsĞÅÏ¢
+	// å¡«å……Game Instanceä¸­çš„Slotsä¿¡æ¯
 	UWorld* World = GetWorld();
 	USHGameInstanceBase* GameInstance = World ? World->GetGameInstance<USHGameInstanceBase>() : nullptr;
 
@@ -289,7 +289,7 @@ bool ASHPlayerControllerBase::LoadInventory()
 	USHAssetManager& AssetManager = USHAssetManager::Get();
 	if (CurrentSaveGame)
 	{
-		// ´ÓSave Game¿½±´ÖÁControllerÊı¾İÖĞ
+		// ä»Save Gameæ‹·è´è‡³Controlleræ•°æ®ä¸­
 		bool bFoundAnySlots = false;
 		for (const TPair<FPrimaryAssetId, FSHItemData>& ItemPair : CurrentSaveGame->InventoryData)
 		{
@@ -316,7 +316,7 @@ bool ASHPlayerControllerBase::LoadInventory()
 
 		if (!bFoundAnySlots)
 		{
-			// ×Ô¶¯Ìî³äSlots, ÒòÎªÃ»ÓĞSlot±»±£´æ
+			// è‡ªåŠ¨å¡«å……Slots, å› ä¸ºæ²¡æœ‰Slotè¢«ä¿å­˜
 			FillEmptySlots();
 		}
 
@@ -325,7 +325,7 @@ bool ASHPlayerControllerBase::LoadInventory()
 		return true;
 	}
 
-	// ¼ÓÔØÊ§°Üµ«ÖØÖÃÁË±³°üĞÅÏ¢Ê±, ĞèÒªÍ¨ÖªUI½øĞĞ¸üĞÂ
+	// åŠ è½½å¤±è´¥ä½†é‡ç½®äº†èƒŒåŒ…ä¿¡æ¯æ—¶, éœ€è¦é€šçŸ¥UIè¿›è¡Œæ›´æ–°
 	NotifyInventoryLoaded();
 
 	return false;
@@ -333,7 +333,7 @@ bool ASHPlayerControllerBase::LoadInventory()
 
 bool ASHPlayerControllerBase::FillEmptySlotWithItem(USHItem* NewItem)
 {
-	// Ñ°ÕÒÒ»¸ö¿ÕµÄSlotÀ´×°ÔØItem
+	// å¯»æ‰¾ä¸€ä¸ªç©ºçš„Slotæ¥è£…è½½Item
 	FPrimaryAssetType NewItemType = NewItem->GetPrimaryAssetId().PrimaryAssetType;
 	FSHItemSlot EmptySlot;
 	for (TPair<FSHItemSlot, USHItem*>& Pair : SlottedItems)
@@ -342,12 +342,12 @@ bool ASHPlayerControllerBase::FillEmptySlotWithItem(USHItem* NewItem)
 		{
 			if (Pair.Value == NewItem)
 			{
-				// ItemÒÑ¾­ÔÚSlotÖĞ
+				// Itemå·²ç»åœ¨Slotä¸­
 				return false;
 			}
 			else if (Pair.Value == nullptr && (!EmptySlot.IsValid() || EmptySlot.SlotNumber > Pair.Key.SlotNumber))
 			{
-				// ½«Item²åÈëºÏÊÊµÄSlot
+				// å°†Itemæ’å…¥åˆé€‚çš„Slot
 				EmptySlot = Pair.Key;
 			}
 		}
@@ -365,34 +365,34 @@ bool ASHPlayerControllerBase::FillEmptySlotWithItem(USHItem* NewItem)
 
 void ASHPlayerControllerBase::NotifyInventoryItemChanged(bool bAdded, USHItem* Item)
 {
-	// ÔÚÀ¶Í¼Ö®Ç°Í¨Öª
+	// åœ¨è“å›¾ä¹‹å‰é€šçŸ¥
 	OnInventoryItemChangedNative.Broadcast(bAdded, Item);
 	OnInventoryItemChanged.Broadcast(bAdded, Item);
 
-	// µ÷ÓÃÀ¶Í¼¸üĞÂÊÂ¼ş
+	// è°ƒç”¨è“å›¾æ›´æ–°äº‹ä»¶
 	InventoryItemChanged(bAdded, Item);
 }
 
 void ASHPlayerControllerBase::NotifySlottedItemChanged(FSHItemSlot ItemSlot, USHItem* Item)
 {
-	// ÔÚÀ¶Í¼Ö®Ç°Í¨Öª
+	// åœ¨è“å›¾ä¹‹å‰é€šçŸ¥
 	OnSlottedItemChangedNative.Broadcast(ItemSlot, Item);
 	OnSlottedItemChanged.Broadcast(ItemSlot, Item);
 
-	// µ÷ÓÃÀ¶Í¼¸üĞÂÊÂ¼ş
+	// è°ƒç”¨è“å›¾æ›´æ–°äº‹ä»¶
 	SlottedItemChanged(ItemSlot, Item);
 }
 
 void ASHPlayerControllerBase::NotifyInventoryLoaded()
 {
-	// ÔÚÀ¶Í¼Ö®Ç°Í¨Öª
+	// åœ¨è“å›¾ä¹‹å‰é€šçŸ¥
 	OnInventoryLoadedNative.Broadcast();
 	OnInventoryLoaded.Broadcast();
 }
 
 void ASHPlayerControllerBase::BeginPlay()
 {
-	// ´Ó´æµµ¼ÓÔØ±³°üÎïÆ·
+	// ä»å­˜æ¡£åŠ è½½èƒŒåŒ…ç‰©å“
 	LoadInventory();
 
 	Super::BeginPlay();
