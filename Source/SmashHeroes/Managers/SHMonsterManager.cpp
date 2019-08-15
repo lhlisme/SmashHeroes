@@ -2,6 +2,7 @@
 
 
 #include "SHMonsterManager.h"
+#include "Kismet/GameplayStatics.h"
 
 
 void USHMonsterManager::Init()
@@ -90,4 +91,10 @@ int32 USHMonsterManager::GetKilledMonsterCount()
 void USHMonsterManager::IncreaseKilledMonsterCount()
 {
 	++KilledMonsterCount;
+}
+
+bool USHMonsterManager::IsAllClear()
+{
+	// 注意测试时可能会直接在场景里拖怪物，这样不会计算在SpawnedMonsterCount里
+	return SpawnedMonsterCount <= KilledMonsterCount ? true : false;
 }

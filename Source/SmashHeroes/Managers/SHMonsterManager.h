@@ -106,4 +106,7 @@ public:
 	/** 更新被杀死的怪物数量 */
 	UFUNCTION(BlueprintCallable)
 	void IncreaseKilledMonsterCount();
+	/** 判断当前关卡的怪物是否已被全部歼灭 */
+	UFUNCTION(BlueprintPure)
+	bool IsAllClear();
 };
