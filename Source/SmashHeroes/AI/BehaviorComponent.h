@@ -513,6 +513,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AActor* FindNearestTargetWithTag(TArray<FName> TargerTags, float &DistToTarget);
 
+	/** 更新巡逻路径 */
+	UFUNCTION(BlueprintCallable)
+	void UpdatePatrolRoute();
+
 	/** 寻找下一个巡逻点 */
 	UFUNCTION(BlueprintCallable)
 	void FindNextPatrolLocation();

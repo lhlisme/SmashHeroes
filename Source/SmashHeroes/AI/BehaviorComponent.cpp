@@ -35,15 +35,7 @@ void UBehaviorComponent::Initialize()
 			}
 
 			// 初始化巡逻路径
-			TArray<AActor*> AllPatrolRoutes;
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), APatrolRoute::StaticClass(), AllPatrolRoutes);
-			for (AActor* CurrentPatrolRoute : AllPatrolRoutes)
-			{
-				if (CurrentPatrolRoute && PatrolRouteName.Compare(CurrentPatrolRoute->GetName()) == 0)
-				{
-					PatrolRoute = Cast<APatrolRoute>(CurrentPatrolRoute);
-				}
-			}
+			UpdatePatrolRoute();
 		}
 
 		// 初始化当前行为信息
@@ -362,6 +354,19 @@ AActor* UBehaviorComponent::FindNearestTargetWithTag(TArray<FName> TargerTags, f
 
 	DistToTarget = NearestDistance;
 	return NearestActor;
+}
+
+void UBehaviorComponent::UpdatePatrolRoute()
+{
+	TArray<AActor*> AllPatrolRoutes;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APatrolRoute::StaticClass(), AllPatrolRoutes);
+	for (AActor* CurrentPatrolRoute : AllPatrolRoutes)
+	{
+		if (CurrentPatrolRoute && PatrolRouteName.Compare(CurrentPatrolRoute->GetName()) == 0)
+		{
+			PatrolRoute = Cast<APatrolRoute>(CurrentPatrolRoute);
+		}
+	}
 }
 
 void UBehaviorComponent::FindNextPatrolLocation()

@@ -44,15 +44,17 @@ bool AMonsterCharacter::RangeAttack()
 	return true;
 }
 
-void AMonsterCharacter::SetMonsterBaseInfo(FMonsterBaseInfoStruct& MonsterInfo)
+void AMonsterCharacter::SetMonsterInfo(const FMonsterBaseInfoStruct& MonsterBaseInfo, const FMonsterPatrolInfoStruct& MonsterPatrolInfo)
 {
 	if (BehaviorComponent)
 	{
-		BehaviorComponent->IdleType = MonsterInfo.IdleType;
-		BehaviorComponent->PatrolType = MonsterInfo.PatrolType;
-		BehaviorComponent->PatrolRouteName = MonsterInfo.PatrolRouteName;
+		BehaviorComponent->IdleType = MonsterBaseInfo.IdleType;
+		BehaviorComponent->PatrolType = MonsterPatrolInfo.PatrolType;
+		BehaviorComponent->PatrolRouteName = MonsterPatrolInfo.PatrolRouteName;
+		// 更新巡逻路径
+		BehaviorComponent->UpdatePatrolRoute();
 	}
-	Loots = MonsterInfo.Loots;
+	Loots = MonsterBaseInfo.Loots;
 }
 
 void AMonsterCharacter::SpawnLoot()

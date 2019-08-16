@@ -47,17 +47,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EIdleType IdleType;
 
+	/** 怪物掉落物信息 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FLootStruct> Loots;
+};
+
+/** 怪物巡逻信息, 在SpawnBox中配置并初始化 */
+USTRUCT(BlueprintType)
+struct FMonsterPatrolInfoStruct
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FMonsterPatrolInfoStruct() {}
+
 	/** 怪物巡逻类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EPatrolType PatrolType;
 
-	/** 怪物巡逻路径名称 */
+	/** 怪物巡逻路线名称 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString PatrolRouteName;
-
-	/** 怪物掉落物信息 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FLootStruct> Loots;
 };
 
 UCLASS()
@@ -89,7 +99,7 @@ public:
 	virtual bool RangeAttack() override;
 
 	// 设置怪物基础信息
-	void SetMonsterBaseInfo(FMonsterBaseInfoStruct& MonsterInfo);
+	void SetMonsterInfo(const FMonsterBaseInfoStruct& MonsterBaseInfo, const FMonsterPatrolInfoStruct& MonsterPatrolInfo);
 
 	/** 生成掉落物 */
 	UFUNCTION(BlueprintCallable)

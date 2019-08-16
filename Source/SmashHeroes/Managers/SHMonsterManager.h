@@ -7,6 +7,7 @@
 #include "UObject/NoExportTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/MonsterCharacter.h"
+#include "AI/SpawnBox.h"
 #include "SHMonsterManager.generated.h"
 
 
@@ -24,7 +25,7 @@ public:
 
 	/** 怪物基本信息 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FMonsterBaseInfoStruct MonsterInfo;
+	FMonsterBaseInfoStruct MonsterBaseInfo;
 };
 
 USTRUCT(BlueprintType)

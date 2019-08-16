@@ -57,21 +57,29 @@ void USHMonsterManager::SpawnEnemy()
 		int32 RandomIndex = 0;
 		for (auto& CurMonsterConfig : MonsterWaves.SpawnGroups[CurrentWave].Monsters)
 		{
-			// 所有生成盒都生成过对象后, 不继续生成
+			// 所有生成盒都使用过后, 不继续生成
 			if (SpawnBoxes.Num() <= 0)
 			{
 				break;
 			}
 			RandomIndex = FMath::RandRange(0, SpawnBoxes.Num() - 1);
-			FTransform SpawnPoint = SpawnBoxes[RandomIndex]->GetActorTransform();
-			AMonsterCharacter* SpawnedMonster = GetWorld()->SpawnActor<AMonsterCharacter>(CurMonsterConfig.MonsterBP, SpawnPoint, SpawnParams);
-			if (SpawnedMonster)
+			if (ASpawnBox* CurrentSpawnBox = Cast<ASpawnBox>(SpawnBoxes[RandomIndex]))
 			{
-				++SpawnedMonsterCount;
-				// 删除已经Spawn过怪物的生成盒
+				FTransform SpawnPoint = SpawnBoxes[RandomIndex]->GetActorTransform();
+				AMonsterCharacter* SpawnedMonster = GetWorld()->SpawnActor<AMonsterCharacter>(CurMonsterConfig.MonsterBP, SpawnPoint, SpawnParams);
+				if (SpawnedMonster)
+				{
+					++SpawnedMonsterCount;
+					// 初始化生成怪物信息
+					SpawnedMonster->SetMonsterInfo(CurMonsterConfig.MonsterBaseInfo, CurrentSpawnBox->PatrolInfo);
+					// 删除生成过怪物的生成盒
+					SpawnBoxes.RemoveAtSwap(RandomIndex);
+				}
+			}
+			else
+			{
+				// 删除转换失败的生成盒
 				SpawnBoxes.RemoveAtSwap(RandomIndex);
-				// 初始化生成怪物信息
-				SpawnedMonster->SetMonsterBaseInfo(CurMonsterConfig.MonsterInfo);
 			}
 		}
 		++CurrentWave;
