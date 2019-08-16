@@ -15,6 +15,7 @@ ASpawnBox::ASpawnBox()
 	Box->SetGenerateOverlapEvents(false);
 	SetRootComponent(Box);
 	Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+	Billboard->AttachTo(RootComponent);
 	Billboard->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
 	// 广告牌只在编辑器版本使用
 	Billboard->bIsEditorOnly = true;
