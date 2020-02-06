@@ -4,6 +4,7 @@
 
 #include "SmashHeroes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Abilities/SHAbilityTypes.h"
 #include "SHBlueprintFunctionLibrary.generated.h"
 
 UENUM(BlueprintType)
@@ -31,4 +32,20 @@ public:
 	/** Õ£÷πº”‘ÿ∂Øª≠ */
 	UFUNCTION(BlueprintCallable, Category = "Loading")
 	static void StopLoadingScreen();
+
+	/** Checks if spec has any effects */
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	static bool DoesEffectContainerSpecHaveEffects(const FSHGameplayEffectContainerSpec& ContainerSpec);
+
+	/** Checks if spec has any targets */
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	static bool DoesEffectContainerSpecHaveTargets(const FSHGameplayEffectContainerSpec& ContainerSpec);
+
+	/** Adds targets to a copy of the passed in effect container spec and returns it */
+	UFUNCTION(BlueprintCallable, Category = "Ability", meta = (AutoCreateRefTerm = "HitResults,TargetActors"))
+	static FSHGameplayEffectContainerSpec AddTargetsToEffectContainerSpec(const FSHGameplayEffectContainerSpec& ContainerSpec, const TArray<FHitResult>& HitResults, const TArray<AActor*>& TargetActors);
+
+	/** Applies container spec that was made from an ability */
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	static TArray<FActiveGameplayEffectHandle> ApplyExternalEffectContainerSpec(const FSHGameplayEffectContainerSpec& ContainerSpec);
 };
