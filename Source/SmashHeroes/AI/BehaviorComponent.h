@@ -523,7 +523,7 @@ public:
 
 	/** 获取当前行为类型 */
 	UFUNCTION(BlueprintPure)
-	EBehaviorType GetBehavior();
+	EBehaviorType GetBehavior() const;
 
 	/** 设置黑板行为信息 */
 	UFUNCTION(BlueprintCallable)

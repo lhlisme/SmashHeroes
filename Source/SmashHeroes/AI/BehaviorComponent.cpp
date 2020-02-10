@@ -434,7 +434,7 @@ void UBehaviorComponent::FindNextPatrolLocation()
 	}
 }
 
-EBehaviorType UBehaviorComponent::GetBehavior()
+EBehaviorType UBehaviorComponent::GetBehavior() const
 {
 	return CurrentBehavior;
 }

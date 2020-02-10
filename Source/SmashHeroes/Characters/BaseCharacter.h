@@ -56,6 +56,21 @@ enum class EHitReaction : uint8
 	KnockUp				UMETA(DisplayName = "KnockUp"),			// 击飞
 };
 
+USTRUCT(BlueprintType)
+struct FSHAttackMontageInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "攻击动画"), Category = "Combo")
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "下一连击索引"), Category = "Combo")
+	int32 NextComboIndex;
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "切换连击索引"), Category = "Combo")
+	int32 SwitchComboIndex;
+};
+
 UCLASS()
 class SMASHHEROES_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface
 {
@@ -68,6 +83,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	class USHAbilitySystemComponent* AbilitySystem;
+
+	/** 当前攻击动画索引 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
+	int32 AttackIndex = 0;
+
+	/** 当前攻击动画信息(结构体指针不能于蓝图展示) */
+	FSHAttackMontageInfo* AttackInfo;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck", meta = (AllowPrivateAccess = "true"))
 	TMap<AActor*, int32> LeftDamagedActors;	// 当前攻击左手武器所命中的对象。Key: 被击中的对象; Value; 对象被击中的次数
@@ -83,11 +105,23 @@ protected:
 	int32 bAbilitiesInitialized;
 
 	// 角色行为组件
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Behavior", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Behavior")
 	UBehaviorComponent* BehaviorComponent;
 
 public:
 	// 攻击相关属性
+	/** 连击索引到Montage间的映射 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	TMap<int32, FSHAttackMontageInfo> AttackMontageMap;
+
+	/** 初始(第一段)近战连击索引集合 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	TArray<int32> InitMeleeAttacks;
+
+	/** 初始(第一段)远程连击索引集合 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	TArray<int32> InitRangeAttacks;
+
 	/** 近战攻击动画索引到Montage间的映射 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, UAnimMontage*> MeleeAttackMontageMap;
@@ -95,10 +129,6 @@ public:
 	/** 远程攻击动画索引到Montage间的映射 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, UAnimMontage*> RangeAttackMontageMap;
-
-	/** 当前攻击动画索引 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
-	int32 AttackIndex = 0;
 
 	// 受击相关属性
 	/** 普通状态下的受击动画 */
@@ -216,8 +246,12 @@ public:
 	virtual bool RangeAttack();
 
 	/** 根据AttackIndex获取当前的远程攻击动画 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	virtual UAnimMontage* GetRangeAttackMontageByIndex();
+
+	/** 获取当前攻击动画 */
+	UFUNCTION(BlueprintPure)
+	virtual UAnimMontage* GetAttackMontage();
 
 	/** 更新目标仇恨值 */
 	UFUNCTION(BlueprintCallable)
@@ -261,7 +295,10 @@ public:
 	virtual UAnimMontage* GetGuardMontage();
 
 	UFUNCTION(BlueprintPure)
-	UBehaviorComponent* GetBehaviorComponent();
+	UBehaviorComponent* GetBehaviorComponent() const;
+
+	UFUNCTION(BlueprintPure)
+	EBehaviorType GetCurrentBehavior();
 
 	// 近战攻击检测
 	UFUNCTION(BlueprintCallable)

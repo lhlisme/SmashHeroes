@@ -224,6 +224,16 @@ UAnimMontage* ABaseCharacter::GetRangeAttackMontageByIndex()
 	return nullptr;
 }
 
+UAnimMontage* ABaseCharacter::GetAttackMontage()
+{
+	if (AttackInfo)
+	{
+		return AttackInfo->AttackMontage;
+	}
+
+	return nullptr;
+}
+
 void ABaseCharacter::HandleHit(float DamageAmount, AActor* DamageCauser, FLinearColor InLinearColor)
 {
 	if (HitReactions.Num() > 0)
@@ -759,8 +769,12 @@ void ABaseCharacter::HandleMoveSpeedChanged(float DeltaValue, const struct FGame
 	}
 }
 
-UBehaviorComponent* ABaseCharacter::GetBehaviorComponent()
+UBehaviorComponent* ABaseCharacter::GetBehaviorComponent() const
 {
 	return BehaviorComponent;
 }
 
+EBehaviorType ABaseCharacter::GetCurrentBehavior()
+{
+	return BehaviorComponent->GetBehavior();
+}
