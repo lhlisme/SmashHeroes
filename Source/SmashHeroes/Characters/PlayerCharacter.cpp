@@ -128,43 +128,55 @@ void APlayerCharacter::StopJump()
 
 bool APlayerCharacter::MeleeAttack()
 {
-	if (AttackIndex == 0) {
-		++AttackIndex;
+	if (AttackIndex == 0)
+	{
 		CanCombo = false;
 		CanSwitchCombo = false;
-		return true;
+
+		if (InitMeleeAttacks.Num() <= 0)
+		{
+			return false;
+		}
+
+		// 玩家角色的起手式是固定的
+		AttackIndex = InitMeleeAttacks[0];
+		// 更新当前攻击信息
+		AttackInfo = AttackMontageMap.Find(AttackIndex);
+		if (AttackInfo)
+		{
+			return true;
+		}
 	}
-	else {
-		if (CanCombo) {
-			if (CanSwitchCombo) {
+	else
+	{
+		if (CanCombo)
+		{
+			if (CanSwitchCombo)
+			{
 				ComboStatus = EComboStatus::ComboSwitched;
-				ComboSetIndex = AttackIndex;
+				// 连击切换
+				AttackIndex = AttackInfo->SwitchComboIndex;
 			}
-			else {
+			else
+			{
 				ComboStatus = EComboStatus::NormalCombo;
+				// 正常连击
+				AttackIndex = AttackInfo->NextComboIndex;
 			}
-			++AttackIndex;
+
 			CanCombo = false;
 			CanSwitchCombo = false;
-			return true;
+
+			// 更新当前攻击信息
+			AttackInfo = AttackMontageMap.Find(AttackIndex);
+			if (AttackInfo)
+			{
+				return true;
+			}
 		}
 	}
 
 	return false;
-}
-
-UAnimMontage* APlayerCharacter::GetMeleeAttackMontageByIndex()
-{
-	int Index = AttackIndex + ComboSetIndex * 10;
-
-	UE_LOG(LogTemp, Log, TEXT("Index: %d"), Index);
-	UAnimMontage** CurAttackMontagePtr = MeleeAttackMontageMap.Find(Index);
-
-	if (CurAttackMontagePtr) {
-		return *CurAttackMontagePtr;
-	}
-
-	return nullptr;
 }
 
 void APlayerCharacter::ResetAttackStatus()
@@ -172,6 +184,7 @@ void APlayerCharacter::ResetAttackStatus()
 	UE_LOG(LogTemp, Log, TEXT("ResetAttackStatus"));
 	// 如果攻击结束或被中断的话, 重新初始化AttackIndex
 	AttackIndex = 0;
+	AttackInfo = nullptr;
 	ComboSetIndex = 0;
 }
 

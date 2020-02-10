@@ -122,14 +122,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TArray<int32> InitRangeAttacks;
 
-	/** 近战攻击动画索引到Montage间的映射 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	TMap<int32, UAnimMontage*> MeleeAttackMontageMap;
-
-	/** 远程攻击动画索引到Montage间的映射 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	TMap<int32, UAnimMontage*> RangeAttackMontageMap;
-
 	// 受击相关属性
 	/** 普通状态下的受击动画 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit")
@@ -238,16 +230,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual bool MeleeAttack();
 
-	/** 根据AttackIndex获取当前的近战攻击动画 */
-	UFUNCTION(BlueprintPure)
-	virtual UAnimMontage* GetMeleeAttackMontageByIndex();
-
 	UFUNCTION(BlueprintCallable)
 	virtual bool RangeAttack();
-
-	/** 根据AttackIndex获取当前的远程攻击动画 */
-	UFUNCTION(BlueprintPure)
-	virtual UAnimMontage* GetRangeAttackMontageByIndex();
 
 	/** 获取当前攻击动画 */
 	UFUNCTION(BlueprintPure)

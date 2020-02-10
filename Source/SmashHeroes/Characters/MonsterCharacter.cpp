@@ -34,14 +34,36 @@ void AMonsterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 bool AMonsterCharacter::MeleeAttack()
 {
-	AttackIndex = FMath::RandRange(1, MeleeAttackMontageMap.Num());
+	if (InitMeleeAttacks.Num() > 0)
+	{
+		AttackIndex = InitMeleeAttacks[FMath::RandRange(0, InitMeleeAttacks.Num() - 1)];
 
-	return true;
+		// 更新当前攻击信息
+		AttackInfo = AttackMontageMap.Find(AttackIndex);
+		if (AttackInfo)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool AMonsterCharacter::RangeAttack()
 {
-	return true;
+	if (InitRangeAttacks.Num() > 0)
+	{
+		AttackIndex = InitRangeAttacks[FMath::RandRange(0, InitRangeAttacks.Num() - 1)];
+
+		// 更新当前攻击信息
+		AttackInfo = AttackMontageMap.Find(AttackIndex);
+		if (AttackInfo)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void AMonsterCharacter::SetMonsterInfo(const FMonsterBaseInfoStruct& MonsterBaseInfo, const FMonsterPatrolInfoStruct& MonsterPatrolInfo)

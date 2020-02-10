@@ -196,32 +196,10 @@ bool ABaseCharacter::MeleeAttack()
 	return false;
 }
 
-UAnimMontage* ABaseCharacter::GetMeleeAttackMontageByIndex()
-{
-	UAnimMontage** CurAttackMontagePtr = MeleeAttackMontageMap.Find(AttackIndex);
-
-	if (CurAttackMontagePtr) {
-		return *CurAttackMontagePtr;
-	}
-
-	return nullptr;
-}
-
 bool ABaseCharacter::RangeAttack()
 {
 	// 返回值表示是否有效执行
 	return false;
-}
-
-UAnimMontage* ABaseCharacter::GetRangeAttackMontageByIndex()
-{
-	UAnimMontage** CurAttackMontagePtr = RangeAttackMontageMap.Find(AttackIndex);
-
-	if (CurAttackMontagePtr) {
-		return *CurAttackMontagePtr;
-	}
-
-	return nullptr;
 }
 
 UAnimMontage* ABaseCharacter::GetAttackMontage()
@@ -460,6 +438,7 @@ UAnimMontage* ABaseCharacter::GetGuardMontage()
 bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
 {
 	bool Hitted = false;	// 是否命中目标
+
 	// 近战攻击检测
 	if (AttackType == EAttackType::MeleeAttack) 
 	{
@@ -472,7 +451,7 @@ bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, cons
 				TArray<FHitResult> OutHits;
 
 				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
-				
+
 				for (int32 j = 0; j < OutHits.Num(); ++j) 
 				{
 					// 判断是否为敌对目标, 且是否为本次攻击中第一次命中该目标

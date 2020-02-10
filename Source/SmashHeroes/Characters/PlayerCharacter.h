@@ -100,7 +100,6 @@ public:
 	UFUNCTION()
 	void ResetAttackStatus();	// 重置攻击状态
 	virtual bool MeleeAttack() override;
-	virtual UAnimMontage* GetMeleeAttackMontageByIndex() override;
 
 protected:
 	// Called when the game starts or when spawned

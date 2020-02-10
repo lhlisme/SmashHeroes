@@ -599,7 +599,7 @@ void UBehaviorComponent::UpdateBehavior()
 	// 如果找到攻击目标
 	if (AttackTarget)
 	{
-		UE_LOG(LogTemp, Log, TEXT("AttackTarget: %s"), *(AttackTarget->GetName()));
+		//UE_LOG(LogTemp, Log, TEXT("AttackTarget: %s"), *(AttackTarget->GetName()));
 		// 获取攻击目标的当前行为类型
 		ABaseCharacter* TargetCharacter = Cast<ABaseCharacter>(AttackTarget);
 		EBehaviorType TargetCurrentBehavior = EBehaviorType::Idle;
