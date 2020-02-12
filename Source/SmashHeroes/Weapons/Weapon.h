@@ -38,7 +38,10 @@ public:
 	FVector WeaponHalfSize;		// 武器碰撞体积HalfSize
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "HitCheck")
-	TArray<FName> SocketNames;		// 武器网格所有Socket的名称
+	TArray<FName> SocketNames;		// 武器网格上所有Socket名称(不含ExcludedNames)
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "HitCheck")
+	TArray<FName> ExcludedNames;		// 武器网格上不用于碰撞检测的Socket名称
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck")
 	TArray<FVector> SocketLocations;	// 武器上所有Socket的位置(在每帧结束时更新)
@@ -66,6 +69,9 @@ public:
 
 	/** 获取骨骼的当前位置信息 */
 	FVector GetCurrentSocketLocation(int32 SocketIndex);
+
+	/** 根据名称获取Socket Transform */
+	FTransform GetSocketTransformByName(FName InSocketName, ERelativeTransformSpace TransformSpace = RTS_World) const;
 
 	/** 播放命中特效 */
 	void PlayHitEffect(FHitResult& HitResult, EAttackStrength AttackStrength);

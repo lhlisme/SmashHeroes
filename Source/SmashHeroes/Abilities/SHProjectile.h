@@ -37,7 +37,7 @@ public:
 	bool CanPenetrate = true;*/
 
 	/** 投射物对应的GameplayEffectContainerSpec */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayEffectContainer)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (DisplayName = "EffectContainerSpec", ExposeOnSpawn = true), Category = GameplayEffectContainer)
 	FSHGameplayEffectContainerSpec EffectContainerSpec;
 
 protected:

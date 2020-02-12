@@ -269,6 +269,48 @@ bool ABaseCharacter::IsTargetHostile(AActor* TargetActor)
 	return false;
 }
 
+TArray<FTransform> ABaseCharacter::GetProjectileSpawnTransforms(FGameplayTag ProjectileTag)
+{
+	TArray<FTransform> SpawnTransformList;
+
+	FSHProjectileSpawnInfos* MatchedInfos = ProjectileSpawnMap.Find(ProjectileTag);
+	if (MatchedInfos)
+	{
+		for (FSHProjectileSpawnInfo& CurSpawnInfo : MatchedInfos->SpawnInfoList)
+		{
+			if (CurSpawnInfo.SpawnType == EProjectileSpawnType::SpawnOnLeft)
+			{
+				if (!LeftWeapon)
+				{
+					continue;
+				}
+				// 从左手武器上的Socket生成投射物
+				SpawnTransformList.Add(LeftWeapon->GetSocketTransformByName(CurSpawnInfo.SpawnSocketName));
+			}
+			else if (CurSpawnInfo.SpawnType == EProjectileSpawnType::SpawnOnRight)
+			{
+				if (!RightWeapon)
+				{
+					continue;
+				}
+				// 从右手武器上的Socket生成投射物
+				SpawnTransformList.Add(RightWeapon->GetSocketTransformByName(CurSpawnInfo.SpawnSocketName));
+			}
+			else
+			{
+				USkeletalMeshComponent* CharacterMesh = GetMesh();
+				if (CharacterMesh)
+				{
+					// 从Character自身骨架上的Socket生成投射物
+					SpawnTransformList.Add(CharacterMesh->GetSocketTransform(CurSpawnInfo.SpawnSocketName));
+				}
+			}
+		}
+	}
+
+	return SpawnTransformList;
+}
+
 void ABaseCharacter::PushHitReaction(EHitReaction NewHitReaction)
 {
 	HitReactions.Push(NewHitReaction);

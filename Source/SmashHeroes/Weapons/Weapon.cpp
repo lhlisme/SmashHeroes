@@ -22,7 +22,15 @@ void AWeapon::DeactivateWeapon()
 
 void AWeapon::InitialWeapon()
 {
-	SocketNames = Mesh->GetAllSocketNames();
+	TArray<FName> AllSocketNames = Mesh->GetAllSocketNames();
+	
+	for (int32 i = 0; i < AllSocketNames.Num(); ++i)
+	{
+		if (!ExcludedNames.Contains(AllSocketNames[i]))
+		{
+			SocketNames.Add(AllSocketNames[i]);
+		}
+	}
 }
 
 void AWeapon::UpdateSocketLocations()
@@ -52,6 +60,11 @@ FVector AWeapon::GetCurrentSocketLocation(int32 SocketIndex)
 	}
 
 	return CurrentLocation;
+}
+
+FTransform AWeapon::GetSocketTransformByName(FName InSocketName, ERelativeTransformSpace TransformSpace) const
+{
+	return Mesh->GetSocketTransform(InSocketName, TransformSpace);
 }
 
 void AWeapon::PlayHitEffect(FHitResult& HitResult, EAttackStrength AttackStrength)

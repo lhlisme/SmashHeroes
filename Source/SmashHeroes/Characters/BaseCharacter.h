@@ -42,6 +42,15 @@ enum class ERelativeOrientation : uint8
 	Right				UMETA(DisplayName = "Right")
 };
 
+/** 投射物生成位置类型 */
+UENUM(BlueprintType)
+enum class EProjectileSpawnType : uint8
+{
+	SpawnOnLeft			UMETA(DisplayName = "SpawnOnLeft"),
+	SpawnOnRight		UMETA(DisplayName = "SpawnOnRight"),
+	SpawnOnSelf			UMETA(DisplayName = "SpawnOnSelf"),
+};
+
 /** 受击反馈 */
 UENUM()
 enum class EHitReaction : uint8
@@ -69,6 +78,27 @@ struct FSHAttackMontageInfo
 
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "切换连击索引"), Category = "Combo")
 	int32 SwitchComboIndex;
+};
+
+USTRUCT(BlueprintType)
+struct FSHProjectileSpawnInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "投射物生成位置类型"), Category = "Projectile")
+	EProjectileSpawnType SpawnType;
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "投射物生成Socket名字"), Category = "Projectile")
+	FName SpawnSocketName;
+};
+
+USTRUCT(BlueprintType)
+struct FSHProjectileSpawnInfos
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "投射物生成信息列表"), Category = "Projectile")
+	TArray<FSHProjectileSpawnInfo> SpawnInfoList;
 };
 
 UCLASS()
@@ -121,6 +151,10 @@ public:
 	/** 初始(第一段)远程连击索引集合 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TArray<int32> InitRangeAttacks;
+
+	/** 投射物初始生成位置信息 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	TMap<FGameplayTag, FSHProjectileSpawnInfos> ProjectileSpawnMap;
 
 	// 受击相关属性
 	/** 普通状态下的受击动画 */
@@ -244,6 +278,10 @@ public:
 	/** 判断目标是否为敌方单位 */
 	UFUNCTION(BlueprintPure)
 	virtual bool IsTargetHostile(AActor* TargetActor);
+
+	/** 根据GameplayTag获取投射物生成位置 */
+	UFUNCTION(BlueprintPure)
+	virtual TArray<FTransform> GetProjectileSpawnTransforms(FGameplayTag ProjectileTag);
 
 	// 受击相关
 	/** 添加新的受击反馈(从尾部添加) */
