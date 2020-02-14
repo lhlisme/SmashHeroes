@@ -698,14 +698,25 @@ bool ABaseCharacter::IsUsingSpecificAbility(FGameplayTagContainer AbilityTags)
 	return false;
 }
 
+TSubclassOf<class USHGameplayAbility> ABaseCharacter::GetAbilityClassByType(EAbilityType InAbilityType)
+{
+	TSubclassOf<class USHGameplayAbility>* AbilityClass = CharacterAbilities.Find(InAbilityType);
+	if (AbilityClass)
+	{
+		return *AbilityClass;
+	}
+
+	return nullptr;
+}
+
 void ABaseCharacter::AddStartupGameplayAbilities()
 {
 	check(AbilitySystem);
 
 	if (Role == ROLE_Authority && !bAbilitiesInitialized) {
 		// 仅在服务器端发授能力
-		for (TSubclassOf<USHGameplayAbility>& StartupAbility : CharacterAbilities) {
-			AbilitySystem->GiveAbility(FGameplayAbilitySpec(StartupAbility, GetCharacterLevel(), INDEX_NONE, this));
+		for (auto& StartupAbilityPair : CharacterAbilities) {
+			AbilitySystem->GiveAbility(FGameplayAbilitySpec(StartupAbilityPair.Value, GetCharacterLevel(), INDEX_NONE, this));
 		}
 
 		// 授予被动能力
@@ -732,7 +743,7 @@ void ABaseCharacter::RemoveStartupGameplayAbilities()
 		// 移除上一次调用中添加的所有能力
 		TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
 		for (const FGameplayAbilitySpec& Spec : AbilitySystem->GetActivatableAbilities()) {
-			if ((Spec.SourceObject == this) && CharacterAbilities.Contains(Spec.Ability->GetClass())) {
+			if ((Spec.SourceObject == this) && CheckSpecificAbility(Spec.Ability->GetClass())) {
 				AbilitiesToRemove.Add(Spec.Handle);
 			}
 		}
@@ -750,6 +761,19 @@ void ABaseCharacter::RemoveStartupGameplayAbilities()
 
 		bAbilitiesInitialized = false;
 	}
+}
+
+bool ABaseCharacter::CheckSpecificAbility(TSubclassOf<class USHGameplayAbility> InAbilityClass)
+{
+	for (auto& AbilityPair : CharacterAbilities)
+	{
+		if (AbilityPair.Value == InAbilityClass)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void ABaseCharacter::HandleDead()

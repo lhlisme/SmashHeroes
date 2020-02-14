@@ -11,6 +11,19 @@ class USHAbilitySystemComponent;
 class UGameplayEffect;
 class USHTargetType;
 
+UENUM(BlueprintType)
+enum class EAbilityType : uint8
+{
+	MeleeAttack			UMETA(DisplayName = "MeleeAttack"),
+	RangeAttack			UMETA(DisplayName = "RangeAttack"),
+	Evade				UMETA(DisplayName = "Evade"),
+	Guard				UMETA(DisplayName = "Guard"),
+	Heal				UMETA(DisplayName = "Heal"),
+	Charge				UMETA(DisplayName = "Charge"),
+	PassiveSkill		UMETA(DisplayName = "PassiveSkill"),
+	SpecialSkill		UMETA(DisplayName = "SpecialSkill")
+};
+
 /**
  * Struct defining a list of gameplay effects, a tag, and targeting info
  * These containers are defined statically in blueprints or assets and then turn into Specs at runtime

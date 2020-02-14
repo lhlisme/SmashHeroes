@@ -214,7 +214,7 @@ public:
 	EAttackType AttackType = EAttackType::MeleeAttack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
-	TArray<TSubclassOf<class USHGameplayAbility>> CharacterAbilities;
+	TMap<EAbilityType, TSubclassOf<class USHGameplayAbility>> CharacterAbilities;
 
 	// 在创建角色时应用的被动效果，包括初始状态等
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
@@ -399,6 +399,19 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Abilities")
 	bool IsUsingSpecificAbility(FGameplayTagContainer AbilityTags);
 
+	/** 根据类型获取Ability的具体类引用 */
+	UFUNCTION(BlueprintPure, Category = "Abilities")
+	TSubclassOf<class USHGameplayAbility> GetAbilityClassByType(EAbilityType InAbilityType);
+
+	/** 应用初始化能力和效果 */
+	void AddStartupGameplayAbilities();
+
+	/** 移除所有初始能力和效果 */
+	void RemoveStartupGameplayAbilities();
+
+	/** 检查是否拥有指定能力 */
+	bool CheckSpecificAbility(TSubclassOf<class USHGameplayAbility> InAbilityClass);
+
 	/**
 	 * Called when character takes damage, which may have killed them
 	 *
@@ -442,12 +455,6 @@ public:
 	/** 死亡时回调 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDead();
-
-	/** 应用初始化能力和效果 */
-	void AddStartupGameplayAbilities();
-
-	/** 移除所有初始能力和效果 */
-	void RemoveStartupGameplayAbilities();
 
 	/** 受击处理 */
 	UFUNCTION(BlueprintCallable)
