@@ -46,9 +46,22 @@ enum class ERelativeOrientation : uint8
 UENUM(BlueprintType)
 enum class EProjectileSpawnType : uint8
 {
+	/** 生成Socket位于LeftWeapon上 */
 	SpawnOnLeft			UMETA(DisplayName = "SpawnOnLeft"),
+	/** 生成Socket位于RightWeapon之上 */
 	SpawnOnRight		UMETA(DisplayName = "SpawnOnRight"),
+	/** 生成Socket位于自身骨架上 */
 	SpawnOnSelf			UMETA(DisplayName = "SpawnOnSelf"),
+};
+
+/** 投射物生成位置类型 */
+UENUM(BlueprintType)
+enum class EProjectileRotationType : uint8
+{
+	/** 使用生成Socket的旋转信息 */
+	UseSocketRotation			UMETA(DisplayName = "UseSocketRotation"),
+	/** 使用Instigator的旋转信息 */
+	UseInstigatorRotation		UMETA(DisplayName = "UseInstigatorRotation")
 };
 
 /** 受击反馈 */
@@ -87,6 +100,9 @@ struct FSHProjectileSpawnInfo
 
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "投射物生成位置类型"), Category = "Projectile")
 	EProjectileSpawnType SpawnType;
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "投射物初始旋转类型"), Category = "Projectile")
+	EProjectileRotationType RotationType;
 
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "投射物生成Socket名字"), Category = "Projectile")
 	FName SpawnSocketName;

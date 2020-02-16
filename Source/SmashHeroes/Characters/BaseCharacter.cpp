@@ -285,7 +285,14 @@ TArray<FTransform> ABaseCharacter::GetProjectileSpawnTransforms(FGameplayTag Pro
 					continue;
 				}
 				// 从左手武器上的Socket生成投射物
-				SpawnTransformList.Add(LeftWeapon->GetSocketTransformByName(CurSpawnInfo.SpawnSocketName));
+				FTransform SpawnTransform = LeftWeapon->GetSocketTransformByName(CurSpawnInfo.SpawnSocketName);
+
+				if (CurSpawnInfo.RotationType == EProjectileRotationType::UseInstigatorRotation)
+				{
+					SpawnTransform.SetRotation(GetActorRotation().Quaternion());
+				}
+
+				SpawnTransformList.Add(SpawnTransform);
 			}
 			else if (CurSpawnInfo.SpawnType == EProjectileSpawnType::SpawnOnRight)
 			{
@@ -294,7 +301,14 @@ TArray<FTransform> ABaseCharacter::GetProjectileSpawnTransforms(FGameplayTag Pro
 					continue;
 				}
 				// 从右手武器上的Socket生成投射物
-				SpawnTransformList.Add(RightWeapon->GetSocketTransformByName(CurSpawnInfo.SpawnSocketName));
+				FTransform SpawnTransform = RightWeapon->GetSocketTransformByName(CurSpawnInfo.SpawnSocketName);
+				
+				if (CurSpawnInfo.RotationType == EProjectileRotationType::UseInstigatorRotation)
+				{
+					SpawnTransform.SetRotation(GetActorRotation().Quaternion());
+				}
+
+				SpawnTransformList.Add(SpawnTransform);
 			}
 			else
 			{
@@ -302,7 +316,14 @@ TArray<FTransform> ABaseCharacter::GetProjectileSpawnTransforms(FGameplayTag Pro
 				if (CharacterMesh)
 				{
 					// 从Character自身骨架上的Socket生成投射物
-					SpawnTransformList.Add(CharacterMesh->GetSocketTransform(CurSpawnInfo.SpawnSocketName));
+					FTransform SpawnTransform = CharacterMesh->GetSocketTransform(CurSpawnInfo.SpawnSocketName);
+
+					if (CurSpawnInfo.RotationType == EProjectileRotationType::UseInstigatorRotation)
+					{
+						SpawnTransform.SetRotation(GetActorRotation().Quaternion());
+					}
+
+					SpawnTransformList.Add(SpawnTransform);
 				}
 			}
 		}
