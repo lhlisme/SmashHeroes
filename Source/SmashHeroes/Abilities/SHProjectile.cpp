@@ -12,13 +12,13 @@ ASHProjectile::ASHProjectile()
 	// 创建投射物碰撞体
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
 	BoxCollision->InitBoxExtent(FVector(24.0f, 24.0f, 24.0f));
-	// 将碰撞体设为根组件
-	RootComponent = BoxCollision;
 	BoxCollision->AreaClass = UNavArea_Obstacle::StaticClass();
 	// 设置碰撞预设, 只检测Pawn的碰撞
 	BoxCollision->SetCollisionProfileName(TEXT("Projectile"));
 	// 设置开始碰撞事件委托
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ASHProjectile::OnOverlapBegin);
+	// 将碰撞体设为根组件
+	RootComponent = BoxCollision;
 
 	// 创建投射物碰撞体方向组件
 	Arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));

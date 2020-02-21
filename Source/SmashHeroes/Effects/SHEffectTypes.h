@@ -2,10 +2,11 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "SmashHeroes.h"
 #include "Base/SHBaseTypes.h"
 #include "Sound/SoundBase.h"
 #include "Particles/ParticleSystem.h"
+#include "Components/MeshComponent.h"
 #include "SHEffectTypes.generated.h"
 
 /**
@@ -84,10 +85,22 @@ struct FSHEffectInfo
 };
 
 USTRUCT(BlueprintType)
-struct FSHHitEffect
+struct FSHHitEffects
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "命中特效"), Category = "HitEffect")
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "命中特效"), Category = "HitEffects")
 	TMap<EAttackStrength, FSHEffectInfo> EffectInfoMap;
+};
+
+USTRUCT(BlueprintType)
+struct FSHSurfaceHitEffects
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "受击表面特效映射"), Category = "SurfaceHitEffects")
+	TMap<TEnumAsByte<EPhysicalSurface>, FSHHitEffects> HitEffectMap;
+
+	/** 播放命中特效 */
+	void PlayHitEffect(const FHitResult& HitResult, EAttackStrength AttackStrength, UMeshComponent* ActorMesh) const;
 };

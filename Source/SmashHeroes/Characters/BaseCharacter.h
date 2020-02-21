@@ -12,8 +12,10 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapons/Weapon.h"
+#include "Weapons/SHHitCheckTypes.h"
 #include "AI/BehaviorComponent.h"
 #include "Base/SHBaseTypes.h"
+#include "Effects/SHEffectTypes.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -137,12 +139,6 @@ protected:
 	/** 当前攻击动画信息(结构体指针不能于蓝图展示) */
 	FSHAttackMontageInfo* AttackInfo;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck", meta = (AllowPrivateAccess = "true"))
-	TMap<AActor*, int32> LeftDamagedActors;	// 当前攻击左手武器所命中的对象。Key: 被击中的对象; Value; 对象被击中的次数
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitCheck", meta = (AllowPrivateAccess = "true"))
-	TMap<AActor*, int32> RightDamagedActors; // 当前攻击右手武器所命中的对象。Key: 被击中的对象; Value: 对象被击中的次数
-
 	/** 每次受到攻击时角色的受击反馈队列 */
 	TArray<EHitReaction> HitReactions;
 
@@ -171,6 +167,14 @@ public:
 	/** 投射物初始生成位置信息 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<FGameplayTag, FSHProjectileSpawnInfos> ProjectileSpawnMap;
+
+	/** 命中检测信息 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitCheck")
+	TMap<FName, FSHHitCheckInfo> HitCheckInfoMap;
+
+	/** 肉搏命中特效 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitEffect")
+	FSHSurfaceHitEffects SurfaceHitEffects;
 
 	// 受击相关属性
 	/** 普通状态下的受击动画 */
@@ -269,13 +273,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DestroyWeapon();
 
-	bool AddLeftDamagedActor(AActor* CurDamagedActor);
-
-	bool AddRightDamagedActor(AActor* CurDamagedActor);
-
-	UFUNCTION(BlueprintCallable)
-	void ClearDamagedActors();
-
 	// 攻击相关
 	UFUNCTION(BlueprintCallable)
 	virtual bool MeleeAttack();
@@ -298,6 +295,18 @@ public:
 	/** 根据GameplayTag获取投射物生成位置 */
 	UFUNCTION(BlueprintPure)
 	virtual TArray<FTransform> GetProjectileSpawnTransforms(FGameplayTag ProjectileTag);
+
+	/** 初始化命中检测信息 */
+	UFUNCTION(BlueprintCallable)
+	void InitHitCheckInfo();
+
+	/** 更新命中检测信息 */
+	UFUNCTION(BlueprintCallable)
+	void UpdateHitCheckInfo(const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames);
+
+	/** 近战攻击检测 */
+	UFUNCTION(BlueprintCallable)
+	bool MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
 
 	// 受击相关
 	/** 添加新的受击反馈(从尾部添加) */
@@ -337,10 +346,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	EBehaviorType GetCurrentBehavior();
-
-	// 近战攻击检测
-	UFUNCTION(BlueprintCallable)
-	bool MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
 	
 	/** Returns current health, will be 0 if dead */
 	UFUNCTION(BlueprintPure)

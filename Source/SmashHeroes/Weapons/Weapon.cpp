@@ -22,64 +22,12 @@ void AWeapon::DeactivateWeapon()
 
 void AWeapon::InitialWeapon()
 {
-	TArray<FName> AllSocketNames = Mesh->GetAllSocketNames();
-	
-	for (int32 i = 0; i < AllSocketNames.Num(); ++i)
-	{
-		if (!ExcludedNames.Contains(AllSocketNames[i]))
-		{
-			SocketNames.Add(AllSocketNames[i]);
-		}
-	}
-}
-
-void AWeapon::UpdateSocketLocations()
-{
-	for (int32 i = 0; i < SocketNames.Num(); ++i) {
-		if (SocketLocations.Num() > i) {
-			SocketLocations[i] = Mesh->GetSocketLocation(SocketNames[i]);
-		}
-		else {
-			SocketLocations.Add(Mesh->GetSocketLocation(SocketNames[i]));
-		}
-	}
-}
-
-void AWeapon::UpdateSocketLocation(int32 SocketIndex, FVector CurLocation)
-{
-	if (SocketIndex < SocketLocations.Num()) {
-		SocketLocations[SocketIndex] = CurLocation;
-	}
-}
-
-FVector AWeapon::GetCurrentSocketLocation(int32 SocketIndex)
-{
-	FVector CurrentLocation = FVector(0.f, 0.f, 0.f);
-	if (SocketIndex < SocketNames.Num()) {
-		CurrentLocation = Mesh->GetSocketLocation(SocketNames[SocketIndex]);
-	}
-
-	return CurrentLocation;
+	HitCheckInfo.SetSocketNames(Mesh->GetAllSocketNames());
 }
 
 FTransform AWeapon::GetSocketTransformByName(FName InSocketName, ERelativeTransformSpace TransformSpace) const
 {
 	return Mesh->GetSocketTransform(InSocketName, TransformSpace);
-}
-
-void AWeapon::PlayHitEffect(FHitResult& HitResult, EAttackStrength AttackStrength)
-{
-	if (HitResult.PhysMaterial.IsValid())
-	{
-		if (const FSHHitEffect* HitEffect = HitEffects.Find(HitResult.PhysMaterial->SurfaceType))
-		{
-			if (const FSHEffectInfo* EffectInfo = HitEffect->EffectInfoMap.Find(AttackStrength))
-			{
-				EffectInfo->ParticleInfo.SpawnSelf(Mesh, HitResult.Location, Mesh->GetComponentRotation());
-				EffectInfo->SoundInfo.SpawnSelf(Mesh, HitResult.Location, Mesh->GetComponentRotation());
-			}
-		}
-	}
 }
 
 AStaticWeapon::AStaticWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)

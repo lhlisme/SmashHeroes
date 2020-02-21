@@ -4,6 +4,7 @@
 #include "SHEffectTypes.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 
 UParticleSystemComponent* FSHParticleInfo::SpawnSelf(UMeshComponent* OwnerMeshComp, FVector TargetLocation, FRotator TargetRotation, FVector TargetScale) const
@@ -46,3 +47,19 @@ UAudioComponent* FSHSoundInfo::SpawnSelf(UMeshComponent* OwnerMeshComp, FVector 
 
 	return AC;
 }
+
+void FSHSurfaceHitEffects::PlayHitEffect(const FHitResult& HitResult, EAttackStrength AttackStrength, UMeshComponent* ActorMesh) const
+{
+	if (HitResult.PhysMaterial.IsValid() && ActorMesh)
+	{
+		if (const FSHHitEffects* HitEffect = HitEffectMap.Find(HitResult.PhysMaterial->SurfaceType))
+		{
+			if (const FSHEffectInfo* EffectInfo = HitEffect->EffectInfoMap.Find(AttackStrength))
+			{
+				EffectInfo->ParticleInfo.SpawnSelf(ActorMesh, HitResult.Location, ActorMesh->GetComponentRotation());
+				EffectInfo->SoundInfo.SpawnSelf(ActorMesh, HitResult.Location, ActorMesh->GetComponentRotation());
+			}
+		}
+	}
+}
+

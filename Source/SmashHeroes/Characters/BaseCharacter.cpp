@@ -37,6 +37,8 @@ void ABaseCharacter::BeginPlay()
 	GenerateWeapon();
 	// 初始化行为组件
 	BehaviorComponent->Initialize();
+	// 初始化命中检测信息
+	InitHitCheckInfo();
 }
 
 // Called every frame
@@ -49,17 +51,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 	{
 		BehaviorComponent->BeginDead();
 	}
-
-	// 如果不在近战攻击状态，正常更新武器插槽位置
-	if (BehaviorComponent->GetBehavior() != EBehaviorType::MeleeAttack) {
-		if (LeftWeapon) {
-			LeftWeapon->UpdateSocketLocations();
-		}
-		if (RightWeapon) {
-			RightWeapon->UpdateSocketLocations();
-		}
-	}
-
 }
 
 // Called to bind functionality to input
@@ -158,36 +149,6 @@ void ABaseCharacter::DestroyWeapon()
 	{
 		RightWeapon->Destroy();
 	}
-}
-
-// 已存在返回false, 否则返回true
-bool ABaseCharacter::AddLeftDamagedActor(AActor* CurDamagedActor)
-{
-	if (LeftDamagedActors.Contains(CurDamagedActor)) {
-		int32* CurValue = LeftDamagedActors.Find(CurDamagedActor);
-		++(*CurValue);	// 出现次数增加
-		return false;
-	}
-	LeftDamagedActors.Add(CurDamagedActor, 1);
-	return true;
-}
-
-// 已存在返回false, 否则返回true
-bool ABaseCharacter::AddRightDamagedActor(AActor* CurDamagedActor)
-{
-	if (RightDamagedActors.Contains(CurDamagedActor)) {
-		int32* CurValue = RightDamagedActors.Find(CurDamagedActor);
-		++(*CurValue);	// 出现次数增加
-		return false;
-	}
-	RightDamagedActors.Add(CurDamagedActor, 1);
-	return true;
-}
-
-void ABaseCharacter::ClearDamagedActors()
-{
-	LeftDamagedActors.Empty();
-	RightDamagedActors.Empty();
 }
 
 bool ABaseCharacter::MeleeAttack()
@@ -498,73 +459,88 @@ UAnimMontage* ABaseCharacter::GetGuardMontage()
 	return GuardMontage;
 }
 
-bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
+void ABaseCharacter::InitHitCheckInfo()
 {
-	bool Hitted = false;	// 是否命中目标
+	// 根据Socket名称初始化对应位置信息
+	if (LeftWeapon)
+	{
+		LeftWeapon->HitCheckInfo.InitSocketLocations();
+	}
+
+	if (RightWeapon)
+	{
+		RightWeapon->HitCheckInfo.InitSocketLocations();
+	}
+
+	for (auto& InfoPair : HitCheckInfoMap)
+	{
+		InfoPair.Value.InitSocketLocations();
+	}
+}
+
+void ABaseCharacter::UpdateHitCheckInfo(const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames)
+{
+	if (CheckLeft && LeftWeapon)
+	{
+		LeftWeapon->HitCheckInfo.ClearDamagedActors();
+		LeftWeapon->HitCheckInfo.UpdateSocketLocations(LeftWeapon->GetWeaponMesh());
+	}
+
+	if (CheckRight && RightWeapon)
+	{
+		RightWeapon->HitCheckInfo.ClearDamagedActors();
+		RightWeapon->HitCheckInfo.UpdateSocketLocations(RightWeapon->GetWeaponMesh());
+	}
+
+	if (CheckBody)
+	{
+		FSHHitCheckInfo* TargetInfo = nullptr;
+		for (int32 i = 0; i < BodySocketNames.Num(); ++i)
+		{
+			TargetInfo = HitCheckInfoMap.Find(BodySocketNames[i]);
+			if (TargetInfo)
+			{
+				TargetInfo->ClearDamagedActors();
+				TargetInfo->UpdateSocketLocations(GetMesh());
+			}
+		}
+	}
+}
+
+bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
+{
+	bool IsHit = false;	// 是否命中目标
 
 	// 近战攻击检测
 	if (AttackType == EAttackType::MeleeAttack) 
 	{
 		if (LeftWeapon && CheckLeft) 
 		{
-			for (int32 i = 0; i < LeftWeapon->SocketLocations.Num(); ++i) 
-			{
-				FVector StartLocation = LeftWeapon->SocketLocations[i];
-				FVector EndLocation = LeftWeapon->GetCurrentSocketLocation(i);
-				TArray<FHitResult> OutHits;
-
-				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
-
-				for (int32 j = 0; j < OutHits.Num(); ++j) 
-				{
-					// 判断是否为敌对目标, 且是否为本次攻击中第一次命中该目标
-					if (IsTargetHostile(OutHits[j].GetActor()) && AddLeftDamagedActor(OutHits[j].GetActor()))
-					{	// 添加成功(不存在)时返回true
-						FinalOutHits.Add(OutHits[j]);
-						FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
-						HitTargetsData.Add(NewData);
-						Hitted = true;
-						// 播放武器命中特效
-						LeftWeapon->PlayHitEffect(OutHits[j], AttackStrength);
-					}
-				}
-
-				// 攻击检测结束后更新武器指定插槽位置
-				LeftWeapon->UpdateSocketLocation(i, EndLocation);
-			}
+			LeftWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, LeftWeapon->GetWeaponMesh(), LeftWeapon->SurfaceHitEffects, FinalOutHits, HitTargetsData, IsHit);
 		}
 
 		if (RightWeapon && CheckRight) 
 		{
-			for (int32 i = 0; i < RightWeapon->SocketLocations.Num(); ++i) 
+			RightWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, RightWeapon->GetWeaponMesh(), RightWeapon->SurfaceHitEffects, FinalOutHits, HitTargetsData, IsHit);
+		}
+
+		if (CheckBody)
+		{
+			FSHHitCheckInfo* CurCheckInfo = nullptr;
+			for (int32 i = 0; i < BodySocketNames.Num(); ++i)
 			{
-				FVector StartLocation = RightWeapon->SocketLocations[i];
-				FVector EndLocation = RightWeapon->GetCurrentSocketLocation(i);
-				TArray<FHitResult> OutHits;
-
-				UKismetSystemLibrary::LineTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
-
-				for (int32 j = 0; j < OutHits.Num(); ++j) 
+				CurCheckInfo = HitCheckInfoMap.Find(BodySocketNames[i]);
+				if (!CurCheckInfo)
 				{
-					// 判断是否为敌对目标, 且是否为本次攻击中第一次命中该目标
-					if (IsTargetHostile(OutHits[j].GetActor()) && AddRightDamagedActor(OutHits[j].GetActor()))
-					{	// 添加成功(不存在)时返回true
-						FinalOutHits.Add(OutHits[j]);
-						FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
-						HitTargetsData.Add(NewData);
-						Hitted = true;
-						// 播放武器命中特效
-						RightWeapon->PlayHitEffect(OutHits[j], AttackStrength);
-					}
+					continue;
 				}
 
-				// 攻击检测结束后更新武器指定插槽位置
-				RightWeapon->UpdateSocketLocation(i, EndLocation);
+				CurCheckInfo->HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, GetMesh(), SurfaceHitEffects, FinalOutHits, HitTargetsData, IsHit);
 			}
 		}
 	}
 
-	return Hitted;
+	return IsHit;
 }
 
 float ABaseCharacter::GetHealth() const
