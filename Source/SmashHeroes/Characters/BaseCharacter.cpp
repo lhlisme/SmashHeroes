@@ -11,7 +11,7 @@
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Create ability system component, and set it to be explicitly replicated
@@ -179,6 +179,7 @@ void ABaseCharacter::HandleHit(float DamageAmount, AActor* DamageCauser, FLinear
 	{
 		// 当前对应的受击反馈类型
 		EHitReaction FirstHitReaction = PopHitReaction();
+
 		// 当前对应的受击动画
 		UAnimMontage** HitMontagePtr = HitMontageMap.Find(FirstHitReaction);
 
@@ -263,7 +264,7 @@ TArray<FTransform> ABaseCharacter::GetProjectileSpawnTransforms(FGameplayTag Pro
 				}
 				// 从右手武器上的Socket生成投射物
 				FTransform SpawnTransform = RightWeapon->GetSocketTransformByName(CurSpawnInfo.SpawnSocketName);
-				
+
 				if (CurSpawnInfo.RotationType == EProjectileRotationType::UseInstigatorRotation)
 				{
 					SpawnTransform.SetRotation(GetActorRotation().Quaternion());
@@ -301,7 +302,7 @@ void ABaseCharacter::PushHitReaction(EHitReaction NewHitReaction)
 EHitReaction ABaseCharacter::PopHitReaction()
 {
 	// 弹出队首的HitReaction并返回
-	EHitReaction FirstHitReaction = EHitReaction::HitFront;
+	EHitReaction FirstHitReaction = EHitReaction::HitLeft;
 
 	if (HitReactions.Num() > 0)
 	{
@@ -310,6 +311,63 @@ EHitReaction ABaseCharacter::PopHitReaction()
 	}
 
 	return FirstHitReaction;
+}
+
+void ABaseCharacter::PushDefaultHitReaction(EHitReaction NewDefaultHitReaction)
+{
+	DefaultHitReactions.Push(NewDefaultHitReaction);
+}
+
+EHitReaction ABaseCharacter::PopDefaultHitReaction()
+{
+	// 弹出队首的DefaultHitReaction并返回
+	EHitReaction FirstDefaultHitReaction = EHitReaction::HitLeft;
+
+	if (DefaultHitReactions.Num() > 0)
+	{
+		FirstDefaultHitReaction = DefaultHitReactions[0];
+		DefaultHitReactions.RemoveAt(0);
+	}
+
+	return FirstDefaultHitReaction;
+}
+
+void ABaseCharacter::PrintHitReaction(EHitReaction InHitReaction)
+{
+	switch (InHitReaction)
+	{
+	case EHitReaction::BlockHit:
+		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  BlockHit"));
+		break;
+	case EHitReaction::HitLeft:
+		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  HitLeft"));
+		break;
+	case EHitReaction::HitRight:
+		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  HitRight"));
+		break;
+	case EHitReaction::GuardBreak:
+		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  GuardBreak"));
+		break;
+	case EHitReaction::KnockBack:
+		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  KnockBack"));
+		break;
+	case EHitReaction::KnockDown:
+		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  KnockDown"));
+		break;
+	case EHitReaction::KnockUp:
+		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  KnockUp"));
+		break;
+	}
+}
+
+bool ABaseCharacter::IsForcedHitReaction(EHitReaction InHitReaction)
+{
+	if (InHitReaction == EHitReaction::KnockBack || InHitReaction == EHitReaction::KnockDown || InHitReaction == EHitReaction::KnockUp)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(FVector TargetLocation)
@@ -350,11 +408,23 @@ ERelativeOrientation ABaseCharacter::CalculateRelativeOrientation(FVector Target
 	return RelativeOrientation;
 }
 
-bool ABaseCharacter::IsHitInDefenseRange(FVector HitLocation, EHitReaction& HitReaction)
+void ABaseCharacter::CalculateHitDirection(const FRotator& DeltaRotator, EHitReaction& HitReaction)
+{
+	if (DeltaRotator.Yaw > 0.0f)
+	{
+		HitReaction = EHitReaction::HitRight;
+		UE_LOG(LogTemp, Log, TEXT("HitRight  DeltaRotator: %f"), DeltaRotator.Yaw);
+	}
+	else
+	{
+		HitReaction = EHitReaction::HitLeft;
+		UE_LOG(LogTemp, Log, TEXT("HitLeft  DeltaRotator: %f"), DeltaRotator.Yaw);
+	}
+}
+
+bool ABaseCharacter::IsHitInDefenseRange(const FRotator& DeltaRotator, EHitReaction& HitReaction)
 {
 	bool bHitInDefenseRange = false;
-	// 受击点相对当前人物的旋转
-	FRotator DeltaRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitLocation) - GetActorRotation();
 
 	// 如果受击点处于防御范围内
 	if (DeltaRotator.Yaw > -0.5f * GetDefenseRange() && DeltaRotator.Yaw <= 0.5f * GetDefenseRange())
@@ -363,73 +433,60 @@ bool ABaseCharacter::IsHitInDefenseRange(FVector HitLocation, EHitReaction& HitR
 		HitReaction = EHitReaction::BlockHit;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("DeltaRotator: %f"), DeltaRotator.Yaw);
-	// 如果受击点不在防御范围内, 则未成功格挡攻击
-	if (!bHitInDefenseRange)
-	{
-		if (DeltaRotator.Yaw <= 45.0f)
-		{
-			if (DeltaRotator.Yaw > -45.0f)
-			{
-				HitReaction = EHitReaction::HitFront;
-			}
-			else if (DeltaRotator.Yaw > -135.0f)
-			{
-				HitReaction = EHitReaction::HitLeft;
-			}
-			else
-			{
-				HitReaction = EHitReaction::HitBack;
-			}
-		}
-		else
-		{
-			if (DeltaRotator.Yaw <= 135.0f)
-			{
-				HitReaction = EHitReaction::HitRight;
-			}
-			else
-			{
-				HitReaction = EHitReaction::HitBack;
-			}
-		}
-	}
-
 	return bHitInDefenseRange;
 }
 
-void ABaseCharacter::CheckHitResult(FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost)
+void ABaseCharacter::CheckHitResult(AActor* DamageCauser, FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost)
 {
-	EHitReaction HitReaction = EHitReaction::HitFront;
+	// 获取默认受击反馈
+	EHitReaction HitReaction = PopDefaultHitReaction();
 	bool bIsBlocked = false;	// 本次攻击是否被成功格挡
 
-	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard)
+	// 被击者朝向受击点的旋转
+	FRotator TargetToHit = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitLocation);
+	// 受击点相对当前人物(未转向攻击者)的旋转
+	FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(TargetToHit, GetActorRotation());
+
+	// 如果当前处于防御状态，并且受击点在防御范围内
+	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard && IsHitInDefenseRange(DeltaRotator, HitReaction))
 	{
 		float ScaleFactor = 0.5f;
 		float RestEnergy = GetEnergy();		// 剩余能量值
 		float MaxHealth = GetMaxHealth();
 		float MaxEnergy = GetMaxEnergy();
 
-		// 受击点在防御范围内
-		if (IsHitInDefenseRange(HitLocation, HitReaction))
-		{
-			// 根据伤害计算消耗的Energy
-			EnergyCost = DamageDone * ScaleFactor * MaxEnergy / MaxHealth;
+		// 根据伤害计算消耗的Energy
+		EnergyCost = DamageDone * ScaleFactor * MaxEnergy / MaxHealth;
 
-			// 用于格挡伤害的剩余能量值不足
-			if (EnergyCost > RestEnergy)
-			{
-				// 剩余能量值可影响的伤害
-				float DamageBlocked = RestEnergy * MaxHealth / (ScaleFactor *  MaxEnergy);
-				DamageDone = (DamageDone - DamageBlocked) + DamageBlocked * (1.0f - DefenseFactor);
-				// 防御击破
-				HitReaction = EHitReaction::GuardBreak;
-			}
-			else
-			{
-				// 防御成功格挡大部分伤害
-				DamageDone *= (1.0f - DefenseFactor);
-			}
+		// 用于格挡伤害的剩余能量值不足
+		if (EnergyCost > RestEnergy)
+		{
+			// 剩余能量值可影响的伤害
+			float DamageBlocked = RestEnergy * MaxHealth / (ScaleFactor *  MaxEnergy);
+			DamageDone = (DamageDone - DamageBlocked) + DamageBlocked * (1.0f - DefenseFactor);
+			// 防御击破
+			HitReaction = EHitReaction::GuardBreak;
+		}
+		else
+		{
+			// 防御成功格挡大部分伤害
+			DamageDone *= (1.0f - DefenseFactor);
+		}
+	}
+	else // 未成功格挡攻击
+	{
+		if (DamageCauser)
+		{
+			// 非硬直状态下, 受击后先转向攻击者
+			SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DamageCauser->GetActorLocation()).Quaternion());
+		}
+
+		// 若HitReaction是强制性受击反馈类型, 则无需修改
+		if (!IsForcedHitReaction(HitReaction))
+		{
+			// 计算转向后新的相对旋转
+			DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(TargetToHit, GetActorRotation());
+			CalculateHitDirection(DeltaRotator, HitReaction);
 		}
 	}
 
@@ -507,21 +564,21 @@ void ABaseCharacter::UpdateHitCheckInfo(const bool CheckLeft, const bool CheckRi
 	}
 }
 
-bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
+bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, EHitReaction DefaultHitReaction, FVector InImpulse, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
 {
 	bool IsHit = false;	// 是否命中目标
 
 	// 近战攻击检测
-	if (AttackType == EAttackType::MeleeAttack) 
+	if (AttackType == EAttackType::MeleeAttack)
 	{
-		if (LeftWeapon && CheckLeft) 
+		if (LeftWeapon && CheckLeft)
 		{
-			LeftWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, LeftWeapon->GetWeaponMesh(), LeftWeapon->SurfaceHitEffects, FinalOutHits, HitTargetsData, IsHit);
+			LeftWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, LeftWeapon->GetWeaponMesh(), LeftWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
 		}
 
-		if (RightWeapon && CheckRight) 
+		if (RightWeapon && CheckRight)
 		{
-			RightWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, RightWeapon->GetWeaponMesh(), RightWeapon->SurfaceHitEffects, FinalOutHits, HitTargetsData, IsHit);
+			RightWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, RightWeapon->GetWeaponMesh(), RightWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
 		}
 
 		if (CheckBody)
@@ -535,7 +592,7 @@ bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, cons
 					continue;
 				}
 
-				CurCheckInfo->HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, GetMesh(), SurfaceHitEffects, FinalOutHits, HitTargetsData, IsHit);
+				CurCheckInfo->HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, GetMesh(), SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
 			}
 		}
 	}

@@ -70,7 +70,7 @@ void FSHHitCheckInfo::ClearDamagedActors()
 	DamagedActors.Empty();
 }
 
-void FSHHitCheckInfo::HitCheck(ABaseCharacter* InCharacter, const EAttackStrength AttackStrength, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, UMeshComponent* ActorMesh, const FSHSurfaceHitEffects& SurfaceHitEffects, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData, bool& IsHit)
+void FSHHitCheckInfo::HitCheck(ABaseCharacter* InCharacter, const EAttackStrength AttackStrength, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, UMeshComponent* ActorMesh, const FSHSurfaceHitEffects& SurfaceHitEffects, EHitReaction DefaultHitReaction, FVector InImpulse, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData, bool& IsHit)
 {
 	if (!InCharacter || !ActorMesh)
 	{
@@ -85,15 +85,29 @@ void FSHHitCheckInfo::HitCheck(ABaseCharacter* InCharacter, const EAttackStrengt
 
 		UKismetSystemLibrary::LineTraceMultiForObjects(InCharacter->GetWorld(), StartLocation, EndLocation, ObjectTypes, true, ActorsToIgnore, DrawDebugType, OutHits, true, TraceColor, TraceHitColor, DrawTime);
 
+		AActor* HitActor = nullptr;
+		ABaseCharacter* HitCharacter = nullptr;
 		for (int32 j = 0; j < OutHits.Num(); ++j)
 		{
+			HitActor = OutHits[j].GetActor();
+			HitCharacter = Cast<ABaseCharacter>(HitActor);
 			// 判断是否为敌对目标, 且是否为本次攻击中第一次命中该目标
-			if (InCharacter->IsTargetHostile(OutHits[j].GetActor()) && AddDamagedActor(OutHits[j].GetActor()))
+			if (InCharacter->IsTargetHostile(HitActor) && AddDamagedActor(HitActor))
 			{	// 添加成功(不存在)时返回true
 				FinalOutHits.Add(OutHits[j]);
 				FGameplayAbilityTargetData_SingleTargetHit* NewData = new FGameplayAbilityTargetData_SingleTargetHit(OutHits[j]);
 				HitTargetsData.Add(NewData);
 				IsHit = true;
+				if (HitCharacter)
+				{
+					// 添加默认击中反馈
+					HitCharacter->PushDefaultHitReaction(DefaultHitReaction);
+					// 施加冲击力
+					if (UCharacterMovementComponent* CharacterMovement = HitCharacter->GetCharacterMovement())
+					{
+						CharacterMovement->AddImpulse(InImpulse, true);
+					}
+				}
 				// 播放命中特效
 				SurfaceHitEffects.PlayHitEffect(OutHits[j], AttackStrength, ActorMesh);
 			}

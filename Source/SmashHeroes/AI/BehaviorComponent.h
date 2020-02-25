@@ -128,182 +128,225 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	UBehaviorTree* BehaviorTree;
 
+	/** 初始行为 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	EBehaviorType InitBehavior = EBehaviorType::Idle;	// 初始行为
+	EBehaviorType InitBehavior = EBehaviorType::Idle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_CurrentBehaviorType = FName(TEXT("CurrentBehaviorType"));	// 黑板键名称
+	FName BBKey_CurrentBehaviorType = FName(TEXT("CurrentBehaviorType"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_TargetBehaviorType = FName(TEXT("TargetBehaviorType"));		// 黑板键名称
+	FName BBKey_TargetBehaviorType = FName(TEXT("TargetBehaviorType"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_TargetActor = FName(TEXT("TargetActor"));	// 黑板键名称
+	FName BBKey_TargetActor = FName(TEXT("TargetActor"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_StartLocation = FName(TEXT("StartLocation"));	// 黑板键名称
+	FName BBKey_StartLocation = FName(TEXT("StartLocation"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_TargetLocation = FName(TEXT("TargetLocation"));	// 黑板键名称
+	FName BBKey_TargetLocation = FName(TEXT("TargetLocation"));
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "General Settings")
-	FName BBKey_IdleType = FName(TEXT("IdleType"));	// 黑板键名称
+	FName BBKey_IdleType = FName(TEXT("IdleType"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_MaxRandLocationDistance = FName(TEXT("MaxRandLocationDistance"));	// 黑板键名称
+	FName BBKey_MaxRandLocationDistance = FName(TEXT("MaxRandLocationDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_RandLocationDelay = FName(TEXT("RandLocationDelay"));	// 黑板键名称
+	FName BBKey_RandLocationDelay = FName(TEXT("RandLocationDelay"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_FleeDistance = FName(TEXT("FleeDistance"));	// 黑板键名称
+	FName BBKey_FleeDistance = FName(TEXT("FleeDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_MeleeAttackDistance = FName(TEXT("MeleeAttackDistance"));	// 黑板键名称
+	FName BBKey_MeleeAttackDistance = FName(TEXT("MeleeAttackDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_RangeAttackDistance = FName(TEXT("RangeAttackDistance"));	// 黑板键名称
+	FName BBKey_RangeAttackDistance = FName(TEXT("RangeAttackDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_FollowDistance = FName(TEXT("FollowDistance"));	// 黑板键名称
+	FName BBKey_FollowDistance = FName(TEXT("FollowDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_SeekAcceptanceRadius = FName(TEXT("SeekAcceptanceRadius"));	// 黑板键名称
+	FName BBKey_SeekAcceptanceRadius = FName(TEXT("SeekAcceptanceRadius"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_FollowAcceptanceRadius = FName(TEXT("FollowAcceptanceRadius"));	// 黑板键名称
+	FName BBKey_FollowAcceptanceRadius = FName(TEXT("FollowAcceptanceRadius"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_InvestigateDistance = FName(TEXT("InvestigateDistance"));	// 黑板键名称
+	FName BBKey_InvestigateDistance = FName(TEXT("InvestigateDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	FName BBKey_InvestigateInterval = FName(TEXT("InvestigateInterval"));	// 黑板键名称
+	FName BBKey_InvestigateInterval = FName(TEXT("InvestigateInterval"));
 
+	/** 闲置行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
-	EIdleType IdleType = EIdleType::Stationary;	// 闲置行为类型
+	EIdleType IdleType = EIdleType::Stationary;
 
+	/** 最大随机走动距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
-	float MaxRandLocationDistance = 300.0f;	// 最大随机走动距离
+	float MaxRandLocationDistance = 300.0f;
 
+	/** 随机走动间隔 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
-	float RandLocationDelay = 10.0f;	// 随机走动间隔
+	float RandLocationDelay = 10.0f;
 
+	/** 巡逻路径名称 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Patrol Settings")
-	FString PatrolRouteName;		// 巡逻路径名称
+	FString PatrolRouteName;
 
+	/** 巡逻路径 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Patrol Settings")
-	APatrolRoute* PatrolRoute;		// 巡逻路径
+	APatrolRoute* PatrolRoute;
 
+	/** 最小巡逻移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
-	float MinPatrolMoveSpeed = 300.0f;		// 最小巡逻移动速度
+	float MinPatrolMoveSpeed = 300.0f;
 
+	/** 最大巡逻移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
-	float MaxPatrolMoveSpeed = 340.0f;		// 最大巡逻移动速度
+	float MaxPatrolMoveSpeed = 340.0f;
 
+	/** 巡逻类型 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Patrol Settings")
-	EPatrolType PatrolType = EPatrolType::BackAndForth;		// 巡逻类型
+	EPatrolType PatrolType = EPatrolType::BackAndForth;
 
+	/** 巡逻点索引 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
-	int32 PatrolSplineIndex = -1;		// 巡逻点索引
+	int32 PatrolSplineIndex = -1;
 
+	/** 巡逻方向, true:正向, false:反向, 目前仅用于BackAndForth巡逻类型 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Patrol Settings")
-	bool PatrolDirection = true;		// 巡逻方向, true:正向, false:反向, 目前仅用于BackAndForth巡逻类型
+	bool PatrolDirection = true;
 
+	/** 巡逻行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Settings")
-	EBehaviorType PatrolTransition = EBehaviorType::Idle;	// 巡逻行为结束后进入的下一行为类型
+	EBehaviorType PatrolTransition = EBehaviorType::Idle;
 
+	/** 侦查距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
-	float InvestigateDistance = 3000.0f;	// 侦查距离
+	float InvestigateDistance = 3000.0f;
 
+	/** 侦查间隔 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
-	float InvestigateInterval = 0.2f;	// 侦查间隔
+	float InvestigateInterval = 0.2f;
 
+	/** 侦查行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Investigate Settings")
-	EBehaviorType InvestigateTransition = EBehaviorType::Idle;	// 侦查行为结束后进入的下一行为类型
+	EBehaviorType InvestigateTransition = EBehaviorType::Idle;
 
+	/** 追踪距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
-	float FollowDistance = 2000.0f;	// 追踪距离
+	float FollowDistance = 2000.0f;
 
+	/** 追踪行为的可接受半径 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
-	float FollowAcceptanceRadius = 100.0f;		// 追踪行为的可接受半径
+	float FollowAcceptanceRadius = 100.0f;
 
+	/** 最小追踪移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
-	float MinFollowMoveSpeed = 400.0f;		// 最小追踪移动速度
+	float MinFollowMoveSpeed = 400.0f;
 
+	/** 最大追踪移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Follow Settings")
-	float MaxFollowMoveSpeed = 420.0f;		// 最大追踪移动速度
+	float MaxFollowMoveSpeed = 420.0f;
 
+	/** 是否会逃离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	bool bCanFlee = true;	// 是否会逃离
+	bool bCanFlee = true;
 
+	/** 触发逃离的血量百分比 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	float FleeHealthThreshold = 0.2f;	// 触发逃离的血量百分比
+	float FleeHealthThreshold = 0.2f;
 
+	/** 逃离距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	float FleeDistance = 1600.0f;	// 逃离距离
+	float FleeDistance = 1600.0f;
 
+	/** 逃离行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	EBehaviorType FleeTransition = EBehaviorType::Idle;	// 逃离行为结束后进入的下一行为类型
+	EBehaviorType FleeTransition = EBehaviorType::Idle;
 
+	/** 最小逃跑移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	float MinFleeMoveSpeed = 560.0f;		// 最小逃跑移动速度
+	float MinFleeMoveSpeed = 560.0f;
 
+	/** 最大逃跑移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flee Settings")
-	float MaxFleeMoveSpeed = 600.0f;		// 最大逃跑移动速度
+	float MaxFleeMoveSpeed = 600.0f;
 
+	/** 寻找目标的Tag数组 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
-	TArray<FName> SeekTargetTags;	// 寻找目标的Tag数组
+	TArray<FName> SeekTargetTags;
 
+	/** 寻找行为的可接受半径 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
-	float SeekAcceptanceRadius;		// 寻找行为的可接受半径
+	float SeekAcceptanceRadius;
 
+	/** 寻找行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
-	EBehaviorType SeekTransition = EBehaviorType::Idle;		// 寻找行为结束后进入的下一行为类型
+	EBehaviorType SeekTransition = EBehaviorType::Idle;		
 
+	/** 最小搜寻移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
-	float MinSeekMoveSpeed = 560.0f;		// 最小搜寻移动速度
+	float MinSeekMoveSpeed = 560.0f;
 
+	/** 最大搜寻移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seek Settings")
-	float MaxSeekMoveSpeed = 600.0f;		// 最大搜寻移动速度
+	float MaxSeekMoveSpeed = 600.0f;
 
+	/** 近战攻击距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	float MeleeAttackDistance = 200.0f;	// 近战攻击距离
+	float MeleeAttackDistance = 200.0f;
 
+	/** 是否支持远程攻击 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	bool CanRangeAttack = false;	// 是否支持远程攻击
+	bool CanRangeAttack = false;
 
+	/** 范围攻击距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	float RangeAttackDistance = 1600.0f;	// 范围攻击距离
+	float RangeAttackDistance = 1600.0f;
 
+	/** 攻击是否需要考虑在视野内 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	bool IsRequireLineOfSight = true;	// 攻击是否需要考虑在视野内
+	bool IsRequireLineOfSight = true;
 
+	/** 可攻击目标的Tag数组 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	TArray<FName> AttackTargetTags;	// 可攻击目标的Tag数组
+	TArray<FName> AttackTargetTags;
 
+	/** 近战攻击行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	EBehaviorType MeleeAttackTransition = EBehaviorType::Idle;	// 近战攻击行为结束后进入的下一行为类型
+	EBehaviorType MeleeAttackTransition = EBehaviorType::Idle;
 
+	/** 远程攻击行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	EBehaviorType RangeAttackTransition = EBehaviorType::Idle;	// 远程攻击行为结束后进入的下一行为类型
+	EBehaviorType RangeAttackTransition = EBehaviorType::Idle;
 
+	/** 初始仇恨值 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
-	float InitHateValue = 100.0f;	// 初始仇恨值
-
+	float InitHateValue = 100.0f;
+	
+	/** 仇恨列表(仅用于AI), 仇恨值 = 初始仇恨值 + 受到来自仇恨目标的伤害值 + （“嘲讽”等特殊技能带来的仇恨值增量） */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack Settings")
-	TMap<AActor*, float> HateTargets;	// 仇恨列表(仅用于AI), 仇恨值 = 初始仇恨值 + 受到来自仇恨目标的伤害值 + （后续考虑的“嘲讽”等特殊技能带来的仇恨值增量）
+	TMap<AActor*, float> HateTargets;
 
+	/** 防守行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Evade Settings")
-	EBehaviorType EvadeTransition = EBehaviorType::Idle;	// 防守行为结束后进入的下一行为类型
+	EBehaviorType EvadeTransition = EBehaviorType::Idle;
 
+	/** 防守行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Guard Settings")
-	EBehaviorType GuardTransition = EBehaviorType::Idle;	// 防守行为结束后进入的下一行为类型
+	EBehaviorType GuardTransition = EBehaviorType::Idle;
 
+	/** 受击行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Settings")
-	EBehaviorType HitTransition = EBehaviorType::Idle;	// 受击行为结束后进入的下一行为类型
+	EBehaviorType HitTransition = EBehaviorType::Idle;
 
+	/** 死亡行为结束后进入的下一行为类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dead Settings")
-	EBehaviorType DeadTransition = EBehaviorType::Idle;	// 死亡行为结束后进入的下一行为类型
+	EBehaviorType DeadTransition = EBehaviorType::Idle;
 
 	/** 行为开始相关委托 */
 	UPROPERTY(BlueprintAssignable)

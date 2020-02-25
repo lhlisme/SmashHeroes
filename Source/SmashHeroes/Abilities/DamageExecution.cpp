@@ -77,7 +77,7 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	if (TargetCharacter && HitInfo)
 	{
 		// 检测攻击是否受防御格挡, 若被格挡, 计算格挡后的最终伤害以及对应的受击反应
-		TargetCharacter->CheckHitResult(HitInfo->Location, DefenseMultiplier, DamageDone, EnergyCost);
+		TargetCharacter->CheckHitResult(SourceActor, HitInfo->Location, DefenseMultiplier, DamageDone, EnergyCost);
 	}
 
 	if (DamageDone > 0.0f)

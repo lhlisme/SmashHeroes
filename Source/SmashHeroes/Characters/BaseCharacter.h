@@ -66,20 +66,6 @@ enum class EProjectileRotationType : uint8
 	UseInstigatorRotation		UMETA(DisplayName = "UseInstigatorRotation")
 };
 
-/** 受击反馈 */
-UENUM()
-enum class EHitReaction : uint8
-{
-	BlockHit			UMETA(DisplayName = "BlockHit"),		// 格挡攻击
-	HitFront			UMETA(DisplayName = "HitFront"),		// 击中前方
-	HitBack				UMETA(DisplayName = "HitBack"),			// 击中后方
-	HitLeft				UMETA(DisplayName = "HitLeft"),			// 击中左方
-	HitRight			UMETA(DisplayName = "HitRight"),		// 击中右方
-	GuardBreak			UMETA(DisplayName = "GuardBreak"),		// 防御击破
-	KnockBack			UMETA(DisplayName = "KnockBack"),		// 击退
-	KnockUp				UMETA(DisplayName = "KnockUp"),			// 击飞
-};
-
 USTRUCT(BlueprintType)
 struct FSHAttackMontageInfo
 {
@@ -141,6 +127,9 @@ protected:
 
 	/** 每次受到攻击时角色的受击反馈队列 */
 	TArray<EHitReaction> HitReactions;
+
+	/** 每次受到攻击时的默认受击反馈队列 */
+	TArray<EHitReaction> DefaultHitReactions;
 
 	/** If true we have initialized our abilities */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
@@ -306,7 +295,7 @@ public:
 
 	/** 近战攻击检测 */
 	UFUNCTION(BlueprintCallable)
-	bool MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
+	bool MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, EHitReaction DefaultHitReaction, FVector InImpulse, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
 
 	// 受击相关
 	/** 添加新的受击反馈(从尾部添加) */
@@ -317,15 +306,32 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EHitReaction PopHitReaction();
 
+	/** 添加新的默认受击反馈(从尾部添加) */
+	UFUNCTION(BlueprintCallable)
+	void PushDefaultHitReaction(EHitReaction NewDefaultHitReaction);
+
+	/** 移除新的受击反馈(从头部删除) */
+	UFUNCTION(BlueprintCallable)
+	EHitReaction PopDefaultHitReaction();
+
+	void PrintHitReaction(EHitReaction InHitReaction);
+
+	/** 是否为强制性受击反馈类型 */
+	UFUNCTION(BlueprintCallable)
+	bool IsForcedHitReaction(EHitReaction InHitReaction);
+
 	/** 计算目标位置相对朝向 */
 	ERelativeOrientation CalculateRelativeOrientation(FVector TargetLocation);
 
+	/** 计算受击方向 */
+	void CalculateHitDirection(const FRotator& DeltaRotator, EHitReaction& HitReaction);
+
 	/** 检测受击点是否处于防御范围内, 并判断受击点的相对方位 */
-	bool IsHitInDefenseRange(FVector HitLocation, EHitReaction& HitReaction);
+	bool IsHitInDefenseRange(const FRotator& DeltaRotator, EHitReaction& HitReaction);
 
 	/** 计算攻击是否被格挡掉、格挡后的最终伤害和对应的受击反馈 */
 	UFUNCTION(BlueprintCallable)
-	void CheckHitResult(FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost);
+	void CheckHitResult(AActor* DamageCauser, FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost);
 
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
