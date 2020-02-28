@@ -10,18 +10,21 @@
 
 
 UBaseAttributeSet::UBaseAttributeSet()
-	: Health(1.0f)
-	, MaxHealth(1.0f)
-	, Energy(0.0f)
-	, MaxEnergy(0.0f)
-	, MoveSpeed(1.0f)
-	, Absorption(0.0f)
-	, AttackMultiplier(1.0f)
-	, DefenseMultiplier(0.0f)
-	, BaseAttackPower(1.0f)
-	, BaseDefensePower(1.0f)
-	, DefenseRange(220.0f)
-	, Damage(0.0f)
+	: Health(0.f)
+	, MaxHealth(0.f)
+	, Energy(0.f)
+	, MaxEnergy(0.f)
+	, MoveSpeed(0.f)
+	, Absorption(0.f)
+	, AttackMultiplier(0.f)
+	, DefenseMultiplier(0.f)
+	, BaseAttackPower(0.f)
+	, BaseDefensePower(0.f)
+	, DefenseRange(0.f)
+	, StiffFactor(0.f)
+	, MaxStiffFactor(0.f)
+	, StiffRecoverTime(0.f)
+	, Damage(0.f)
 {
 }
 
@@ -40,6 +43,9 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(UBaseAttributeSet, BaseAttackPower);
 	DOREPLIFETIME(UBaseAttributeSet, BaseDefensePower);
 	DOREPLIFETIME(UBaseAttributeSet, DefenseRange);
+	DOREPLIFETIME(UBaseAttributeSet, StiffFactor);
+	DOREPLIFETIME(UBaseAttributeSet, MaxStiffFactor);
+	DOREPLIFETIME(UBaseAttributeSet, StiffRecoverTime);
 }
 
 void UBaseAttributeSet::OnRep_Health()
@@ -97,6 +103,21 @@ void UBaseAttributeSet::OnRep_DefenseRange()
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, DefenseRange);
 }
 
+void UBaseAttributeSet::OnRep_StiffFactor()
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, StiffFactor);
+}
+
+void UBaseAttributeSet::OnRep_MaxStiffFactor()
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, MaxStiffFactor);
+}
+
+void UBaseAttributeSet::OnRep_StiffRecoverTime()
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, StiffRecoverTime);
+}
+
 void UBaseAttributeSet::AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty)
 {
 	UAbilitySystemComponent* AbilityComp = GetOwningAbilitySystemComponent();
@@ -113,7 +134,7 @@ void UBaseAttributeSet::AdjustAttributeForMaxChange(FGameplayAttributeData& Affe
 
 void UBaseAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
-	// This is called whenever attributes change, so for max health/mana we want to scale the current totals to match
+	// This is called whenever attributes change, so for max health/energy we want to scale the current totals to match
 	Super::PreAttributeChange(Attribute, NewValue);
 
 	if (Attribute == GetMaxHealthAttribute()) {
@@ -121,6 +142,10 @@ void UBaseAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 	}
 	else if (Attribute == GetMaxEnergyAttribute()) {
 		AdjustAttributeForMaxChange(Energy, MaxEnergy, NewValue, GetEnergyAttribute());
+	}
+	else if (Attribute == GetMaxStiffFactorAttribute())
+	{
+		AdjustAttributeForMaxChange(StiffFactor, MaxStiffFactor, NewValue, GetStiffFactorAttribute());
 	}
 }
 
@@ -242,6 +267,13 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 		{
 			// Call for all movespeed changes
 			TargetCharacter->HandleMoveSpeedChanged(DeltaValue, SourceTags);
+		}
+	}
+	else if (Data.EvaluatedData.Attribute == GetStiffFactorAttribute())
+	{
+		if (TargetCharacter)
+		{
+			TargetCharacter->HandleStiffFactorChanged(DeltaValue, SourceTags);
 		}
 	}
 }

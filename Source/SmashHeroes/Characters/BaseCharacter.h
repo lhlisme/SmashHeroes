@@ -131,6 +131,12 @@ protected:
 	/** 每次受到攻击时的默认受击反馈队列 */
 	TArray<EHitReaction> DefaultHitReactions;
 
+	/** 硬直恢复计时器 */
+	FTimerHandle StiffRecoverTimerHandle;
+
+	/** 硬直恢复标记 */
+	bool bStiffRecovering = false;
+
 	/** If true we have initialized our abilities */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	int32 bAbilitiesInitialized;
@@ -331,7 +337,10 @@ public:
 
 	/** 计算攻击是否被格挡掉、格挡后的最终伤害和对应的受击反馈 */
 	UFUNCTION(BlueprintCallable)
-	void CheckHitResult(AActor* DamageCauser, FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost);
+	void CheckHitResult(AActor* DamageCauser, FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost, float& StiffCost);
+
+	/** 硬直恢复 */
+	void RecoverStiffFactor();
 
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
@@ -353,11 +362,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	EBehaviorType GetCurrentBehavior();
 	
-	/** Returns current health, will be 0 if dead */
+	/** 获取当前生命值 */
 	UFUNCTION(BlueprintPure)
 	virtual float GetHealth() const;
 
-	/** Returns maximum health, health will never be greater than this */
+	/** 获取最大生命上限 */
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxHealth() const;
 
@@ -365,11 +374,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	virtual float GetHealthPercentage() const;
 
-	/** Returns current mana */
+	/** 获取当前能量值 */
 	UFUNCTION(BlueprintPure)
 	virtual float GetEnergy() const;
 
-	/** Returns maximum mana, mana will never be greater than this */
+	/** 获取最大能量上限 */
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxEnergy() const;
 
@@ -385,8 +394,24 @@ public:
 	UFUNCTION(BlueprintPure)
 	virtual float GetDefenseRange() const;
 
+	/** 获取当前硬直系数 */
+	UFUNCTION(BlueprintPure)
+	virtual float GetStiffFactor() const;
+	
+	/** 获取最大硬直系数 */
+	UFUNCTION(BlueprintPure)
+	virtual float GetMaxStiffFactor() const;
+
+	/** 获取硬直系数百分比 */
+	UFUNCTION(BlueprintPure)
+	virtual float GetStiffFactorPercentage() const;
+
+	/** 获取硬直恢复时间 */
+	UFUNCTION(BlueprintPure)
+	virtual float GetStiffRecoverTime() const;
+
 	/** 获取玩家等级信息 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	virtual int32 GetCharacterLevel() const;
 
 	/** 修改玩家等级, 可能改变玩家的能力 */
@@ -456,7 +481,7 @@ public:
 	 * For damage this is called in addition to OnDamaged/OnKilled
 	 *
 	 * @param DeltaValue Change in health value, positive for heal, negative for cost. If 0 the delta is unknown
-	 * @param EventTags The gameplay tags of the event that changed mana
+	 * @param EventTags The gameplay tags of the event that changed health
 	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
@@ -474,10 +499,19 @@ public:
 	 * Called when movement speed is changed
 	 *
 	 * @param DeltaValue Change in move speed
-	 * @param EventTags The gameplay tags of the event that changed mana
+	 * @param EventTags The gameplay tags of the event that changed movement speed
 	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+
+	/**
+	 * Called when stiff factor is changed
+	 *
+	 * @param DeltaValue Change in stiff factor
+	 * @param EventTags The gameplay tags of the event that changed stiff factor
+	 */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnStiffFactorChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	/** 死亡时回调 */
 	UFUNCTION(BlueprintImplementableEvent)
@@ -495,7 +529,7 @@ public:
 	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleEnergyChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
-
+	virtual void HandleStiffFactorChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	// 将UBaseAttributeSet声明为友元类，使其能访问下述Handle函数
 	friend UBaseAttributeSet;

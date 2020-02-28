@@ -28,6 +28,7 @@ enum class EHitReaction : uint8
 	GuardBreak			UMETA(DisplayName = "GuardBreak"),		// 防御击破
 	KnockBack			UMETA(DisplayName = "KnockBack"),		// 击退
 	KnockDown			UMETA(DisplayName = "KnockDown"),		// 击倒
-	KnockUp				UMETA(DisplayName = "KnockUp")			// 击飞
+	KnockUp				UMETA(DisplayName = "KnockUp"),			// 击飞
+	NoReaction          UMETA(DisplayName = "NoReaction")		// 无反馈
 };
 

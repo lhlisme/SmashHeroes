@@ -77,6 +77,21 @@ public:
 	FGameplayAttributeData DefenseRange;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, DefenseRange)
 
+	/** 硬直系数 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_StiffFactor)
+	FGameplayAttributeData StiffFactor;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, StiffFactor)
+
+	/** 最大硬直系数 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_MaxStiffFactor)
+	FGameplayAttributeData MaxStiffFactor;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MaxStiffFactor)
+
+	/** 硬直系数恢复时间 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attributes", ReplicatedUsing = OnRep_StiffRecoverTime)
+	FGameplayAttributeData StiffRecoverTime;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, StiffRecoverTime)
+
 	/** Damage is a 'temporary' attribute used by the DamageExecution to calculate final damage, which then turns into -Health */
 	UPROPERTY(BlueprintReadOnly, Category = "Base Attributes", meta = (HideFromLevelInfos))
 	FGameplayAttributeData Damage;
@@ -128,4 +143,13 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_DefenseRange();
+
+	UFUNCTION()
+	virtual void OnRep_StiffFactor();
+
+	UFUNCTION()
+	virtual void OnRep_MaxStiffFactor();
+
+	UFUNCTION()
+	virtual void OnRep_StiffRecoverTime();
 };

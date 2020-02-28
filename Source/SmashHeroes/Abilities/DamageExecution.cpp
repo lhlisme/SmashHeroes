@@ -21,6 +21,7 @@ UDamageExecution::UDamageExecution()
 	RelevantAttributesToCapture.Add(DamageStatics().AttackMultiplierDef);
 	RelevantAttributesToCapture.Add(DamageStatics().BaseAttackPowerDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DefenseRangeDef);
+	RelevantAttributesToCapture.Add(DamageStatics().StiffFactorDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DamageDef);
 }
 
@@ -72,20 +73,25 @@ void UDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageDef, EvaluationParameters, Damage);
 
 	float DamageDone = Damage * AttackMultiplier * BaseAttackPower * (1.0f - Absorption) / BaseDefensePower;
-	float EnergyCost = 0.0f;	// 格挡伤害消耗的能量
+	float EnergyCost = 0.f;	// 格挡伤害消耗的能量
+	float StiffCost = 0.f;	// 本次伤害消耗的硬直系数
 
 	if (TargetCharacter && HitInfo)
 	{
 		// 检测攻击是否受防御格挡, 若被格挡, 计算格挡后的最终伤害以及对应的受击反应
-		TargetCharacter->CheckHitResult(SourceActor, HitInfo->Location, DefenseMultiplier, DamageDone, EnergyCost);
+		TargetCharacter->CheckHitResult(SourceActor, HitInfo->Location, DefenseMultiplier, DamageDone, EnergyCost, StiffCost);
 	}
 
-	if (DamageDone > 0.0f)
+	if (DamageDone > 0.f)
 	{
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().DamageProperty, EGameplayModOp::Additive, DamageDone));
 	}
-	if (EnergyCost > 0.0f)
+	if (EnergyCost > 0.f)
 	{
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().EnergyProperty, EGameplayModOp::Additive, -EnergyCost));
+	}
+	if (StiffCost > 0.f)
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().StiffFactorProperty, EGameplayModOp::Additive, -StiffCost));
 	}
 }

@@ -183,15 +183,15 @@ void ABaseCharacter::HandleHit(float DamageAmount, AActor* DamageCauser, FLinear
 		// 当前对应的受击动画
 		UAnimMontage** HitMontagePtr = HitMontageMap.Find(FirstHitReaction);
 
-		// 若攻击被格挡, 仍处于防御状态, 否则进入受击状态
-		if (FirstHitReaction != EHitReaction::BlockHit)
-		{
-			// 进入受击状态
-			BehaviorComponent->BeginHit();
-		}
-
 		if (HitMontagePtr)
 		{
+			// 若攻击被格挡, 仍处于防御状态, 否则进入受击状态
+			if (FirstHitReaction != EHitReaction::BlockHit)
+			{
+				// 进入受击状态
+				BehaviorComponent->BeginHit();
+			}
+
 			PlayAnimMontage(*HitMontagePtr);
 		}
 
@@ -337,25 +337,25 @@ void ABaseCharacter::PrintHitReaction(EHitReaction InHitReaction)
 	switch (InHitReaction)
 	{
 	case EHitReaction::BlockHit:
-		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  BlockHit"));
+		UE_LOG(LogTemp, Log, TEXT("HitReaction:  BlockHit"));
 		break;
 	case EHitReaction::HitLeft:
-		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  HitLeft"));
+		UE_LOG(LogTemp, Log, TEXT("HitReaction:  HitLeft"));
 		break;
 	case EHitReaction::HitRight:
-		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  HitRight"));
+		UE_LOG(LogTemp, Log, TEXT("HitReaction:  HitRight"));
 		break;
 	case EHitReaction::GuardBreak:
-		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  GuardBreak"));
+		UE_LOG(LogTemp, Log, TEXT("HitReaction:  GuardBreak"));
 		break;
 	case EHitReaction::KnockBack:
-		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  KnockBack"));
+		UE_LOG(LogTemp, Log, TEXT("HitReaction:  KnockBack"));
 		break;
 	case EHitReaction::KnockDown:
-		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  KnockDown"));
+		UE_LOG(LogTemp, Log, TEXT("HitReaction:  KnockDown"));
 		break;
 	case EHitReaction::KnockUp:
-		UE_LOG(LogTemp, Log, TEXT("HitReaction2:  KnockUp"));
+		UE_LOG(LogTemp, Log, TEXT("HitReaction:  KnockUp"));
 		break;
 	}
 }
@@ -436,24 +436,25 @@ bool ABaseCharacter::IsHitInDefenseRange(const FRotator& DeltaRotator, EHitReact
 	return bHitInDefenseRange;
 }
 
-void ABaseCharacter::CheckHitResult(AActor* DamageCauser, FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost)
+void ABaseCharacter::CheckHitResult(AActor* DamageCauser, FVector HitLocation, float DefenseFactor, float& DamageDone, float& EnergyCost, float& StiffCost)
 {
 	// 获取默认受击反馈
 	EHitReaction HitReaction = PopDefaultHitReaction();
 	bool bIsBlocked = false;	// 本次攻击是否被成功格挡
+	float MaxHealth = GetMaxHealth();
+	float MaxEnergy = GetMaxEnergy();
 
 	// 被击者朝向受击点的旋转
 	FRotator TargetToHit = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitLocation);
 	// 受击点相对当前人物(未转向攻击者)的旋转
 	FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(TargetToHit, GetActorRotation());
 
-	// 如果当前处于防御状态，并且受击点在防御范围内
+	// 如果当前处于防御状态，并且受击点在防御范围内(防御时不消耗硬直系数)
 	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard && IsHitInDefenseRange(DeltaRotator, HitReaction))
 	{
 		float ScaleFactor = 0.5f;
-		float RestEnergy = GetEnergy();		// 剩余能量值
-		float MaxHealth = GetMaxHealth();
-		float MaxEnergy = GetMaxEnergy();
+		// 剩余能量值
+		float RestEnergy = GetEnergy();
 
 		// 根据伤害计算消耗的Energy
 		EnergyCost = DamageDone * ScaleFactor * MaxEnergy / MaxHealth;
@@ -475,22 +476,62 @@ void ABaseCharacter::CheckHitResult(AActor* DamageCauser, FVector HitLocation, f
 	}
 	else // 未成功格挡攻击
 	{
-		if (DamageCauser)
+		// 剩余硬直系数
+		float RestStiff = GetStiffFactor();
+		// 硬直系数是否消耗完毕
+		bool IsStiffExhausted = false;
+
+		if (BehaviorComponent->bIsAI)
 		{
-			// 非硬直状态下, 受击后先转向攻击者
-			SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DamageCauser->GetActorLocation()).Quaternion());
+			// 计算消耗的硬直系数(仅针对AI对象)
+			StiffCost = DamageDone * (CharacterLevel + 2) * 0.5f / MaxHealth * 100.0f;
+			IsStiffExhausted = StiffCost > RestStiff ? true : false;
+			UE_LOG(LogTemp, Log, TEXT("Hit %s -- StiffCost: %f, RestStiff: %f"), *GetFName().ToString(), StiffCost, RestStiff);
+			// 硬直消耗完毕, 通过定时器重新恢复硬直值
+			if (IsStiffExhausted && !bStiffRecovering)
+			{
+				GetWorldTimerManager().SetTimer(StiffRecoverTimerHandle, this, &ABaseCharacter::RecoverStiffFactor, GetStiffRecoverTime(), false);
+				bStiffRecovering = true;
+				UE_LOG(LogTemp, Log, TEXT("%s Start Recover Stiff Factor"), *GetFName().ToString());
+			}
 		}
 
-		// 若HitReaction是强制性受击反馈类型, 则无需修改
-		if (!IsForcedHitReaction(HitReaction))
+		// 如果是玩家对象或者硬直系数消耗完毕
+		if (!BehaviorComponent->bIsAI || IsStiffExhausted)
 		{
-			// 计算转向后新的相对旋转
-			DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(TargetToHit, GetActorRotation());
-			CalculateHitDirection(DeltaRotator, HitReaction);
+			if (DamageCauser)
+			{
+				// 受击后先转向攻击者
+				SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DamageCauser->GetActorLocation()).Quaternion());
+			}
+
+			// 若HitReaction是强制性受击反馈类型, 则无需修改
+			if (!IsForcedHitReaction(HitReaction))
+			{
+				// 计算转向后新的相对旋转
+				DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(TargetToHit, GetActorRotation());
+				CalculateHitDirection(DeltaRotator, HitReaction);
+			}
+		}
+		else
+		{
+			// 不播放受击动作
+			HitReaction = EHitReaction::NoReaction;
 		}
 	}
 
+	// 添加受击反馈
 	PushHitReaction(HitReaction);
+}
+
+void ABaseCharacter::RecoverStiffFactor()
+{
+	CharacterAttributeSet->SetStiffFactor(CharacterAttributeSet->GetMaxStiffFactor());
+
+	// 恢复完毕后清除定时器
+	GetWorldTimerManager().ClearTimer(StiffRecoverTimerHandle);
+	bStiffRecovering = false;
+	UE_LOG(LogTemp, Log, TEXT("%s Stiff Factor Recovered.  %f"), *GetFName().ToString(), GetStiffFactor());
 }
 
 bool ABaseCharacter::Evade()
@@ -638,6 +679,26 @@ float ABaseCharacter::GetMoveSpeed() const
 float ABaseCharacter::GetDefenseRange() const
 {
 	return CharacterAttributeSet->GetDefenseRange();
+}
+
+float ABaseCharacter::GetStiffFactor() const
+{
+	return CharacterAttributeSet->GetStiffFactor();
+}
+
+float ABaseCharacter::GetMaxStiffFactor() const
+{
+	return CharacterAttributeSet->GetMaxStiffFactor();
+}
+
+float ABaseCharacter::GetStiffFactorPercentage() const
+{
+	return CharacterAttributeSet->GetStiffFactor() / CharacterAttributeSet->GetMaxStiffFactor();
+}
+
+float ABaseCharacter::GetStiffRecoverTime() const
+{
+	return CharacterAttributeSet->GetStiffRecoverTime();
 }
 
 int32 ABaseCharacter::GetCharacterLevel() const
@@ -865,6 +926,14 @@ void ABaseCharacter::HandleMoveSpeedChanged(float DeltaValue, const struct FGame
 	if (bAbilitiesInitialized)
 	{
 		OnMoveSpeedChanged(DeltaValue, EventTags);
+	}
+}
+
+void ABaseCharacter::HandleStiffFactorChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
+{
+	if (bAbilitiesInitialized)
+	{
+		OnStiffFactorChanged(DeltaValue, EventTags);
 	}
 }
 
