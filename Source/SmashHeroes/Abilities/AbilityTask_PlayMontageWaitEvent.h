@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 #include "Abilities/Tasks/AbilityTask.h"
 #include "AbilityTask_PlayMontageWaitEvent.generated.h"
 

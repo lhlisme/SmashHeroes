@@ -151,6 +151,11 @@ void ABaseCharacter::DestroyWeapon()
 	}
 }
 
+bool ABaseCharacter::TryAttack()
+{
+	return false;
+}
+
 bool ABaseCharacter::MeleeAttack()
 {
 	// 返回值表示是否有效执行

@@ -270,6 +270,9 @@ public:
 
 	// 攻击相关
 	UFUNCTION(BlueprintCallable)
+	virtual bool TryAttack();
+
+	UFUNCTION(BlueprintCallable)
 	virtual bool MeleeAttack();
 
 	UFUNCTION(BlueprintCallable)
