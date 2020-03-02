@@ -66,6 +66,18 @@ bool AMonsterCharacter::RangeAttack()
 	return false;
 }
 
+bool AMonsterCharacter::TryEndGuard()
+{
+	if (BehaviorComponent && (BehaviorComponent->GetTargetBehavior() != EBehaviorType::Guard))
+	{
+		BehaviorComponent->EndGuard();
+
+		return true;
+	}
+
+	return false;
+}
+
 void AMonsterCharacter::SetMonsterInfo(const FMonsterBaseInfoStruct& MonsterBaseInfo, const FMonsterPatrolInfoStruct& MonsterPatrolInfo)
 {
 	if (BehaviorComponent)

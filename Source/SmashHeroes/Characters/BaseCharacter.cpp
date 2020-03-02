@@ -153,6 +153,38 @@ void ABaseCharacter::DestroyWeapon()
 
 bool ABaseCharacter::TryAttack()
 {
+	if (AbilitySystem && CanUseAnyAbility())
+	{
+		if (AttackType == EAttackType::MeleeAttack)
+		{
+			return AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::MeleeAttack));
+		}
+		else
+		{
+			return AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::RangeAttack));
+		}
+	}
+
+	return false;
+}
+
+bool ABaseCharacter::TryMeleeAttack()
+{
+	if (AbilitySystem && CanUseAnyAbility())
+	{
+		return AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::MeleeAttack));
+	}
+
+	return false;
+}
+
+bool ABaseCharacter::TryRangeAttack()
+{
+	if (AbilitySystem && CanUseAnyAbility())
+	{
+		return AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::RangeAttack));
+	}
+
 	return false;
 }
 
@@ -539,6 +571,16 @@ void ABaseCharacter::RecoverStiffFactor()
 	UE_LOG(LogTemp, Log, TEXT("%s Stiff Factor Recovered.  %f"), *GetFName().ToString(), GetStiffFactor());
 }
 
+bool ABaseCharacter::TryEvade()
+{
+	if (AbilitySystem && CanUseAnyAbility())
+	{
+		return AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::Evade));
+	}
+
+	return false;
+}
+
 bool ABaseCharacter::Evade()
 {
 	// 返回值表示是否有效执行
@@ -549,6 +591,28 @@ UAnimMontage* ABaseCharacter::GetEvadeMontage()
 {
 	// TODO 根据和目标的相对位置朝不同地方闪避
 	return EvadeMontage;
+}
+
+bool ABaseCharacter::TryStartGuard()
+{
+	if (AbilitySystem && CanUseAnyAbility())
+	{
+		return AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::Guard));
+	}
+
+	return false;
+}
+
+bool ABaseCharacter::TryEndGuard()
+{
+	if (BehaviorComponent && GetCurrentBehavior() == EBehaviorType::Guard)
+	{
+		BehaviorComponent->EndGuard();
+
+		return true;
+	}
+
+	return false;
 }
 
 bool ABaseCharacter::Guard()
@@ -615,31 +679,28 @@ bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, cons
 	bool IsHit = false;	// 是否命中目标
 
 	// 近战攻击检测
-	if (AttackType == EAttackType::MeleeAttack)
+	if (LeftWeapon && CheckLeft)
 	{
-		if (LeftWeapon && CheckLeft)
-		{
-			LeftWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, LeftWeapon->GetWeaponMesh(), LeftWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
-		}
+		LeftWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, LeftWeapon->GetWeaponMesh(), LeftWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
+	}
 
-		if (RightWeapon && CheckRight)
-		{
-			RightWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, RightWeapon->GetWeaponMesh(), RightWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
-		}
+	if (RightWeapon && CheckRight)
+	{
+		RightWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, RightWeapon->GetWeaponMesh(), RightWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
+	}
 
-		if (CheckBody)
+	if (CheckBody)
+	{
+		FSHHitCheckInfo* CurCheckInfo = nullptr;
+		for (int32 i = 0; i < BodySocketNames.Num(); ++i)
 		{
-			FSHHitCheckInfo* CurCheckInfo = nullptr;
-			for (int32 i = 0; i < BodySocketNames.Num(); ++i)
+			CurCheckInfo = HitCheckInfoMap.Find(BodySocketNames[i]);
+			if (!CurCheckInfo)
 			{
-				CurCheckInfo = HitCheckInfoMap.Find(BodySocketNames[i]);
-				if (!CurCheckInfo)
-				{
-					continue;
-				}
-
-				CurCheckInfo->HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, GetMesh(), SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
+				continue;
 			}
+
+			CurCheckInfo->HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, GetMesh(), SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
 		}
 	}
 

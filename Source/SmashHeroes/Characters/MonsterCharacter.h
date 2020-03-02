@@ -98,6 +98,8 @@ public:
 
 	virtual bool RangeAttack() override;
 
+	virtual bool TryEndGuard() override;
+
 	// 设置怪物基础信息
 	void SetMonsterInfo(const FMonsterBaseInfoStruct& MonsterBaseInfo, const FMonsterPatrolInfoStruct& MonsterPatrolInfo);
 

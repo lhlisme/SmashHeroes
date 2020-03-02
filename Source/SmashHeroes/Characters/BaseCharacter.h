@@ -269,8 +269,15 @@ public:
 	void DestroyWeapon();
 
 	// 攻击相关
+	/** 玩家角色用, 根据AttackType决定激活的Ability */
 	UFUNCTION(BlueprintCallable)
 	virtual bool TryAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool TryMeleeAttack();
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool TryRangeAttack();
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool MeleeAttack();
@@ -347,12 +354,21 @@ public:
 
 	// 闪避相关
 	UFUNCTION(BlueprintCallable)
+	virtual bool TryEvade();
+
+	UFUNCTION(BlueprintCallable)
 	virtual bool Evade();
 
 	UFUNCTION(BlueprintPure)
 	virtual UAnimMontage* GetEvadeMontage();
 
 	// 防御相关
+	UFUNCTION(BlueprintCallable)
+	virtual bool TryStartGuard();
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool TryEndGuard();
+
 	UFUNCTION(BlueprintCallable)
 	virtual bool Guard();
 
