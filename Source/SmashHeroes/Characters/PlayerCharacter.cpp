@@ -17,7 +17,7 @@ APlayerCharacter::APlayerCharacter()
 
 	// 初始化角色移动控制参数
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 640.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 960.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.0f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
@@ -81,8 +81,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	ForwardInput = Value;
-	if (IsAlive() && (Controller != NULL) && (Value != 0.0f))
+	ForwardInput = 0.f;
+	if (IsAlive() && (Controller != NULL) && (UKismetMathLibrary::Abs(Value) > 0.1f))
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -90,14 +90,15 @@ void APlayerCharacter::MoveForward(float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		ForwardInput = Value;
+		AddMovementInput(Direction, ForwardInput);
 	}
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	RightInput = Value;
-	if (IsAlive() && (Controller != NULL) && (Value != 0.0f))
+	RightInput = 0.f;
+	if (IsAlive() && (Controller != NULL) && (UKismetMathLibrary::Abs(Value) > 0.1f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -105,8 +106,9 @@ void APlayerCharacter::MoveRight(float Value)
 
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		RightInput = Value;
 		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		AddMovementInput(Direction, RightInput);
 	}
 }
 
