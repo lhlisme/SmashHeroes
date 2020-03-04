@@ -39,6 +39,9 @@ private:
 
 	float RightInput = 0.f;
 
+	/** 防御按键响应计时器 */
+	FTimerHandle GuardStartTimerHandle;
+
 public:
 	/** 主相机视角 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
@@ -100,6 +103,15 @@ public:
 	UFUNCTION()
 	void ResetAttackStatus();	// 重置攻击状态
 	virtual bool MeleeAttack() override;
+
+	// 防御相关
+	void TryStartGuardIteratively();
+
+	UFUNCTION(BlueprintCallable)
+	void HandleGuardStart();
+
+	UFUNCTION(BlueprintCallable)
+	void HandleGuardEnd();
 
 protected:
 	// Called when the game starts or when spawned

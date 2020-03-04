@@ -181,6 +181,33 @@ bool APlayerCharacter::MeleeAttack()
 	return false;
 }
 
+void APlayerCharacter::TryStartGuardIteratively()
+{
+	// 尝试开始防御状态
+	if (TryStartGuard())
+	{
+		GetWorldTimerManager().ClearTimer(GuardStartTimerHandle);
+		UE_LOG(LogTemp, Log, TEXT("TryStartGuard Successful"));
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("TryStartGuardIteratively"));
+}
+
+void APlayerCharacter::HandleGuardStart()
+{
+	GetWorldTimerManager().SetTimer(GuardStartTimerHandle, this, &APlayerCharacter::TryStartGuardIteratively, 0.1f, true);
+}
+
+void APlayerCharacter::HandleGuardEnd()
+{
+	// 清除定时器
+	GetWorldTimerManager().ClearTimer(GuardStartTimerHandle);
+	// 尝试结束防御状态
+	TryEndGuard();
+
+	UE_LOG(LogTemp, Log, TEXT("TryEndGuard"));
+}
+
 void APlayerCharacter::ResetAttackStatus()
 {
 	UE_LOG(LogTemp, Log, TEXT("ResetAttackStatus"));
