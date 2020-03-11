@@ -166,6 +166,12 @@ public:
 	FName BBKey_RangeAttackDistance = FName(TEXT("RangeAttackDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_MinFightMoveSpeed = FName(TEXT("MinFightMoveSpeed"));
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_MaxFightMoveSpeed = FName(TEXT("MaxFightMoveSpeed"));
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName BBKey_FollowDistance = FName(TEXT("FollowDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
@@ -307,6 +313,14 @@ public:
 	/** 范围攻击距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	float RangeAttackDistance = 1600.0f;
+
+	/** 战斗胶着状态下最小移动速度 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	float MinFightMoveSpeed = 150.0f;
+
+	/** 战斗胶着状态下最大移动速度 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	float MaxFightMoveSpeed = 200.0f;
 
 	/** 攻击是否需要考虑在视野内 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")

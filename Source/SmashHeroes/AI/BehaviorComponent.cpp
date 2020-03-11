@@ -73,6 +73,10 @@ void UBehaviorComponent::InitBlackboard()
 			Blackboard->SetValueAsFloat(BBKey_FleeDistance, FleeDistance);
 			// 设置MeleeAttackDistance
 			Blackboard->SetValueAsFloat(BBKey_MeleeAttackDistance, MeleeAttackDistance);
+			// 设置MinFightMoveSpeed
+			Blackboard->SetValueAsFloat(BBKey_MinFightMoveSpeed, MinFightMoveSpeed);
+			// 设置MaxFightMoveSpeed
+			Blackboard->SetValueAsFloat(BBKey_MaxFightMoveSpeed, MaxFightMoveSpeed);
 			// 设置RangeAttackDistance
 			Blackboard->SetValueAsFloat(BBKey_RangeAttackDistance, RangeAttackDistance);
 			// 设置FollowDistance

@@ -32,3 +32,17 @@ enum class EHitReaction : uint8
 	NoReaction          UMETA(DisplayName = "NoReaction")		// 无反馈
 };
 
+/** 移动方向 */
+UENUM(BlueprintType)
+enum class EMoveDirection : uint8
+{
+	Forward				UMETA(DisplayName = "Forward"),
+	Back				UMETA(DisplayName = "Back"),
+	Left				UMETA(DisplayName = "Left"),
+	Right				UMETA(DisplayName = "Right"),
+	LeftForward			UMETA(DisplayName = "LeftForward"),
+	RightForward		UMETA(DisplayName = "RightForward"),
+	LeftBack			UMETA(DisplayName = "LeftBack"),
+	RightBack			UMETA(DisplayName = "RightBack")
+};
+

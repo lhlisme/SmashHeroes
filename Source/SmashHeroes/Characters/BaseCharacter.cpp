@@ -538,8 +538,8 @@ void ABaseCharacter::CheckHitResult(AActor* DamageCauser, FVector HitLocation, f
 		{
 			if (DamageCauser)
 			{
-				// 受击后先转向攻击者
-				SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DamageCauser->GetActorLocation()).Quaternion());
+				// 受击后先转向攻击者(仅在Yaw轴旋转, 以防止目标在空中导致异常翻转的情况)
+				SetActorRotation(FRotator(0.f, UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DamageCauser->GetActorLocation()).Yaw, 0.f).Quaternion());
 			}
 
 			// 若HitReaction是强制性受击反馈类型, 则无需修改
