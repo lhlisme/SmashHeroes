@@ -172,6 +172,9 @@ public:
 	FName BBKey_MaxFightMoveSpeed = FName(TEXT("MaxFightMoveSpeed"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	FName BBKey_FightMoveProb = FName(TEXT("FightMoveProb"));
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName BBKey_FollowDistance = FName(TEXT("FollowDistance"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
@@ -321,6 +324,10 @@ public:
 	/** 战斗胶着状态下最大移动速度 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
 	float MaxFightMoveSpeed = 200.0f;
+
+	/** 战斗胶着状态触发概率 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
+	float FightMoveProb = 1.0f;
 
 	/** 攻击是否需要考虑在视野内 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Settings")
