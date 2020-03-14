@@ -100,6 +100,14 @@ public:
 
 	virtual bool TryEndGuard() override;
 
+	/** 开始近战连击(怪物角色专用) */
+	UFUNCTION(BlueprintCallable)
+	bool StartMeleeCombo();
+
+	/** 开始远程连击(怪物角色专用) */
+	UFUNCTION(BlueprintCallable)
+	bool StartRangeCombo();
+
 	// 设置怪物基础信息
 	void SetMonsterInfo(const FMonsterBaseInfoStruct& MonsterBaseInfo, const FMonsterPatrolInfoStruct& MonsterPatrolInfo);
 

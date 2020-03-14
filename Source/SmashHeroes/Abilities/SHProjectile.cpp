@@ -2,6 +2,7 @@
 
 
 #include "SHProjectile.h"
+#include "Characters/BaseCharacter.h"
 
 // Sets default values
 ASHProjectile::ASHProjectile()
@@ -55,8 +56,17 @@ void ASHProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 	}
 
 	// UE_LOG(LogTemp, Log, TEXT("%s  Hit  %s,  Instigator:  %s"), *GetFName().ToString(), *OtherActor->GetFName().ToString(), *GetInstigator()->GetFName().ToString());
-	if (GetInstigator() != OtherActor)
+	APawn* Attacker = GetInstigator();
+	
+	if (Attacker && (Attacker != OtherActor))
 	{
+		// 设置攻击命中标记
+		ABaseCharacter* AttackCharacter = Cast<ABaseCharacter>(Attacker);
+		if (AttackCharacter)
+		{
+			AttackCharacter->bIsAttackHit = true;
+		}
+
 		// Projetile之间的碰撞相互忽略
 		HitActors.Add(OtherActor);
 		// 自动创建的空对象

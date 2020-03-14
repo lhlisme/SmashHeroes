@@ -46,13 +46,6 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (BehaviorComponent) {
-		// 添加攻击状态初始化回调事件
-		BehaviorComponent->OnMeleeAttackEnd.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
-		BehaviorComponent->OnEvadeBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
-		BehaviorComponent->OnGuardBegin.AddDynamic(this, &APlayerCharacter::ResetAttackStatus);
-	}
-
 	// 初始化相机臂朝向
 	CameraBoom->SetWorldRotation(FRotator(ViewAngle, GetActorRotation().Yaw, 0.0f));
 }
@@ -155,13 +148,11 @@ bool APlayerCharacter::MeleeAttack()
 		{
 			if (CanSwitchCombo)
 			{
-				ComboStatus = EComboStatus::ComboSwitched;
 				// 连击切换
 				AttackIndex = AttackInfo->SwitchComboIndex;
 			}
 			else
 			{
-				ComboStatus = EComboStatus::NormalCombo;
 				// 正常连击
 				AttackIndex = AttackInfo->NextComboIndex;
 			}
@@ -206,14 +197,5 @@ void APlayerCharacter::HandleGuardEnd()
 	TryEndGuard();
 
 	UE_LOG(LogTemp, Log, TEXT("TryEndGuard"));
-}
-
-void APlayerCharacter::ResetAttackStatus()
-{
-	UE_LOG(LogTemp, Log, TEXT("ResetAttackStatus"));
-	// 如果攻击结束或被中断的话, 重新初始化AttackIndex
-	AttackIndex = 0;
-	AttackInfo = nullptr;
-	ComboSetIndex = 0;
 }
 

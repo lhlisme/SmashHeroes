@@ -34,15 +34,46 @@ void AMonsterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 bool AMonsterCharacter::MeleeAttack()
 {
-	if (InitMeleeAttacks.Num() > 0)
+	if (AttackIndex == 0)
 	{
-		AttackIndex = InitMeleeAttacks[FMath::RandRange(0, InitMeleeAttacks.Num() - 1)];
+		CanCombo = false;
+		CanSwitchCombo = false;
 
+		if (InitMeleeAttacks.Num() <= 0)
+		{
+			return false;
+		}
+
+		AttackIndex = InitMeleeAttacks[FMath::RandRange(0, InitMeleeAttacks.Num() - 1)];
 		// 更新当前攻击信息
 		AttackInfo = AttackMontageMap.Find(AttackIndex);
 		if (AttackInfo)
 		{
 			return true;
+		}
+	}
+	else
+	{
+		if (CanCombo)
+		{
+			// 正常连击
+			AttackIndex = AttackInfo->NextComboIndex;
+
+			if (CanSwitchCombo && (AttackInfo->SwitchComboIndex > 0))
+			{
+				// 连击切换
+				AttackIndex = AttackInfo->SwitchComboIndex;
+			}
+
+			CanCombo = false;
+			CanSwitchCombo = false;
+
+			// 更新当前攻击信息
+			AttackInfo = AttackMontageMap.Find(AttackIndex);
+			if (AttackInfo)
+			{
+				return true;
+			}
 		}
 	}
 
@@ -73,6 +104,28 @@ bool AMonsterCharacter::TryEndGuard()
 		BehaviorComponent->EndGuard();
 
 		return true;
+	}
+
+	return false;
+}
+
+bool AMonsterCharacter::StartMeleeCombo()
+{
+	// 如果当前攻击命中敌人, 可继续追击
+	if (bIsAttackHit)
+	{
+		return TryMeleeAttack();
+	}
+
+	return false;
+}
+
+bool AMonsterCharacter::StartRangeCombo()
+{
+	// 如果当前攻击命中敌人, 可继续追击
+	if (bIsAttackHit)
+	{
+		return TryRangeAttack();
 	}
 
 	return false;

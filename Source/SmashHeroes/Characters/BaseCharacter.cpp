@@ -37,6 +37,10 @@ void ABaseCharacter::BeginPlay()
 	GenerateWeapon();
 	// 初始化行为组件
 	BehaviorComponent->Initialize();
+	// 添加攻击状态初始化回调事件
+	BehaviorComponent->OnMeleeAttackEnd.AddDynamic(this, &ABaseCharacter::ResetAttackStatus);
+	BehaviorComponent->OnEvadeBegin.AddDynamic(this, &ABaseCharacter::ResetAttackStatus);
+	BehaviorComponent->OnGuardBegin.AddDynamic(this, &ABaseCharacter::ResetAttackStatus);
 	// 初始化命中检测信息
 	InitHitCheckInfo();
 }
@@ -172,7 +176,15 @@ bool ABaseCharacter::TryMeleeAttack()
 {
 	if (AbilitySystem && CanUseAnyAbility())
 	{
-		return AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::MeleeAttack));
+		bool bIsSuccess = AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::MeleeAttack));
+
+		if (bIsSuccess)
+		{
+			// 初始化命中标记
+			bIsAttackHit = false;
+		}
+
+		return bIsSuccess;
 	}
 
 	return false;
@@ -182,7 +194,15 @@ bool ABaseCharacter::TryRangeAttack()
 {
 	if (AbilitySystem && CanUseAnyAbility())
 	{
-		return AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::RangeAttack));
+		bool bIsSuccess = AbilitySystem->TryActivateAbilityByClass(GetAbilityClassByType(EAbilityType::RangeAttack));
+	
+		if (bIsSuccess)
+		{
+			// 初始化命中标记
+			bIsAttackHit = false;
+		}
+
+		return bIsSuccess;
 	}
 
 	return false;
@@ -676,17 +696,17 @@ void ABaseCharacter::UpdateHitCheckInfo(const bool CheckLeft, const bool CheckRi
 
 bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, EHitReaction DefaultHitReaction, FVector InImpulse, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData)
 {
-	bool IsHit = false;	// 是否命中目标
+	bool bIsHit = false;	// 是否命中目标
 
 	// 近战攻击检测
 	if (LeftWeapon && CheckLeft)
 	{
-		LeftWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, LeftWeapon->GetWeaponMesh(), LeftWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
+		LeftWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, LeftWeapon->GetWeaponMesh(), LeftWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, bIsHit);
 	}
 
 	if (RightWeapon && CheckRight)
 	{
-		RightWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, RightWeapon->GetWeaponMesh(), RightWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
+		RightWeapon->HitCheckInfo.HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, RightWeapon->GetWeaponMesh(), RightWeapon->SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, bIsHit);
 	}
 
 	if (CheckBody)
@@ -700,11 +720,21 @@ bool ABaseCharacter::MeleeAttackCheck(const EAttackStrength AttackStrength, cons
 				continue;
 			}
 
-			CurCheckInfo->HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, GetMesh(), SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, IsHit);
+			CurCheckInfo->HitCheck(this, AttackStrength, ObjectTypes, ActorsToIgnore, DrawDebugType, TraceColor, TraceHitColor, DrawTime, GetMesh(), SurfaceHitEffects, DefaultHitReaction, InImpulse, FinalOutHits, HitTargetsData, bIsHit);
 		}
 	}
 
-	return IsHit;
+	// 设置当前攻击是否命中标记
+	bIsAttackHit |= bIsHit;
+
+	return bIsHit;
+}
+
+void ABaseCharacter::ResetAttackStatus()
+{
+	// 如果攻击结束或被中断的话, 重新初始化AttackIndex
+	AttackIndex = 0;
+	AttackInfo = nullptr;
 }
 
 float ABaseCharacter::GetHealth() const

@@ -122,6 +122,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
 	int32 AttackIndex = 0;
 
+	/** 是否可以继续连击 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
+	bool CanCombo = false;
+
+	/** 是否可切换至下一套连击动作 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
+	bool CanSwitchCombo = false;
+
+	/** 连击动画切换标记 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
+	bool ComboSwitched = false;
+
 	/** 当前攻击动画信息(结构体指针不能于蓝图展示) */
 	FSHAttackMontageInfo* AttackInfo;
 
@@ -147,6 +159,10 @@ protected:
 
 public:
 	// 攻击相关属性
+	/** 当前攻击是否命中 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
+	bool bIsAttackHit = false;
+
 	/** 连击索引到Montage间的映射 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	TMap<int32, FSHAttackMontageInfo> AttackMontageMap;
@@ -312,6 +328,10 @@ public:
 	/** 近战攻击检测 */
 	UFUNCTION(BlueprintCallable)
 	bool MeleeAttackCheck(const EAttackStrength AttackStrength, const bool CheckLeft, const bool CheckRight, const bool CheckBody, const TArray<FName>& BodySocketNames, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, const TArray<AActor*>& ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FLinearColor TraceColor, FLinearColor TraceHitColor, float DrawTime, EHitReaction DefaultHitReaction, FVector InImpulse, TArray<FHitResult>& FinalOutHits, FGameplayAbilityTargetDataHandle& HitTargetsData);
+
+	/** 重置攻击状态 */
+	UFUNCTION(BlueprintCallable)
+	void ResetAttackStatus();
 
 	// 受击相关
 	/** 添加新的受击反馈(从尾部添加) */

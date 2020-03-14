@@ -9,14 +9,6 @@
 #include "PlayerCharacter.generated.h"
 
 
-UENUM(BlueprintType)
-enum class EComboStatus : uint8
-{
-	NoCombo				UMETA(DisplayName = "NoCombo"),
-	NormalCombo			UMETA(DisplayName = "NormalCombo"),
-	ComboSwitched		UMETA(DisplayName = "ComboSwitched")
-};
-
 UCLASS(Blueprintable)
 class SMASHHEROES_API APlayerCharacter : public ABaseCharacter
 {
@@ -48,25 +40,9 @@ public:
 	float ViewAngle = -45.0f;
 
 	// 移动相关属性
-	/** 移动向量大小 */
+	/** 输入的移动向量大小 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseControl")
 	float MoveInput = 0.0f;
-
-	// 攻击相关属性
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	int32 ComboSetIndex = 0;	// 当前连击动画所属集合索引
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	EComboStatus ComboStatus = EComboStatus::NoCombo;		// 当前连击状态
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool CanCombo = false;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool CanSwitchCombo = false;	// 是否可切换至下一套连击动作
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Attack")
-	bool ComboSwitched = false;		// 连击动作已切换
 
 public:
 	// Sets default values for this character's properties
@@ -100,8 +76,6 @@ public:
 	void StopJump();
 
 	// 攻击相关
-	UFUNCTION()
-	void ResetAttackStatus();	// 重置攻击状态
 	virtual bool MeleeAttack() override;
 
 	// 防御相关
