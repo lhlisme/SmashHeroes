@@ -54,7 +54,7 @@ bool AMonsterCharacter::MeleeAttack()
 	}
 	else
 	{
-		if (CanCombo)
+		if (CanCombo && (AttackInfo->NextComboIndex > 0))
 		{
 			// 正常连击
 			AttackIndex = AttackInfo->NextComboIndex;
