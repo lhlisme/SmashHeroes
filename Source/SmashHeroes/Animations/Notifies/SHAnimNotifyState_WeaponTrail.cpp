@@ -208,13 +208,10 @@ void USHAnimNotifyState_WeaponTrail::NotifyBegin(class USkeletalMeshComponent * 
 
 	AWeapon* LeftWeapon = nullptr;
 	AWeapon* RightWeapon = nullptr;
-	if (AActor* Owner = MeshComp->GetOwner())
+	if (ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(MeshComp->GetOwner()))
 	{
-		if (ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(Owner))
-		{
-			LeftWeapon = OwnerCharacter->LeftWeapon;
-			RightWeapon = OwnerCharacter->RightWeapon;
-		}
+		LeftWeapon = OwnerCharacter->LeftWeapon;
+		RightWeapon = OwnerCharacter->RightWeapon;
 	}
 
 	if (bEnableLeftTrail)
@@ -239,13 +236,10 @@ void USHAnimNotifyState_WeaponTrail::NotifyTick(class USkeletalMeshComponent * M
 
 	AWeapon* LeftWeapon = nullptr;
 	AWeapon* RightWeapon = nullptr;
-	if (AActor* Owner = MeshComp->GetOwner())
+	if (ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(MeshComp->GetOwner()))
 	{
-		if (ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(Owner))
-		{
-			LeftWeapon = OwnerCharacter->LeftWeapon;
-			RightWeapon = OwnerCharacter->RightWeapon;
-		}
+		LeftWeapon = OwnerCharacter->LeftWeapon;
+		RightWeapon = OwnerCharacter->RightWeapon;
 	}
 
 	if (bEnableLeftTrail)
@@ -270,13 +264,10 @@ void USHAnimNotifyState_WeaponTrail::NotifyEnd(class USkeletalMeshComponent * Me
 
 	AWeapon* LeftWeapon = nullptr;
 	AWeapon* RightWeapon = nullptr;
-	if (AActor* Owner = MeshComp->GetOwner())
+	if (ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(MeshComp->GetOwner()))
 	{
-		if (ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(Owner))
-		{
-			LeftWeapon = OwnerCharacter->LeftWeapon;
-			RightWeapon = OwnerCharacter->RightWeapon;
-		}
+		LeftWeapon = OwnerCharacter->LeftWeapon;
+		RightWeapon = OwnerCharacter->RightWeapon;
 	}
 
 	if (bEnableLeftTrail)

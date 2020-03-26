@@ -55,6 +55,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	MoveInput = FMath::Sqrt(FMath::Square(ForwardInput) + FMath::Square(RightInput));
+	bCanMove = CanCharacterMove();
 }
 
 // Called to bind functionality to input
@@ -75,7 +76,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::MoveForward(float Value)
 {
 	ForwardInput = 0.f;
-	if (IsAlive() && (Controller != NULL) && (UKismetMathLibrary::Abs(Value) > 0.1f))
+	if (bCanMove && (Controller != NULL) && (UKismetMathLibrary::Abs(Value) > 0.1f))
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -91,7 +92,7 @@ void APlayerCharacter::MoveForward(float Value)
 void APlayerCharacter::MoveRight(float Value)
 {
 	RightInput = 0.f;
-	if (IsAlive() && (Controller != NULL) && (UKismetMathLibrary::Abs(Value) > 0.1f))
+	if (bCanMove && (Controller != NULL) && (UKismetMathLibrary::Abs(Value) > 0.1f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();

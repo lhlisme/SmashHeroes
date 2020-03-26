@@ -284,6 +284,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DestroyWeapon();
 
+	// 移动相关
+	UFUNCTION(BlueprintCallable)
+	virtual bool CanCharacterMove();
+
 	// 攻击相关
 	/** 玩家角色用, 根据AttackType决定激活的Ability */
 	UFUNCTION(BlueprintCallable)

@@ -19,17 +19,25 @@ enum class EAttackStrength : uint8
 };
 
 /** 受击反馈 */
-UENUM()
+UENUM(BlueprintType)
 enum class EHitReaction : uint8
 {
-	BlockHit			UMETA(DisplayName = "BlockHit"),		// 格挡攻击
-	HitLeft				UMETA(DisplayName = "HitLeft"),			// 击中左方
-	HitRight			UMETA(DisplayName = "HitRight"),		// 击中右方
-	GuardBreak			UMETA(DisplayName = "GuardBreak"),		// 防御击破
-	KnockBack			UMETA(DisplayName = "KnockBack"),		// 击退
-	KnockDown			UMETA(DisplayName = "KnockDown"),		// 击倒
-	KnockUp				UMETA(DisplayName = "KnockUp"),			// 击飞
-	NoReaction          UMETA(DisplayName = "NoReaction")		// 无反馈
+	/** 格挡攻击 */
+	BlockHit			UMETA(DisplayName = "BlockHit"),
+	/** 击中左方 */
+	HitLeft				UMETA(DisplayName = "HitLeft"),
+	/** 击中右方 */
+	HitRight			UMETA(DisplayName = "HitRight"),
+	/** 防御击破 */
+	GuardBreak			UMETA(DisplayName = "GuardBreak"),
+	/** 击退 */
+	KnockBack			UMETA(DisplayName = "KnockBack"),
+	/** 击倒 */
+	KnockDown			UMETA(DisplayName = "KnockDown"),
+	/** 击飞 */
+	KnockUp				UMETA(DisplayName = "KnockUp"),
+	/** 无反馈 */
+	NoReaction          UMETA(DisplayName = "NoReaction")
 };
 
 /** 移动方向 */

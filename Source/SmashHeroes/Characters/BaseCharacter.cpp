@@ -51,7 +51,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// 死亡状态判断
-	if (BehaviorComponent->GetBehavior() != EBehaviorType::Dead && !IsAlive())
+	if (GetCurrentBehavior() != EBehaviorType::Dead && !IsAlive())
 	{
 		BehaviorComponent->BeginDead();
 	}
@@ -153,6 +153,19 @@ void ABaseCharacter::DestroyWeapon()
 	{
 		RightWeapon->Destroy();
 	}
+}
+
+bool ABaseCharacter::CanCharacterMove()
+{
+	EBehaviorType CurrentBehavior = GetCurrentBehavior();
+	// 蒙太奇使用根运动，因此仅需考虑可能非蒙太奇的状态
+	if (CurrentBehavior == EBehaviorType::Guard || CurrentBehavior == EBehaviorType::Hit || 
+		CurrentBehavior == EBehaviorType::Fall || CurrentBehavior == EBehaviorType::Dead)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool ABaseCharacter::TryAttack()
@@ -507,7 +520,7 @@ void ABaseCharacter::CheckHitResult(AActor* DamageCauser, FVector HitLocation, f
 	FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(TargetToHit, GetActorRotation());
 
 	// 如果当前处于防御状态，并且受击点在防御范围内(防御时不消耗硬直系数)
-	if (BehaviorComponent->GetBehavior() == EBehaviorType::Guard && IsHitInDefenseRange(DeltaRotator, HitReaction))
+	if (GetCurrentBehavior() == EBehaviorType::Guard && IsHitInDefenseRange(DeltaRotator, HitReaction))
 	{
 		float ScaleFactor = 0.5f;
 		// 剩余能量值
@@ -625,7 +638,7 @@ bool ABaseCharacter::TryStartGuard()
 
 bool ABaseCharacter::TryEndGuard()
 {
-	if (BehaviorComponent && GetCurrentBehavior() == EBehaviorType::Guard)
+	if (GetCurrentBehavior() == EBehaviorType::Guard)
 	{
 		BehaviorComponent->EndGuard();
 
@@ -1040,5 +1053,11 @@ UBehaviorComponent* ABaseCharacter::GetBehaviorComponent() const
 
 EBehaviorType ABaseCharacter::GetCurrentBehavior()
 {
-	return BehaviorComponent->GetBehavior();
+	if (BehaviorComponent)
+	{
+		return BehaviorComponent->GetBehavior();
+	}
+
+	// 无BehaviorComponent的Character，默认死亡并销毁
+	return EBehaviorType::Dead;
 }

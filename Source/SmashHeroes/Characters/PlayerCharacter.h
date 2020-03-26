@@ -27,6 +27,9 @@ private:
 	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* CameraVolume;*/
 	
+	/** 当前是否可响应移动输入 */
+	bool bCanMove = true;
+
 	float ForwardInput = 0.f;
 
 	float RightInput = 0.f;
